@@ -1,0 +1,17 @@
+{
+    "key": "buffers",
+    "name": "Buffers",
+    "authors": [
+        "Vinnie Falco"
+    ],
+    "description": "Buffers for C++11 and greater",
+    "category": [
+        "Containers",
+        "Data",
+        "IO"
+    ],
+    "maintainers": [
+        "Vinnie Falco <vinnie.falco@gmail.com>"
+    ],
+    "cxxstd": "11"
+}

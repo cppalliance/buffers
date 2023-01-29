@@ -1,0 +1,124 @@
+#
+# Copyright (c) 2023 Vinnie Falco (vinnie.falco@gmail.com)
+#
+# Distributed under the Boost Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# Official repository: https://github.com/CPPAlliance/buffers
+#
+
+project buffers/doc ;
+
+import boostbook ;
+import os ;
+import ../../../tools/docca/docca.jam ;
+
+docca.reference reference.qbk
+    :
+        xsl/custom-overrides.xsl
+        [ glob-tree-ex ../include/boost/buffers : *.hpp *.ipp : detail impl ]
+    :
+        <doxygen:param>PROJECT_NAME=BUFFERS
+        <doxygen:param>PROJECT_BRIEF="Buffers Library"
+        <doxygen:param>ALIASES="esafe=\"@par Exception Safety\""
+        <doxygen:param>FILE_PATTERNS=
+        <doxygen:param>EXAMPLE_PATTERNS=
+        <doxygen:param>DISTRIBUTE_GROUP_DOC=YES
+        <doxygen:param>MACRO_EXPANSION=YES
+        <doxygen:param>EXPAND_ONLY_PREDEF=YES
+        <doxygen:param>"PREDEFINED=\\
+            BOOST_SYMBOL_VISIBLE \\
+            BOOST_HTTP_PROTO_DOCS \\
+            BOOST_HTTP_PROTO_DECL \\
+            BOOST_HTTP_PROTO_PUBLIC \\
+            BOOST_HTTP_PROTO_FORCEINLINE \\
+            \"BOOST_HTTP_PROTO_NODISCARD=[[nodiscard]]\" \\
+            \"BOOST_STATIC_ASSERT(x)=\" \\
+            \"BOOST_HTTP_PROTO_INLINE_VARIABLE(v, t)=constexpr t v;\""
+        <doxygen:param>ABBREVIATE_BRIEF=
+        <doxygen:param>INLINE_INHERITED_MEMB=YES
+        <doxygen:param>JAVADOC_AUTOBRIEF=YES
+        <doxygen:param>AUTOLINK_SUPPORT=NO
+        <doxygen:param>EXTRACT_ALL=YES
+        <doxygen:param>EXTRACT_PRIVATE=YES
+        <doxygen:param>EXTRACT_LOCAL_CLASSES=NO
+        <doxygen:param>SHOW_INCLUDE_FILES=NO
+        <doxygen:param>INLINE_INFO=NO
+        <doxygen:param>SORT_MEMBER_DOCS=NO
+        <doxygen:param>SORT_MEMBERS_CTORS_1ST=YES
+        <doxygen:param>SHOW_USED_FILES=NO
+        <doxygen:param>SHOW_FILES=NO
+        <doxygen:param>SHOW_NAMESPACES=NO
+        <doxygen:param>CLASS_DIAGRAMS=NO
+
+        # <doxygen:param>ALLOW_UNICODE_NAMES=NO
+        # <doxygen:param>GROUP_NESTED_COMPOUNDS=NO
+        # <doxygen:param>HIDE_COMPOUND_REFERENCE=NO
+        # <doxygen:param>WARN_AS_ERROR=NO
+    ;
+
+
+#-------------------------------------------------------------------------------
+#
+# Produce the Boost.Book XML from the QuickBook
+#
+
+install images
+    :
+        [ glob images/*.png images/*.svg ]
+    :
+        <location>html/buffers/images
+    ;
+
+explicit images ;
+
+xml buffers_doc
+    :
+        qbk/0.main.qbk
+    :
+        <dependency>reference.qbk
+        <dependency>images
+        # <include>$(broot)/tools/boostbook/dtd
+    ;
+
+explicit buffers_doc ;
+
+#-------------------------------------------------------------------------------
+#
+# HTML documentation for $(BOOST_ROOT)/doc/html
+#
+#-------------------------------------------------------------------------------
+
+boostbook buffers
+    :
+        buffers_doc
+    :
+        <xsl:param>boost.image.src=images/doc-logo.png
+        <xsl:param>boost.image.alt="Boost.Buffers Logo"
+        <xsl:param>boost.image.w=1050
+        <xsl:param>boost.image.h=80
+        <xsl:param>boost.graphics.root=images/
+        <xsl:param>boost.root=../../../..
+        <xsl:param>nav.layout=none
+        <xsl:param>chapter.autolabel=1
+        <xsl:param>chunk.section.depth=8                # Depth to which sections should be chunked
+        <xsl:param>chunk.first.sections=1               # Chunk the first top-level section?
+        <xsl:param>toc.section.depth=8                  # How deep should recursive sections appear in the TOC?
+        <xsl:param>toc.max.depth=8                      # How many levels should be created for each TOC?
+        <xsl:param>generate.toc="chapter toc,title section nop reference nop part toc"
+        <include>../../../tools/boostbook/dtd
+    :
+        <dependency>images
+    ;
+
+#-------------------------------------------------------------------------------
+#
+# These are used to inform the build system of the
+# means to build the integrated and stand-alone docs.
+#
+
+alias boostdoc ;
+explicit boostdoc ;
+
+alias boostrelease : buffers ;
+explicit boostrelease ;
