@@ -19,7 +19,15 @@ project
     ;
 
 local SOURCES =
-    buffer.cpp
+    algorithm.cpp
+    buffer_copy.cpp
+    buffer_pair.cpp
+    buffer_size.cpp
+    circular_buffer.cpp
+    const_buffer.cpp
+    mutable_buffer.cpp
+    tag_invoke.cpp
+    type_traits.cpp
     ;
 
 for local f in $(SOURCES)

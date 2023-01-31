@@ -11,7 +11,7 @@
 #define BOOST_BUFFERS_CIRCULAR_BUFFER_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/buffer.hpp>
+#include <boost/buffers/buffer_pair.hpp>
 
 namespace boost {
 namespace buffers {
@@ -26,9 +26,9 @@ class circular_buffer
 
 public:
     using const_buffers_type =
-        const_buffers_pair;
+        const_buffer_pair;
     using mutable_buffers_type =
-        mutable_buffers_pair;
+        mutable_buffer_pair;
 
     circular_buffer() = default;
     circular_buffer(

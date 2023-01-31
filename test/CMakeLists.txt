@@ -15,7 +15,15 @@ set(EXTRAFILES
 set(PFILES
     CMakeLists.txt
     Jamfile
-    buffer.cpp
+    algorithm.cpp
+    buffer_copy.cpp
+    buffer_pair.cpp
+    buffer_size.cpp
+    circular_buffer.cpp
+    const_buffer.cpp
+    mutable_buffer.cpp
+    tag_invoke.cpp
+    type_traits.cpp
     )
 
 set(UNIT_TEST_LINK_LIBRARIES boost_buffers)

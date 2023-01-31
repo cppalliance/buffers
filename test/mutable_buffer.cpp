@@ -8,14 +8,14 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers/buffer.hpp>
+#include <boost/buffers/mutable_buffer.hpp>
 
 #include "test_suite.hpp"
 
 namespace boost {
-namespace buffer {
+namespace buffers {
 
-struct buffer_test
+struct mutable_buffer_test
 {
     void
     run()
@@ -24,8 +24,8 @@ struct buffer_test
 };
 
 TEST_SUITE(
-    buffer_test,
-    "boost.buffers.buffer");
+    mutable_buffer_test,
+    "boost.buffers.mutable_buffer");
 
-} // buffers
+} // http_proto
 } // boost
