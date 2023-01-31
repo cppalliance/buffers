@@ -24,13 +24,20 @@ class const_buffer
     std::size_t n_ = 0;
 
 public:
-    using value_type = const_buffer;
-    using const_iterator =
-        value_type const*;
-
     /** Constructor.
     */
     const_buffer() = default;
+
+    /** Constructor.
+    */
+    const_buffer(
+        void const* data,
+        std::size_t size) noexcept
+        : p_(static_cast<
+            unsigned char const*>(data))
+        , n_(size)
+    {
+    }
 
     /** Constructor.
     */
@@ -44,17 +51,6 @@ public:
         : p_(static_cast<
             unsigned char const*>(b.data()))
         , n_(b.size())
-    {
-    }
-
-    /** Constructor.
-    */
-    const_buffer(
-        void const* data,
-        std::size_t size) noexcept
-        : p_(static_cast<
-            unsigned char const*>(data))
-        , n_(size)
     {
     }
 
@@ -90,18 +86,6 @@ public:
     size() const noexcept
     {
         return n_;
-    }
-
-    const_iterator
-    begin() const noexcept
-    {
-        return this;
-    }
-
-    const_iterator
-    end() const noexcept
-    {
-        return this + 1;
     }
 
     /** Remove a prefix from the buffer.
@@ -151,7 +135,7 @@ public:
         std::size_t n) noexcept
     {
         if(n < b.size())
-            return { b.p_, n };
+            return { b.data(), n };
         return b;
     }
 
@@ -162,8 +146,9 @@ public:
         const_buffer const& b,
         std::size_t n) noexcept
     {
-        if(n < b.size())
-            return { b.p_ + b.n_ - n, n };
+        auto const n0 = b.size();
+        if(n < n0)
+            return { b.p_ + (n0 - n), n };
         return b;
     }
 #endif

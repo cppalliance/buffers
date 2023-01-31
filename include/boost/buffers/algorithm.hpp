@@ -11,46 +11,49 @@
 #define BOOST_BUFFERS_ALGORITHM_HPP
 
 #include <boost/buffers/detail/config.hpp>
+#include <boost/buffers/const_buffer.hpp>
+#include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
+#include <memory>
 
 namespace boost {
 namespace buffers {
 
 #ifndef BOOST_HTTP_PROTO_DOCS
-template<class Buffers>
+template<class BufferSequence>
 void
 tag_invoke(
     prefix_tag const&,
-    Buffers const&,
+    BufferSequence const&,
     std::size_t) = delete;
 #endif
 
-/** Returns the type of a prefix of Buffers
+/** Returns the type of a prefix of a buffer sequence
 */
 #ifdef BOOST_HTTP_PROTO_DOCS
-template<class Buffers>
+template<class BufferSequence>
 using prefix_type = __see_below__;
 #else
-template<class Buffers>
+template<class BufferSequence>
 using prefix_type = decltype(
     tag_invoke(
         prefix_tag{},
-        std::declval<Buffers const&>(),
+        std::declval<BufferSequence const&>(),
         std::size_t{}));
 #endif
 
 /** Return a prefix of the buffers.
 */
-template<class Buffers>
+template<class BufferSequence>
 auto
 prefix(
-    Buffers const& b,
+    BufferSequence const& b,
     std::size_t n) ->
-        prefix_type<Buffers>
+        prefix_type<BufferSequence>
 {
     static_assert(
-        is_const_buffers<Buffers>::value,
+        is_const_buffer_sequence<BufferSequence>::value,
         "Type requirements not met");
 
     return tag_invoke(
@@ -59,12 +62,12 @@ prefix(
 
 /** Return a prefix of the buffers.
 */
-template<class Buffers>
+template<class BufferSequence>
 auto
 sans_suffix(
-    Buffers const& b,
+    BufferSequence const& b,
     std::size_t n) ->
-        prefix_type<Buffers>
+        prefix_type<BufferSequence>
 {
     auto const n0 = buffer_size(b);
     if( n > n0)
@@ -72,44 +75,40 @@ sans_suffix(
     return prefix(b, n0 - n);
 }
 
-//
-// suffix
-//
-
 #ifndef BOOST_HTTP_PROTO_DOCS
-template<class Buffers>
+template<class BufferSequence>
 void
 tag_invoke(
     suffix_tag const&,
-    Buffers const&,
+    BufferSequence const&,
     std::size_t) = delete;
 #endif
 
-/** Returns the type of a suffix of Buffers.
+/** Returns the type of a suffix of BufferSequence.
 */
 #ifdef BOOST_HTTP_PROTO_DOCS
-template<class Buffers>
+template<class BufferSequence>
 using suffix_type = __see_below__;
 #else
-template<class Buffers>
+template<class BufferSequence>
 using suffix_type = decltype(
     tag_invoke(
         suffix_tag{},
-        std::declval<Buffers const&>(),
+        std::declval<BufferSequence const&>(),
         std::size_t{}));
 #endif
 
 /** Return a suffix of the buffers.
 */
-template<class Buffers>
+template<class BufferSequence>
 auto
 suffix(
-    Buffers const& b,
+    BufferSequence const& b,
     std::size_t n) ->
-        suffix_type<Buffers>   
+        suffix_type<BufferSequence>   
 {
     static_assert(
-        is_const_buffers<Buffers>::value,
+        is_const_buffer_sequence<BufferSequence>::value,
         "Type requirements not met");
 
     return tag_invoke(
@@ -118,15 +117,15 @@ suffix(
 
 /** Return a suffix of the buffers.
 */
-template<class Buffers>
+template<class BufferSequence>
 auto
 sans_prefix(
-    Buffers const& b,
+    BufferSequence const& b,
     std::size_t n) ->
-        suffix_type<Buffers>
+        suffix_type<BufferSequence>
 {
     static_assert(
-        is_const_buffers<Buffers>::value,
+        is_const_buffer_sequence<BufferSequence>::value,
         "Type requirements not met");
 
     auto const n0 = buffer_size(b);

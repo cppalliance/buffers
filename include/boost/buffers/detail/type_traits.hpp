@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 Vinnie Falco (vinnie.falco@gmail.com)
+// Copyright (c) 2023 Vinnie Falco (vinnie.falco@gmail.com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -21,12 +21,12 @@ namespace detail {
 
 // is bidirectional iterator
 template<class T, class = void>
-struct is_bidir_iter : std::false_type
+struct is_bidirectional_iterator : std::false_type
 {
 };
 
 template<class T>
-struct is_bidir_iter<T, boost::void_t<decltype(
+struct is_bidirectional_iterator<T, boost::void_t<decltype(
     // LegacyIterator
     *std::declval<T&>()
     ),

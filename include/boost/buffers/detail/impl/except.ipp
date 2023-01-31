@@ -20,6 +20,15 @@ namespace buffers {
 namespace detail {
 
 void
+throw_invalid_argument(
+    source_location const& loc)
+{
+    throw_exception(
+        std::invalid_argument(
+            "invalid argument"), loc);
+}
+
+void
 throw_length_error(
     source_location const& loc)
 {

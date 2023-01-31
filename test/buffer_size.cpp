@@ -27,5 +27,5 @@ TEST_SUITE(
     buffer_size_test,
     "boost.buffers.buffer_size");
 
-} // http_proto
+} // buffers
 } // boost

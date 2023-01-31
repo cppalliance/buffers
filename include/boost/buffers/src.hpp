@@ -21,14 +21,20 @@ in a translation unit of the program.
 #define BOOST_BUFFERS_SOURCE
 #endif
 
-#ifdef BOOST_BUFFERS_URL
-#include <boost/url/url.hpp>
-#endif
-
 #include <boost/buffers/detail/config.hpp>
 
 #include <boost/buffers/detail/impl/except.ipp>
 
 #include <boost/buffers/impl/circular_buffer.ipp>
+#include <boost/buffers/impl/const_buffer_pair.ipp>
+#include <boost/buffers/impl/mutable_buffer_pair.ipp>
+
+//------------------------------------------------
+
+// Trick boostdep into requiring URL
+// since we need it for the unit tests
+#ifdef BOOST_BUFFERS_BOOSTDEP
+#include <boost/url/url.hpp>
+#endif
 
 #endif

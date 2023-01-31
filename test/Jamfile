@@ -21,11 +21,15 @@ project
 local SOURCES =
     algorithm.cpp
     buffer_copy.cpp
-    buffer_pair.cpp
     buffer_size.cpp
+    buffers.cpp
     circular_buffer.cpp
     const_buffer.cpp
+    const_buffer_pair.cpp
+    flat_buffer.cpp
+    iterators.cpp
     mutable_buffer.cpp
+    mutable_buffer_pair.cpp
     tag_invoke.cpp
     type_traits.cpp
     ;

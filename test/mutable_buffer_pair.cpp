@@ -8,14 +8,14 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers/buffer_copy.hpp>
+#include <boost/buffers/mutable_buffer_pair.hpp>
 
 #include "test_suite.hpp"
 
 namespace boost {
 namespace buffers {
 
-struct buffer_copy_test
+struct mutable_buffer_pair_test
 {
     void
     run()
@@ -24,8 +24,8 @@ struct buffer_copy_test
 };
 
 TEST_SUITE(
-    buffer_copy_test,
-    "boost.buffers.buffer_copy");
+    mutable_buffer_pair_test,
+    "boost.buffers.mutable_buffer_pair");
 
 } // buffers
 } // boost

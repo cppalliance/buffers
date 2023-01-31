@@ -11,6 +11,7 @@
 #define BOOST_BUFFERS_IMPL_CIRCULAR_BUFFER_IPP
 
 #include <boost/buffers/circular_buffer.hpp>
+#include <boost/buffers/type_traits.hpp>
 #include <boost/buffers/detail/except.hpp>
 #include <boost/assert.hpp>
 #include <boost/static_assert.hpp>
@@ -20,37 +21,6 @@ namespace buffers {
 
 BOOST_STATIC_ASSERT(
     is_dynamic_buffer<circular_buffer>::value);
-
-circular_buffer::
-circular_buffer(
-    void* base,
-    std::size_t capacity) noexcept
-    : base_(reinterpret_cast<
-        unsigned char*>(base))
-    , cap_(capacity)
-{
-}
-
-std::size_t
-circular_buffer::
-size() const noexcept
-{
-    return in_len_;
-}
-
-std::size_t
-circular_buffer::
-max_size() const noexcept
-{
-    return cap_;
-}
-
-std::size_t
-circular_buffer::
-capacity() const noexcept
-{
-    return cap_;
-}
 
 auto
 circular_buffer::
@@ -107,19 +77,6 @@ commit(std::size_t n)
 
 void
 circular_buffer::
-uncommit(
-    std::size_t n)
-{
-    // Precondition violation
-    if( n > in_len_ ||
-        out_size_ > 0)
-        detail::throw_length_error();
-
-    in_len_ -= n;
-}
-
-void
-circular_buffer::
 consume(std::size_t n) noexcept
 {
     if(n < in_len_)
@@ -134,6 +91,19 @@ consume(std::size_t n) noexcept
         in_pos_ = 0;
         in_len_ = 0;
     }
+}
+
+void
+circular_buffer::
+uncommit(
+    std::size_t n)
+{
+    // Precondition violation
+    if( n > in_len_ ||
+        out_size_ > 0)
+        detail::throw_length_error();
+
+    in_len_ -= n;
 }
 
 } // buffers

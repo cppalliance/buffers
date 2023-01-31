@@ -11,7 +11,8 @@
 #define BOOST_BUFFERS_CIRCULAR_BUFFER_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/buffer_pair.hpp>
+#include <boost/buffers/const_buffer_pair.hpp>
+#include <boost/buffers/mutable_buffer_pair.hpp>
 
 namespace boost {
 namespace buffers {
@@ -27,29 +28,73 @@ class circular_buffer
 public:
     using const_buffers_type =
         const_buffer_pair;
+
     using mutable_buffers_type =
         mutable_buffer_pair;
 
+    /** Constructor.
+    */
     circular_buffer() = default;
+
+    /** Constructor.
+    */
     circular_buffer(
         circular_buffer const&) = default;
+
+    /** Constructor.
+    */
+    circular_buffer(
+        void* base,
+        std::size_t capacity) noexcept
+        : base_(static_cast<
+            unsigned char*>(base))
+        , cap_(capacity)
+    {
+    }
+
+    /** Assignment.
+    */
     circular_buffer& operator=(
         circular_buffer const&) = default;
 
-    circular_buffer(
-        void* base,
-        std::size_t capacity) noexcept;
+    std::size_t
+    size() const noexcept
+    {
+        return in_len_;
+    }
 
-    std::size_t size() const noexcept;
-    std::size_t max_size() const noexcept;
-    std::size_t capacity() const noexcept;
-    const_buffers_type data() const noexcept;
-    mutable_buffers_type prepare(std::size_t n);
-    void commit(std::size_t n);
-    void consume(std::size_t n) noexcept;
+    std::size_t
+    max_size() const noexcept
+    {
+        return cap_;
+    }
+    
+    std::size_t
+    capacity() const noexcept
+    {
+        return cap_;
+    }
+
+    BOOST_BUFFERS_DECL
+    const_buffers_type
+    data() const noexcept;
+    
+    BOOST_BUFFERS_DECL
+    mutable_buffers_type
+    prepare(std::size_t n);
+
+    BOOST_BUFFERS_DECL
+    void
+    commit(std::size_t n);
+
+    BOOST_BUFFERS_DECL
+    void
+    consume(std::size_t n) noexcept;
 
     // VFALCO I'm not happy with this
-    void uncommit(std::size_t n);
+    BOOST_BUFFERS_DECL
+    void
+    uncommit(std::size_t n);
 };
 
 } // buffers

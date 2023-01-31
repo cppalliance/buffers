@@ -24,7 +24,7 @@ template<
     class ConstBuffers
 #ifndef BOOST_HTTP_PROTO_DOCS
     , class = typename std::enable_if<
-        is_const_buffers<ConstBuffers>::value
+        is_const_buffer_sequence<ConstBuffers>::value
     >::type
 #endif
 >

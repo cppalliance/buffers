@@ -18,6 +18,9 @@ namespace boost {
 namespace buffers {
 namespace detail {
 
+BOOST_BUFFERS_DECL void BOOST_NORETURN throw_invalid_argument(
+    source_location const& loc = BOOST_CURRENT_LOCATION);
+
 BOOST_BUFFERS_DECL void BOOST_NORETURN throw_length_error(
     source_location const& loc = BOOST_CURRENT_LOCATION);
 

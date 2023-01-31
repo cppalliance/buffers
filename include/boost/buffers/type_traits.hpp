@@ -28,45 +28,52 @@ class mutable_buffer;
 */
 #if BOOST_BUFFERS_DOCS
 template<class T>
-struct is_const_buffers
+struct is_const_buffer_sequence
     : std::integral_constant<bool, ...>{};
 #else
 
 template<class T, class = void>
-struct is_const_buffers : std::false_type
+struct is_const_buffer_sequence : std::false_type
 {
 };
 
 template<class T>
-struct is_const_buffers<T const>
-    : is_const_buffers<typename
+struct is_const_buffer_sequence<T const>
+    : is_const_buffer_sequence<typename
         std::decay<T>::type>
 {
 };
 
 template<class T>
-struct is_const_buffers<T const&>
-    : is_const_buffers<typename
+struct is_const_buffer_sequence<T const&>
+    : is_const_buffer_sequence<typename
         std::decay<T>::type>
 {
 };
 
 template<class T>
-struct is_const_buffers<T&>
-    : is_const_buffers<typename
+struct is_const_buffer_sequence<T&>
+    : is_const_buffer_sequence<typename
         std::decay<T>::type>
 {
 };
 
+template<>
+struct is_const_buffer_sequence<
+    const_buffer>
+    : std::true_type
+{
+};
+
 template<class T>
-struct is_const_buffers<T, boost::void_t<
+struct is_const_buffer_sequence<T, boost::void_t<
     typename std::enable_if<
         (std::is_same<const_buffer, typename 
             T::value_type>::value
         || std::is_same<mutable_buffer, typename
             T::value_type>::value
             ) &&
-        detail::is_bidir_iter<typename
+        detail::is_bidirectional_iterator<typename
             T::const_iterator>::value &&
         std::is_same<typename
             T::const_iterator, decltype(
@@ -99,40 +106,47 @@ struct is_const_buffers<T, boost::void_t<
 */
 #if BOOST_BUFFERS_DOCS
 template<class T>
-struct is_mutable_buffers
+struct is_mutable_buffer_sequence
     : std::integral_constant<bool, ...>{};
 #else
 
 template<class T, class = void>
-struct is_mutable_buffers : std::false_type
+struct is_mutable_buffer_sequence : std::false_type
 {
 };
 
 template<class T>
-struct is_mutable_buffers<T const>
-    : is_mutable_buffers<typename
+struct is_mutable_buffer_sequence<T const>
+    : is_mutable_buffer_sequence<typename
         std::decay<T>::type>
 {
 };
 
 template<class T>
-struct is_mutable_buffers<T const&>
-    : is_mutable_buffers<typename
+struct is_mutable_buffer_sequence<T const&>
+    : is_mutable_buffer_sequence<typename
         std::decay<T>::type>
 {
 };
 
 template<class T>
-struct is_mutable_buffers<T&>
-    : is_mutable_buffers<typename
+struct is_mutable_buffer_sequence<T&>
+    : is_mutable_buffer_sequence<typename
         std::decay<T>::type>
 {
 };
 
+template<>
+struct is_mutable_buffer_sequence<
+    mutable_buffer>
+    : std::true_type
+{
+};
+
 template<class T>
-struct is_mutable_buffers<T, boost::void_t<
+struct is_mutable_buffer_sequence<T, boost::void_t<
     typename std::enable_if<
-        detail::is_bidir_iter<typename
+        detail::is_bidirectional_iterator<typename
             T::const_iterator>::value &&
         std::is_same<typename
             T::const_iterator, decltype(
@@ -185,9 +199,9 @@ struct is_dynamic_buffer<
             std::declval<std::size_t>())
     )
     ,typename std::enable_if<
-        is_const_buffers<typename
+        is_const_buffer_sequence<typename
             T::const_buffers_type>::value
-        && is_mutable_buffers<typename
+        && is_mutable_buffer_sequence<typename
             T::mutable_buffers_type>::value
         >::type
     ,typename std::enable_if<

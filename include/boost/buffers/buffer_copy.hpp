@@ -7,12 +7,11 @@
 // Official repository: https://github.com/CPPAlliance/http_proto
 //
 
-#ifndef BOOST_BUFFERS_BUFFER_HPP
-#define BOOST_BUFFERS_BUFFER_HPP
+#ifndef BOOST_BUFFERS_BUFFER_COPY_HPP
+#define BOOST_BUFFERS_BUFFER_COPY_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/iterators.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/assert.hpp>
 #include <cstring>
@@ -37,19 +36,21 @@ buffer_copy(
     // means that one or both of your types
     // do not meet the requirements.
     static_assert(
-        is_mutable_buffers<MutableBuffers>::value,
+        is_mutable_buffer_sequence<
+            MutableBuffers>::value,
         "Type requirements not met");
     static_assert(
-        is_const_buffers<ConstBuffers>::value,
+        is_const_buffer_sequence<
+            ConstBuffers>::value,
         "Type requirements not met");
 
     std::size_t total = 0;
     std::size_t pos0 = 0;
     std::size_t pos1 = 0;
-    auto const end0 = from.end();
-    auto const end1 = to.end();
-    auto it0 = from.begin();
-    auto it1 = to.begin();
+    auto const end0 = (end)(from);
+    auto const end1 = (end)(to);
+    auto it0 = (begin)(from);
+    auto it1 = (begin)(to);
     while(
         total < at_most &&
         it0 != end0 &&
@@ -59,7 +60,7 @@ buffer_copy(
             const_buffer(*it0) + pos0;
         mutable_buffer b1 =
             mutable_buffer(*it1) + pos1;
-        std::size_t amount =
+        std::size_t const amount =
         [&]
         {
             std::size_t n = b0.size();

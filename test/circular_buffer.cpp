@@ -27,5 +27,5 @@ TEST_SUITE(
     circular_buffer_test,
     "boost.buffers.circular_buffer");
 
-} // http_proto
+} // buffers
 } // boost
