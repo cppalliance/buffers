@@ -24,13 +24,13 @@ namespace buffers {
 */
 template<class BufferSequence>
 __see_below__
-begin(BufferSequence&& b) noexcept ->
+begin(BufferSequence&& b) noexcept;
 
 /** Return an iterator to the end of the buffer sequence.
 */
 template<class BufferSequence>
 __see_below__
-end(BufferSequence&& b) noexcept ->
+end(BufferSequence&& b) noexcept;
 
 /** Return a range representing the buffer sequence.
 */

@@ -72,13 +72,30 @@ install images
 
 explicit images ;
 
+install stylesheets
+    :
+        $(broot)/doc/src/boostbook.css
+    :
+        <location>$(out)/html
+    ;
+
+explicit stylesheets ;
+
+#install treeimages
+#    :
+#        [ glob $(broot)/doc/src/images/*.png ]
+#    :
+#        <location>$(out)/html/images
+#    ;
+#
+#explicit treeimages ;
+
 xml buffers_doc
     :
         qbk/0.main.qbk
     :
         <dependency>reference.qbk
         <dependency>images
-        # <include>$(broot)/tools/boostbook/dtd
     ;
 
 explicit buffers_doc ;
@@ -102,6 +119,8 @@ boostbook buffers
         <xsl:param>generate.toc="chapter toc,title section nop reference nop part toc"
         <include>../../../tools/boostbook/dtd
     :
+        <dependency>stylesheets
+#        <dependency>treeimages
         <dependency>images
     ;
 

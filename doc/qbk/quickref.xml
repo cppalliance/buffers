@@ -23,17 +23,51 @@
       <entry valign="top">
         <bridgehead renderas="sect3">Classes</bridgehead>
         <simplelist type="vert" columns="1">
+          <member><link linkend="buffers.ref.boost__buffers__circular_buffer">circular_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__const_buffer">const_buffer</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__const_buffer_pair">const_buffer_pair</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__flat_buffer">flat_buffer</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__mutable_buffer">mutable_buffer</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__mutable_buffer_pair">mutable_buffer_pair</link></member>
         </simplelist>
       </entry>
      
       <entry valign="top">
+        <bridgehead renderas="sect3">Functions</bridgehead>
+        <simplelist type="vert" columns="1">
+          <member><link linkend="buffers.ref.boost__buffers__begin">begin</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__buffer_copy">buffer_copy</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__buffer_size">buffer_size</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__end">end</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__prefix">prefix</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__range">range</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__suffix">suffix</link></member>
+        </simplelist>
       </entry>
 
       <entry valign="top">
+        <bridgehead renderas="sect3">Tags</bridgehead>
+        <simplelist type="vert" columns="1">
+          <member><link linkend="buffers.ref.boost__buffers__prefix_tag">prefix_tag</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__size_tag">size_tag</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__suffix_tag">suffix_tag</link></member>
+        </simplelist>
+        <bridgehead renderas="sect3">Type Traits</bridgehead>
+        <simplelist type="vert" columns="1">
+          <member><link linkend="buffers.ref.boost__buffers__is_const_buffer_sequence">is_const_buffer_sequence</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__is_dynamic_buffer">is_dynamic_buffer</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__is_mutable_buffer_sequence">is_mutable_buffer_sequence</link></member>
+        </simplelist>
       </entry>
 
       <entry valign="top">
+        <bridgehead renderas="sect3">Concepts</bridgehead>
+        <simplelist type="vert" columns="1">
+          <member><link linkend="buffers.concepts.constbuffersequence">ConstBufferSequence</link></member>
+          <member><link linkend="buffers.concepts.mutablebuffersequence">MutableBufferSequence</link></member>
+          <member><link linkend="buffers.concepts.sink">Sink</link></member>
+          <member><link linkend="buffers.concepts.source">Source</link></member>
+        </simplelist>
       </entry>
 
     </row></tbody>
