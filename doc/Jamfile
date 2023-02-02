@@ -28,13 +28,13 @@ docca.reference reference.qbk
         <doxygen:param>EXPAND_ONLY_PREDEF=YES
         <doxygen:param>"PREDEFINED=\\
             BOOST_SYMBOL_VISIBLE \\
-            BOOST_HTTP_PROTO_DOCS \\
-            BOOST_HTTP_PROTO_DECL \\
-            BOOST_HTTP_PROTO_PUBLIC \\
-            BOOST_HTTP_PROTO_FORCEINLINE \\
-            \"BOOST_HTTP_PROTO_NODISCARD=[[nodiscard]]\" \\
+            BOOST_BUFFERS_DOCS \\
+            BOOST_BUFFERS_DECL \\
+            BOOST_BUFFERS_PUBLIC \\
+            BOOST_BUFFERS_FORCEINLINE \\
+            \"BOOST_BUFFERS_NODISCARD=[[nodiscard]]\" \\
             \"BOOST_STATIC_ASSERT(x)=\" \\
-            \"BOOST_HTTP_PROTO_INLINE_VARIABLE(v, t)=constexpr t v;\""
+            \"BOOST_BUFFERS_INLINE_VARIABLE(v, t)=constexpr t v;\""
         <doxygen:param>ABBREVIATE_BRIEF=
         <doxygen:param>INLINE_INHERITED_MEMB=YES
         <doxygen:param>JAVADOC_AUTOBRIEF=YES
@@ -93,13 +93,7 @@ boostbook buffers
     :
         buffers_doc
     :
-        <xsl:param>boost.image.src=images/doc-logo.png
-        <xsl:param>boost.image.alt="Boost.Buffers Logo"
-        <xsl:param>boost.image.w=1050
-        <xsl:param>boost.image.h=80
-        <xsl:param>boost.graphics.root=images/
         <xsl:param>boost.root=../../../..
-        <xsl:param>nav.layout=none
         <xsl:param>chapter.autolabel=1
         <xsl:param>chunk.section.depth=8                # Depth to which sections should be chunked
         <xsl:param>chunk.first.sections=1               # Chunk the first top-level section?

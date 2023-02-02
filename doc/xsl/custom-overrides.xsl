@@ -4,8 +4,8 @@
   exclude-result-prefixes="xs"
   expand-text="yes">
 
-  <xsl:variable name="doc-ref" select="'http_proto.ref'"/>
-  <xsl:variable name="doc-ns" select="'boost::http_proto'"/>
+  <xsl:variable name="doc-ref" select="'buffers.ref'"/>
+  <xsl:variable name="doc-ns" select="'boost::buffers'"/>
   <xsl:variable name="include-private-members" select="false()"/>
 
   <xsl:template mode="includes-template-footer" match="location">
@@ -19,14 +19,12 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template mode="convenience-header" match="@file[contains(., 'boost/http_proto')]">http_proto.hpp</xsl:template>
+  <xsl:template mode="convenience-header" match="@file[contains(., 'boost/buffers')]">url.hpp</xsl:template>
   <xsl:template mode="convenience-header" match="@file"/>
 
   <xsl:variable name="emphasized-template-parameter-types" select="
-    'ConstBuffer',
-    'ConstBuffers',
-    'MutableBuffer',
-    'MutableBuffers',
+    'ConstBufferSequence',
+    'MutableBufferSequence',
     'Sink',
     'Source'
   "/>

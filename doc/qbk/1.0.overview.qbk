@@ -1,0 +1,82 @@
+[/
+    Copyright (c) 2023 Vinnie Falco (vinnie.falco@gmail.com)
+
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
+    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+    Official repository: https://github.com/CPPAlliance/buffers
+]
+
+[section Overview]
+[block'''<?dbhtml stop-chunking?>''']
+
+[/-----------------------------------------------------------------------------]
+
+Boost.Buffers is a portable, low-level C++ library which provides
+containers and algorithms for describing contiguous buffers of
+arbitrary bytes.
+
+Boost.Buffers offers these features:
+
+* Require only C++11
+* Works without exceptions
+* Fast compilation, few templates
+* Does not require Asio
+
+[/-----------------------------------------------------------------------------]
+
+[section Requirements]
+
+* Requires Boost and a compiler supporting at least C++11
+* Aliases for standard types use their Boost equivalents
+* Link to a built static or dynamic Boost library, or use header-only (see below)
+* Supports `-fno-exceptions`, detected automatically
+
+[heading Header-Only]
+
+To use the library as header-only; that is, to eliminate the requirement
+to link a program to a static or dynamic Boost.URL library, simply place
+the following line in [*exactly one] source file in your project.
+
+[c++]
+```
+#include <boost/buffers/src.hpp>
+```
+
+[heading Embedded]
+
+Boost.Buffers works great on embedded devices.
+It is designed to work without exceptions if desired.
+
+[endsect]
+
+[/-----------------------------------------------------------------------------]
+
+[section Supported Compilers]
+
+Boost.Buffers has been tested with the following compilers:
+
+* clang: 3.8, 4, 5, 6, 7, 8, 9, 10, 11, 12
+* gcc: 4.8, 4.9, 5, 6, 7, 8, 9, 10, 11
+* msvc: 14.1, 14.2, 14.3
+
+[h3 Quality Assurance]
+
+The development infrastructure for the library includes
+these per-commit analyses:
+
+* Coverage reports
+* Compilation and tests on Drone.io
+
+[endsect]
+
+[/-----------------------------------------------------------------------------]
+
+[h1 Credits]
+
+This library is based on concepts and code developed
+by Christopher Kohlhoff and published in Boost.Asio.
+
+[/-----------------------------------------------------------------------------]
+
+[endsect]
