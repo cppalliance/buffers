@@ -58,6 +58,22 @@ public:
     /** Constructor.
     */
     flat_buffer(
+        void* data,
+        std::size_t capacity,
+        std::size_t initial_size = 0) noexcept
+        : data_(static_cast<
+            unsigned char*>(data))
+        , cap_(capacity)
+        , in_size_(initial_size)
+    {
+        // initial size too large
+        if(in_size_ > cap_)
+            detail::throw_invalid_argument();
+    }
+
+    /** Constructor.
+    */
+    flat_buffer(
         flat_buffer const&) = default;
 
     /** Constructor.
