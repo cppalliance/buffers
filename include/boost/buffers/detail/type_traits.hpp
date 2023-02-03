@@ -11,7 +11,6 @@
 #define BOOST_BUFFERS_DETAIL_TYPE_TRAITS_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/type_traits/make_void.hpp>
 #include <iterator>
 #include <type_traits>
 
@@ -26,7 +25,7 @@ struct is_bidirectional_iterator : std::false_type
 };
 
 template<class T>
-struct is_bidirectional_iterator<T, boost::void_t<decltype(
+struct is_bidirectional_iterator<T, void_t<decltype(
     // LegacyIterator
     *std::declval<T&>()
     ),

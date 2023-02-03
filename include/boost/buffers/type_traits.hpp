@@ -73,7 +73,7 @@ struct is_const_buffer_sequence<
 };
 
 template<class T>
-struct is_const_buffer_sequence<T, boost::void_t<
+struct is_const_buffer_sequence<T, void_t<
     typename std::enable_if<
         (std::is_same<const_buffer, typename 
             T::value_type>::value
@@ -151,7 +151,7 @@ struct is_mutable_buffer_sequence<
 };
 
 template<class T>
-struct is_mutable_buffer_sequence<T, boost::void_t<
+struct is_mutable_buffer_sequence<T, void_t<
     typename std::enable_if<
         std::is_same<mutable_buffer, typename
             T::value_type>::value &&
@@ -195,7 +195,7 @@ struct is_dynamic_buffer : std::false_type {};
 
 template<class T>
 struct is_dynamic_buffer<
-    T, boost::void_t<decltype(
+    T, void_t<decltype(
         std::declval<std::size_t&>() =
             std::declval<T const&>().size()
         ,std::declval<std::size_t&>() =

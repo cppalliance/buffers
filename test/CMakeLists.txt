@@ -18,14 +18,18 @@ set(PFILES
     algorithm.cpp
     buffer_copy.cpp
     buffer_size.cpp
+    buffered_base.cpp
     buffers.cpp
     circular_buffer.cpp
     const_buffer.cpp
     const_buffer_pair.cpp
+    filter.cpp
     flat_buffer.cpp
     iterators.cpp
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
+    sink.cpp
+    source.cpp
     tag_invoke.cpp
     type_traits.cpp
     )

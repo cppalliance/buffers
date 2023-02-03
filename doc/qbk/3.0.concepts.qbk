@@ -14,6 +14,9 @@
 [section ConstBufferSequence]
 [endsect]
 
+[section Filter]
+[endsect]
+
 [section MutableBufferSequence]
 [endsect]
 

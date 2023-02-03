@@ -25,9 +25,13 @@ in a translation unit of the program.
 
 #include <boost/buffers/detail/impl/except.ipp>
 
+#include <boost/buffers/impl/buffered_base.ipp>
 #include <boost/buffers/impl/circular_buffer.ipp>
 #include <boost/buffers/impl/const_buffer_pair.ipp>
+#include <boost/buffers/impl/filter.ipp>
 #include <boost/buffers/impl/mutable_buffer_pair.ipp>
+#include <boost/buffers/impl/sink.ipp>
+#include <boost/buffers/impl/source.ipp>
 
 //------------------------------------------------
 

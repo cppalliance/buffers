@@ -57,7 +57,6 @@ function(boost_buffers_setup_properties target)
             Boost::static_assert
             Boost::system
             Boost::throw_exception
-            Boost::type_traits
     )
 endfunction()
 

@@ -64,6 +64,12 @@ namespace buffers {
     return ::boost::system::error_code((ev), &loc ## __LINE__)
 #endif
 
+//------------------------------------------------
+
+// avoid all of Boost.Types for just this
+template<class...> struct make_void { typedef void type; };
+template<class... Ts> using void_t = typename make_void<Ts...>::type;
+
 } // buffers
 } // boost
 

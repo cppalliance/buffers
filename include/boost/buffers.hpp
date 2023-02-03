@@ -20,6 +20,8 @@
 #include <boost/buffers/iterators.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
+#include <boost/buffers/sink.hpp>
+#include <boost/buffers/source.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 

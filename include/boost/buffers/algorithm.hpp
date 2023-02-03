@@ -11,6 +11,7 @@
 #define BOOST_BUFFERS_ALGORITHM_HPP
 
 #include <boost/buffers/detail/config.hpp>
+#include <boost/buffers/buffer_size.hpp>
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/tag_invoke.hpp>
@@ -20,7 +21,7 @@
 namespace boost {
 namespace buffers {
 
-#ifndef BOOST_HTTP_PROTO_DOCS
+#ifndef BOOST_BUFFERS_DOCS
 template<class BufferSequence>
 void
 tag_invoke(
@@ -31,7 +32,7 @@ tag_invoke(
 
 /** Returns the type of a prefix of a buffer sequence
 */
-#ifdef BOOST_HTTP_PROTO_DOCS
+#ifdef BOOST_BUFFERS_DOCS
 template<class BufferSequence>
 using prefix_type = __see_below__;
 #else
@@ -75,7 +76,7 @@ sans_suffix(
     return prefix(b, n0 - n);
 }
 
-#ifndef BOOST_HTTP_PROTO_DOCS
+#ifndef BOOST_BUFFERS_DOCS
 template<class BufferSequence>
 void
 tag_invoke(
@@ -86,7 +87,7 @@ tag_invoke(
 
 /** Returns the type of a suffix of BufferSequence.
 */
-#ifdef BOOST_HTTP_PROTO_DOCS
+#ifdef BOOST_BUFFERS_DOCS
 template<class BufferSequence>
 using suffix_type = __see_below__;
 #else
