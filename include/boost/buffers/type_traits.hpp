@@ -65,6 +65,13 @@ struct is_const_buffer_sequence<
 {
 };
 
+template<>
+struct is_const_buffer_sequence<
+    mutable_buffer>
+    : std::true_type
+{
+};
+
 template<class T>
 struct is_const_buffer_sequence<T, boost::void_t<
     typename std::enable_if<
@@ -146,6 +153,8 @@ struct is_mutable_buffer_sequence<
 template<class T>
 struct is_mutable_buffer_sequence<T, boost::void_t<
     typename std::enable_if<
+        std::is_same<mutable_buffer, typename
+            T::value_type>::value &&
         detail::is_bidirectional_iterator<typename
             T::const_iterator>::value &&
         std::is_same<typename
