@@ -21,119 +21,182 @@
 namespace boost {
 namespace buffers {
 
-#ifndef BOOST_BUFFERS_DOCS
+#ifdef BOOST_BUFFERS_DOCS
+
+/** Returns the type of a prefix of a buffer sequence.
+*/
+template<class BufferSequence>
+using prefix_type = __see_below__;
+
+/** Return a prefix of the buffer sequence.
+*/
+template<class BufferSequence>
+prefix_type<BufferSequence>
+prefix(
+    BufferSequence const& b,
+    std::size_t n);
+
+/** Return a prefix of the buffer sequence.
+*/
+template<class BufferSequence>
+prefix_type<BufferSequence>
+sans_suffix(
+    BufferSequence const& b,
+    std::size_t n);
+
+#else
+
 template<class BufferSequence>
 void
 tag_invoke(
     prefix_tag const&,
     BufferSequence const&,
     std::size_t) = delete;
-#endif
 
-/** Returns the type of a prefix of a buffer sequence
-*/
-#ifdef BOOST_BUFFERS_DOCS
-template<class BufferSequence>
-using prefix_type = __see_below__;
-#else
 template<class BufferSequence>
 using prefix_type = decltype(
     tag_invoke(
         prefix_tag{},
         std::declval<BufferSequence const&>(),
         std::size_t{}));
+
+namespace detail {
+
+struct prefix_t
+{
+    template<class BufferSequence>
+    prefix_type<BufferSequence>
+    operator()(
+        BufferSequence const& b,
+        std::size_t n) const
+    {
+        static_assert(
+            is_const_buffer_sequence<
+                BufferSequence>::value,
+            "Type requirements not met");
+
+        return tag_invoke(
+            prefix_tag{}, b, n);
+    }
+};
+
+} // detail
+
+constexpr detail::prefix_t prefix{};
+
+namespace detail {
+
+struct sans_suffix_t
+{
+    template<class BufferSequence>
+    prefix_type<BufferSequence>
+    operator()(
+        BufferSequence const& b,
+        std::size_t n) const
+    {
+        auto const n0 = buffer_size(b);
+        if( n > n0)
+            n = n0;
+        return prefix(b, n0 - n);
+    }
+};
+
+} // detail
+
+constexpr detail::sans_suffix_t sans_suffix{};
+
 #endif
 
-/** Return a prefix of the buffers.
+//------------------------------------------------
+
+#ifdef BOOST_BUFFERS_DOCS
+
+/** Returns the type of a suffix of a buffer sequence.
 */
 template<class BufferSequence>
-auto
-prefix(
-    BufferSequence const& b,
-    std::size_t n) ->
-        prefix_type<BufferSequence>
-{
-    static_assert(
-        is_const_buffer_sequence<BufferSequence>::value,
-        "Type requirements not met");
+using suffix_type = __see_below__;
 
-    return tag_invoke(
-        prefix_tag{}, b, n);
-}
-
-/** Return a prefix of the buffers.
+/** Return a suffix of the buffer sequence.
 */
 template<class BufferSequence>
-auto
-sans_suffix(
+suffix_type<BufferSequence>
+suffix(
     BufferSequence const& b,
-    std::size_t n) ->
-        prefix_type<BufferSequence>
-{
-    auto const n0 = buffer_size(b);
-    if( n > n0)
-        n = n0;
-    return prefix(b, n0 - n);
-}
+    std::size_t n);
 
-#ifndef BOOST_BUFFERS_DOCS
+/** Return a suffix of the buffer sequence.
+*/
+template<class BufferSequence>
+suffix_type<BufferSequence>
+sans_prefix(
+    BufferSequence const& b,
+    std::size_t n);
+
+#else
+
 template<class BufferSequence>
 void
 tag_invoke(
     suffix_tag const&,
     BufferSequence const&,
     std::size_t) = delete;
-#endif
 
-/** Returns the type of a suffix of BufferSequence.
-*/
-#ifdef BOOST_BUFFERS_DOCS
-template<class BufferSequence>
-using suffix_type = __see_below__;
-#else
 template<class BufferSequence>
 using suffix_type = decltype(
     tag_invoke(
         suffix_tag{},
         std::declval<BufferSequence const&>(),
         std::size_t{}));
+
+namespace detail {
+
+struct suffix_t
+{
+    template<class BufferSequence>
+    suffix_type<BufferSequence>
+    operator()(
+        BufferSequence const& b,
+        std::size_t n) const
+    {
+        static_assert(
+            is_const_buffer_sequence<BufferSequence>::value,
+            "Type requirements not met");
+
+        return tag_invoke(
+            suffix_tag{}, b, n);
+    }
+};
+
+} // detail
+
+constexpr detail::suffix_t suffix{};
+
+namespace detail {
+
+struct sans_prefix_t
+{
+    template<class BufferSequence>
+    suffix_type<BufferSequence>
+    operator()(
+        BufferSequence const& b,
+        std::size_t n) const
+    {
+        static_assert(
+            is_const_buffer_sequence<BufferSequence>::value,
+            "Type requirements not met");
+
+        auto const n0 = buffer_size(b);
+        if( n > n0)
+            n = n0;
+        return suffix(b, n0 - n);
+    }
+};
+
+} // detail
+
+constexpr detail::sans_prefix_t sans_prefix{};
+
 #endif
-
-/** Return a suffix of the buffers.
-*/
-template<class BufferSequence>
-auto
-suffix(
-    BufferSequence const& b,
-    std::size_t n) ->
-        suffix_type<BufferSequence>   
-{
-    static_assert(
-        is_const_buffer_sequence<BufferSequence>::value,
-        "Type requirements not met");
-
-    return tag_invoke(
-        suffix_tag{}, b, n);
-}
-
-/** Return a suffix of the buffers.
-*/
-template<class BufferSequence>
-auto
-sans_prefix(
-    BufferSequence const& b,
-    std::size_t n) ->
-        suffix_type<BufferSequence>
-{
-    static_assert(
-        is_const_buffer_sequence<BufferSequence>::value,
-        "Type requirements not met");
-
-    auto const n0 = buffer_size(b);
-    if( n > n0)
-        n = n0;
-    return suffix(b, n0 - n);
-}
 
 } // buffers
 } // boost

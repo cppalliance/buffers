@@ -39,6 +39,10 @@ public:
     */
     struct results
     {
+        /** The error, if any occurred.
+        */
+        system::error_code ec;
+
         /** The number of bytes produced in the output.
 
             This may be less than the total number
@@ -47,13 +51,15 @@ public:
         */
         std::size_t bytes = 0;
 
-        /** The error, if any occurred.
-        */
-        system::error_code ec;
-
         /** True if there will be no more output.
         */
         bool finished = false;
+
+        /** Accumulate additional results
+        */
+        results&
+        operator+=(
+            results const& rv);
     };
 
     /** Produce data.

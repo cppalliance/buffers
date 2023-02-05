@@ -57,8 +57,11 @@ struct source_test
     struct test_source : source
     {
         test_source(
-            std::size_t max_size) noexcept
+            std::size_t max_size,
+            std::size_t n_success =
+                std::size_t(-1)) noexcept
             : max_size_(max_size)
+            , n_success_(n_success)
             , cb_(pattern())
         {
         }
@@ -76,6 +79,13 @@ struct source_test
             std::size_t size) override
         {
             results rv;
+            if(n_success_-- == 0)
+            {
+                rv.ec = boost::system::error_code(
+                    boost::system::errc::invalid_argument,
+                    boost::system::generic_category());
+                return rv;
+            }
             rv.bytes = buffer_copy(
                 mutable_buffer(
                     dest, size), cb_);
@@ -86,6 +96,7 @@ struct source_test
 
     private:
         std::size_t max_size_;
+        std::size_t n_success_;
         const_buffer cb_;
     };
 

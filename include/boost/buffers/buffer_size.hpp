@@ -18,6 +18,8 @@
 namespace boost {
 namespace buffers {
 
+#ifdef BOOST_BUFFERS_DOCS
+
 /** Return the total octets in a buffer sequence
 
     @par Constraints
@@ -25,12 +27,12 @@ namespace buffers {
     is_const_buffer_sequence< ConstBufferSequence >::value == true
     @endcode
 */
-#ifdef BOOST_BUFFERS_DOCS
 template<
     class ConstBufferSequence>
 std::size_t
 buffer_size(
     ConstBufferSequence const& b) noexcept;
+
 #else
 
 template<class Buffers>

@@ -13,9 +13,26 @@
 #include <boost/buffers/iterators.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/buffers/detail/except.hpp>
+#include <boost/assert.hpp>
 
 namespace boost {
 namespace buffers {
+
+inline
+auto
+source::
+results::
+operator+=(
+    results const& rv) ->
+        results&
+{
+    BOOST_ASSERT(! rv.ec.failed());
+    BOOST_ASSERT(! rv.finished);
+    ec = rv.ec;
+    bytes += rv.bytes;
+    finished = rv.finished;
+    return *this;
+}
 
 template<class MutableBufferSequence>
 auto
