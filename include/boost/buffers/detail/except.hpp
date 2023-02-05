@@ -10,9 +10,7 @@
 #ifndef BOOST_BUFFERS_DETAIL_EXCEPT_HPP
 #define BOOST_BUFFERS_DETAIL_EXCEPT_HPP
 
-//#include <boost/buffers/error.hpp>
 #include <boost/assert/source_location.hpp>
-#include <boost/exception/diagnostic_information.hpp>
 
 namespace boost {
 namespace buffers {

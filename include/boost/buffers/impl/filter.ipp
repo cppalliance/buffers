@@ -11,7 +11,6 @@
 #define BOOST_BUFFERS_IMPL_SINK_IPP
 
 #include <boost/buffers/filter.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 namespace boost {
 namespace buffers {

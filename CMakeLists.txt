@@ -53,7 +53,6 @@ function(boost_buffers_setup_properties target)
         PUBLIC
             Boost::assert
             Boost::config
-            Boost::exception
             Boost::static_assert
             Boost::system
             Boost::throw_exception
