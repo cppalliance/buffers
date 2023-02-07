@@ -34,6 +34,8 @@ class BOOST_SYMBOL_VISIBLE
     source
     : public buffered_base
 {
+    bool finished_ = false;
+
 public:
     /** The results of producing data.
     */
@@ -55,49 +57,65 @@ public:
         */
         bool finished = false;
 
-        /** Accumulate additional results
+        /** Accumulate results.
         */
         results&
         operator+=(
             results const& rv);
     };
 
+    /** Return true if the source is finished.
+    */
+    bool
+    is_finished() const noexcept
+    {
+        return finished_;
+    }
+
     /** Produce data.
 
-        This function produces zero or more
+        This function produces up to `size`
         bytes of data and places the result
-        in the passed buffer.
+        in the contiguous storage pointed to
+        by `dest`.
+        Afterwards, if there is no more data
+        remaining then @ref is_finished will
+        return `true`.
+        <br>
+        Once the end of the data is encountered,
+        this function must not be called again or
+        else an exception is thrown.
 
-        @par Preconditions
-        @ref init was called once before any
-            calls to `read_one`, and:
-        @code
-        dest != nullptr || size == 0
-        @endcode
+        @throws std::logic_error @ref init not called.
 
-        @param dest A pointer to contiguous
-            storage of at least `size` bytes.
+        @throws std::logic_error @ref is_finished returns `true`.
 
-        @param size The number of valid bytes
-            of storage pointed to by `dest`.
+        @return The result of the operation.
+
+        @param b The buffer to write into.
     */
-    virtual
     results
-    read_one(
-        void* dest,
-        std::size_t size) = 0;
+    read(mutable_buffer b);
 
-    /** Read data from the source.
+    /** Produce data.
 
-        This function attempts to read data from
-        the source into the specified array of
-        mutable buffers. The base class
-        implementation calls @ref read_one for
-        each buffer in the array. Derived classes
-        may override this function; for example,
-        when knowing the total amount of space
-        in the set of destination buffers is
-        helpful.
+        This function produces data and places
+        the result into zero or more contiguous
+        storage areas described by an array of
+        mutable buffers.
+        Afterwards, if there is no more data
+        remaining then @ref is_finished will
+        return `true`.
+        <br>
+        Once the end of the data is encountered,
+        this function must not be called again or
+        else an exception is thrown.
+
+        @throws std::logic_error @ref init not called.
+
+        @throws std::logic_error @ref is_finished returns `true`.
+
+        @return The result of the operation.
 
         @param dest A pointer to an array of
             @ref mutable_buffer of at least
@@ -106,32 +124,101 @@ public:
         @param dest_len The number of valid
             elements pointed to by `dest`.
     */
-    BOOST_BUFFERS_DECL
-    virtual
     results
     read(
         mutable_buffer const* dest,
         std::size_t dest_len);
 
-    /** Read data from the source.
+    /** Produce data.
 
-        This function attempts to read data from
-        the source into the specified mutable
-        buffer sequence. It is implemented in
-        terms of zero or more calls to @ref read
-        with an array of mutable buffers. The
-        size of this array will never be less
-        than two.
+        This function produces data and
+        places the result into the mutable
+        buffer sequence `b`.
+        Afterwards, if there is no more data
+        remaining then @ref is_finished will
+        return `true`.
+        <br>
+        Once the end of the data is encountered,
+        this function must not be called again or
+        else an exception is thrown.
 
-        @par Preconditions
-        @ref init was called once before any
-            calls to read.
+        @throws std::logic_error @ref init not called.
 
-        @param dest The destination to write to.
+        @throws std::logic_error @ref is_finished returns `true`.
+
+        @return The result of the operation.
+
+        @param dest A mutable buffer sequence.
     */
     template<class MutableBufferSequence>
     results
     read(MutableBufferSequence const& dest);
+
+#ifdef BOOST_BUFFERS_DOCS
+protected:
+#else
+private:
+#endif
+    /** Implementation for producing data.
+
+        This pure virtual function is called by
+        the implementation. Derived classes should
+        place zero or more bytes of data into the
+        buffer pointed to by `dest`.
+        <br>
+        This will will only be called if @ref init
+        was called and the source is not finished.
+
+        @par Preconditions
+        @code
+        this->is_inited() && ! this->is_finished()
+        @endcode
+
+        @return The result of the operation.
+
+        @param dest A pointer to contiguous storage.
+
+        @param size The number of valid bytes
+            of storage pointed to by `dest`.
+    */
+    BOOST_BUFFERS_DECL
+    virtual
+    results
+    do_read_one(
+        void* dest,
+        std::size_t size) = 0;
+
+    /** Implementation for producing data.
+
+        This virtual function is called by the
+        implementation. The default implementation
+        simply calls @ref do_read_one for each
+        mutable buffer in the array. Derived
+        classes may override this function to
+        optimize the case where a range of
+        buffers is presented for reading.
+        <br>
+        This will will only be called if @ref init
+        was called and the source is not finished.
+
+        @par Preconditions
+        @code
+        this->is_inited() && ! this->is_finished()
+        @endcode
+
+        @return The result of the operation.
+
+        @param dest An array of mutable buffers.
+
+        @param dest_len The number of elements
+            in the array pointed to by `dest`.
+    */
+    BOOST_BUFFERS_DECL
+    virtual
+    results
+    do_read(
+        mutable_buffer const* dest,
+        std::size_t dest_len);
 };
 
 //------------------------------------------------

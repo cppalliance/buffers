@@ -67,7 +67,7 @@ template<
     class T, std::size_t N
 #ifndef BOOST_BUFFERS_DOCS
     , class = typename std::enable_if<
-        std::is_trivially_copyable::value>::type
+        std::is_trivially_copyable<T>::value>::type
 #endif
 >
 mutable_buffer
@@ -84,7 +84,7 @@ template<
     class T, std::size_t N
 #ifndef BOOST_BUFFERS_DOCS
     , class = typename std::enable_if<
-        std::is_trivially_copyable::value>::type
+        std::is_trivially_copyable<T>::value>::type
 #endif
 >
 const_buffer

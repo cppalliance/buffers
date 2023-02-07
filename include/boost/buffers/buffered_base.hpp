@@ -25,6 +25,8 @@ namespace buffers {
 class BOOST_SYMBOL_VISIBLE
     buffered_base
 {
+    bool inited_ = false;
+
 public:
     /** Provides memory to buffered algorithms.
     */
@@ -35,6 +37,14 @@ public:
     BOOST_BUFFERS_DECL
     virtual
     ~buffered_base() = 0;
+
+    /** Return true if init was called.
+    */
+    bool
+    is_inited() const noexcept
+    {
+        return inited_;
+    }
 
     /** Called to initialize the algorithm.
 
@@ -51,12 +61,13 @@ public:
         is available from the allocator. In this
         case they should simply allocate normally.
 
+        @throws std::logic_error Function called more than once
+
         @param a The allocator which may be used
             by the algorithm to obtain contiguous
             storage.
     */
     BOOST_BUFFERS_DECL
-    virtual
     void
     init(allocator& a);
 
@@ -89,6 +100,16 @@ public:
     init(
         allocator& a,
         std::size_t max_size);
+
+#ifdef BOOST_BUFFERS_DOCS
+protected:
+#else
+private:
+#endif
+    BOOST_BUFFERS_DECL
+    virtual
+    void
+    do_init(allocator& a);
 };
 
 //------------------------------------------------

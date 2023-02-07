@@ -34,6 +34,50 @@ operator+=(
     return *this;
 }
 
+//------------------------------------------------
+
+inline
+auto
+source::
+read(
+    mutable_buffer b) ->
+        results
+{
+    // Forgot to call init
+    if(! is_inited())
+        detail::throw_logic_error();
+
+    // Already finished
+    if(is_finished())
+        detail::throw_logic_error();
+
+    auto rv = do_read_one(
+        b.data(), b.size());
+    finished_ = rv.finished;
+    return rv;
+}
+
+inline
+auto
+source::
+read(
+    mutable_buffer const* dest,
+    std::size_t dest_len) ->
+        results
+{
+    // Forgot to call init
+    if(! is_inited())
+        detail::throw_logic_error();
+
+    // Already finished
+    if(is_finished())
+        detail::throw_logic_error();
+
+    auto rv = do_read(dest, dest_len);
+    finished_ = rv.finished;
+    return rv;
+}
+
 template<class MutableBufferSequence>
 auto
 source::

@@ -18,7 +18,7 @@ namespace buffers {
 
 auto
 source::
-read(
+do_read(
     mutable_buffer const* dest,
     std::size_t dest_len) ->
         results
@@ -26,10 +26,9 @@ read(
     results rv;
     while(dest_len--)
     {
-        mutable_buffer mb(*dest++);
+        mutable_buffer b(*dest++);
         auto saved = rv.bytes;
-        rv = read_one(
-            mb.data(), mb.size());
+        rv = read(b);
         rv.bytes += saved;
         if(rv.ec.failed())
             return rv;
