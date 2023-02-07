@@ -40,6 +40,7 @@
         <bridgehead renderas="sect3">Functions</bridgehead>
         <simplelist type="vert" columns="1">
           <member><link linkend="buffers.ref.boost__buffers__begin">begin</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__buffer">buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__buffer_copy">buffer_copy</link></member>
           <member><link linkend="buffers.ref.boost__buffers__buffer_size">buffer_size</link></member>
           <member><link linkend="buffers.ref.boost__buffers__end">end</link></member>

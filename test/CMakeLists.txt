@@ -16,6 +16,7 @@ set(PFILES
     CMakeLists.txt
     Jamfile
     algorithm.cpp
+    buffer.cpp
     buffer_copy.cpp
     buffer_size.cpp
     buffered_base.cpp
