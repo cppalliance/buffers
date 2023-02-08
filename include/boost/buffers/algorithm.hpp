@@ -13,6 +13,7 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer_size.hpp>
 #include <boost/buffers/const_buffer.hpp>
+#include <boost/buffers/iterators.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
@@ -197,6 +198,69 @@ struct sans_prefix_t
 constexpr detail::sans_prefix_t sans_prefix{};
 
 #endif
+
+//------------------------------------------------
+
+#ifdef BOOST_BUFFERS_DOCS
+
+/** Return the first buffer in a sequence.
+*/
+template<class BufferSequence>
+__see_below__
+front(
+    BufferSequence const& b);
+
+#else
+
+namespace detail {
+
+struct front_t
+{
+    template<
+        class MutableBufferSequence
+        , class = typename std::enable_if<
+            is_mutable_buffer_sequence<
+                MutableBufferSequence>::value
+        >::type>
+    mutable_buffer
+    operator()(
+        MutableBufferSequence const& bs) const noexcept
+    {
+        auto const it = begin(bs);
+        if(it != end(bs))
+            return *it;
+        return {};
+    }
+
+    template<
+        class ConstBufferSequence
+        , class = typename std::enable_if<
+            ! is_mutable_buffer_sequence<
+                ConstBufferSequence>::value
+        >::type>
+    const_buffer
+    operator()(
+        ConstBufferSequence const& bs) const noexcept
+    {
+        static_assert(
+            is_const_buffer_sequence<
+                ConstBufferSequence>::value,
+            "Type requirements not met");
+
+        auto const it = bs.begin();
+        if(it != bs.end())
+            return *it;
+        return {};
+    }
+};
+
+} // detail
+
+constexpr detail::front_t front{};
+
+#endif
+
+//------------------------------------------------
 
 } // buffers
 } // boost

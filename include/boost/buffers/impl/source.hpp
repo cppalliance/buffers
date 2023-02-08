@@ -36,51 +36,12 @@ operator+=(
 
 //------------------------------------------------
 
-inline
-auto
-source::
-read(
-    mutable_buffer b) ->
-        results
-{
-    // Forgot to call init
-    if(! is_inited())
-        detail::throw_logic_error();
-
-    // Already finished
-    if(is_finished())
-        detail::throw_logic_error();
-
-    auto rv = do_read_one(b);
-    finished_ = rv.finished;
-    return rv;
-}
-
-inline
-auto
-source::
-read(
-    mutable_buffer_span bs) ->
-        results
-{
-    // Forgot to call init
-    if(! is_inited())
-        detail::throw_logic_error();
-
-    // Already finished
-    if(is_finished())
-        detail::throw_logic_error();
-
-    auto rv = do_read(bs);
-    finished_ = rv.finished;
-    return rv;
-}
-
 template<class MutableBufferSequence>
 auto
 source::
-read(MutableBufferSequence const& dest) ->
-    results
+read(
+    MutableBufferSequence const& bs) ->
+        results
 {
     static_assert(
         is_mutable_buffer_sequence<
@@ -95,13 +56,36 @@ read(MutableBufferSequence const& dest) ->
     if(is_finished())
         detail::throw_logic_error();
 
+    auto rv = read_impl(bs);
+    finished_ = rv.finished;
+    return rv;
+}
+
+inline
+auto
+source::
+read_impl(
+    mutable_buffer const& b) ->
+        results
+{
+    return on_read(
+        mutable_buffer_span(&b, 1));
+}
+
+template<class T>
+auto
+source::
+read_impl(
+    T const& bs) ->
+        results
+{
     results rv;
     constexpr int SmallArraySize = 16;
     mutable_buffer tmp[SmallArraySize];
     auto const tmp_end =
         tmp + SmallArraySize;
-    auto it = (begin)(dest);
-    auto const end_ = (end)(dest);
+    auto it = (begin)(bs);
+    auto const end_ = (end)(bs);
     while(it != end_)
     {
         auto p = tmp;
@@ -112,7 +96,7 @@ read(MutableBufferSequence const& dest) ->
         while(
             p != tmp_end &&
             it != end_);
-        rv += do_read(
+        rv += read_impl(
             mutable_buffer_span(
                 tmp, p - tmp));
         if(rv.ec.failed())

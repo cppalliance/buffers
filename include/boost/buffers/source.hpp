@@ -15,11 +15,12 @@
 #include <boost/buffers/mutable_buffer_span.hpp>
 #include <boost/system/error_code.hpp>
 #include <cstddef>
+#include <type_traits>
 
 namespace boost {
 namespace buffers {
 
-/** A producer of buffered data.
+/** An algorithm to produce data in buffers.
 
     This interface abstracts the production of
     a finite stream of data, returned by writing
@@ -74,57 +75,6 @@ public:
 
     /** Produce data.
 
-        This function produces up to `size`
-        bytes of data and places the result
-        in the contiguous storage pointed to
-        by `dest`.
-        Afterwards, if there is no more data
-        remaining then @ref is_finished will
-        return `true`.
-        <br>
-        Once the end of the data is encountered,
-        this function must not be called again or
-        else an exception is thrown.
-
-        @throws std::logic_error @ref init not called.
-
-        @throws std::logic_error @ref is_finished returns `true`.
-
-        @return The result of the operation.
-
-        @param b The buffer to write into.
-    */
-    results
-    read(mutable_buffer b);
-
-    /** Produce data.
-
-        This function produces data and places
-        the result into zero or more contiguous
-        storage areas described by a span of
-        mutable buffers.
-        Afterwards, if there is no more data
-        remaining then @ref is_finished will
-        return `true`.
-        <br>
-        Once the end of the data is encountered,
-        this function must not be called again or
-        else an exception is thrown.
-
-        @throws std::logic_error @ref init not called.
-
-        @throws std::logic_error @ref is_finished returns `true`.
-
-        @return The result of the operation.
-
-        @param bs A mutable buffer span.
-    */
-    results
-    read(
-        mutable_buffer_span bs);
-
-    /** Produce data.
-
         This function produces data and
         places the result into the mutable
         buffer sequence `b`.
@@ -142,11 +92,11 @@ public:
 
         @return The result of the operation.
 
-        @param dest A mutable buffer sequence.
+        @param bs The buffers to write into.
     */
     template<class MutableBufferSequence>
     results
-    read(MutableBufferSequence const& dest);
+    read(MutableBufferSequence const& bs);
 
 #ifdef BOOST_BUFFERS_DOCS
 protected:
@@ -156,41 +106,11 @@ private:
     /** Implementation for producing data.
 
         This pure virtual function is called by
-        the implementation. Derived classes should
-        place zero or more bytes of data into the
-        passed buffer.
-        <br>
-        This will will only be called if @ref init
-        was called and the source is not finished.
-
-        @par Preconditions
-        @code
-        this->is_inited() && this->is_finished() == false
-        @endcode
-
-        @return The result of the operation.
-
-        @param b A modifiable buffer to hold
-            the data.
-    */
-    BOOST_BUFFERS_DECL
-    virtual
-    results
-    do_read_one(
-        mutable_buffer b) = 0;
-
-    /** Implementation for producing data.
-
-        This virtual function is called by the
-        implementation. The default function
-        simply calls @ref do_read_one for each
-        mutable buffer in the span. Derived
-        classes may override this function to
-        optimize the case where a span of
-        buffers is presented for reading.
-        <br>
-        This will will only be called if @ref init
-        was called and the source is not finished.
+        the implementation and must be overriden
+        by the derived class. It should attempt
+        to place zero or more bytes of data into
+        the span of buffer passed in, and return
+        an appropriately set @ref results.
 
         @par Preconditions
         @code
@@ -204,8 +124,14 @@ private:
     BOOST_BUFFERS_DECL
     virtual
     results
-    do_read(
-        mutable_buffer_span bs);
+    on_read(
+        mutable_buffer_span bs) = 0;
+
+private:
+    BOOST_BUFFERS_DECL
+    results read_impl(mutable_buffer_span);
+    results read_impl(mutable_buffer const&);
+    template<class T> results read_impl(T const&);
 };
 
 //------------------------------------------------

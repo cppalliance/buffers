@@ -64,9 +64,8 @@ public:
 
         @throws std::logic_error Function called more than once
 
-        @param a The allocator which may be used
-            by the algorithm to obtain contiguous
-            storage.
+        @param a The allocator, which may be used
+            to obtain temporary storage.
     */
     BOOST_BUFFERS_DECL
     void
@@ -92,9 +91,8 @@ public:
 
         @throws std::invalid_argument `max_size > a.max_size()`
 
-        @param a The allocator which may be used
-            by the algorithm to obtain contiguous
-            storage.
+        @param a The allocator, which may be used
+            to obtain temporary storage.
 
         @param max_size The largest allowed
             total amount of bytes passed to the
@@ -126,8 +124,8 @@ private:
         this->is_inited() == false
         @endcode
 
-        @param a The allocator for obtaining
-            temporary storage.
+        @param a The allocator, which may be used
+            to obtain temporary storage.
     */
     BOOST_BUFFERS_DECL
     virtual

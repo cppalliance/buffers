@@ -34,7 +34,7 @@ public:
 
     /** The type of iterators returned.
     */
-    using mutable_iterator = value_type const*;
+    using const_iterator = value_type const*;
 
     /** Constructor.
     */
@@ -62,7 +62,7 @@ public:
 
     /** Return an iterator to the beginning.
     */
-    mutable_iterator
+    const_iterator
     begin() const noexcept
     {
         return p_;
@@ -70,7 +70,7 @@ public:
 
     /** Return an iterator to the end.
     */
-    mutable_iterator
+    const_iterator
     end() const noexcept
     {
         return p_ + n_;

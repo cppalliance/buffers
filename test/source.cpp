@@ -78,20 +78,29 @@ struct source_test
         }
 
         results
-        do_read_one(
-            mutable_buffer b) override
+        on_read(
+            mutable_buffer_span bs) override
         {
             results rv;
-            if(n_success_-- == 0)
+            for(auto const& b : bs)
             {
-                rv.ec = boost::system::error_code(
-                    boost::system::errc::invalid_argument,
-                    boost::system::generic_category());
-                return rv;
+                if(n_success_-- == 0)
+                {
+                    rv.ec = boost::system::error_code(
+                        boost::system::errc::invalid_argument,
+                        boost::system::generic_category());
+                    return rv;
+                }
+                auto const n =
+                    buffer_copy(b, cb_);
+                cb_ += n;
+                rv.bytes += n;
+                rv.finished = cb_.size() == 0;
+                if(rv.ec.failed())
+                    return rv;
+                if(rv.finished)
+                    break;
             }
-            rv.bytes = buffer_copy(b, cb_);
-            cb_ += rv.bytes;
-            rv.finished = cb_.size() == 0;
             return rv;
         }
 
