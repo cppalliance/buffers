@@ -11,15 +11,18 @@
 #define BOOST_BUFFERS_HPP
 
 #include <boost/buffers/algorithm.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <boost/buffers/buffer_copy.hpp>
 #include <boost/buffers/buffer_size.hpp>
 #include <boost/buffers/circular_buffer.hpp>
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
+#include <boost/buffers/const_buffer_span.hpp>
 #include <boost/buffers/flat_buffer.hpp>
 #include <boost/buffers/iterators.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
+#include <boost/buffers/mutable_buffer_span.hpp>
 #include <boost/buffers/sink.hpp>
 #include <boost/buffers/source.hpp>
 #include <boost/buffers/tag_invoke.hpp>

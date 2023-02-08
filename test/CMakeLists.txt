@@ -24,11 +24,13 @@ set(PFILES
     circular_buffer.cpp
     const_buffer.cpp
     const_buffer_pair.cpp
+    const_buffer_span.cpp
     filter.cpp
     flat_buffer.cpp
     iterators.cpp
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
+    mutable_buffer_span.cpp
     sink.cpp
     source.cpp
     tag_invoke.cpp

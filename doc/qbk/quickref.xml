@@ -27,10 +27,12 @@
           <member><link linkend="buffers.ref.boost__buffers__circular_buffer">circular_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__const_buffer">const_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__const_buffer_pair">const_buffer_pair</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__const_buffer_span">const_buffer_span</link></member>
           <member><link linkend="buffers.ref.boost__buffers__filter">filter</link></member>
           <member><link linkend="buffers.ref.boost__buffers__flat_buffer">flat_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__mutable_buffer">mutable_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__mutable_buffer_pair">mutable_buffer_pair</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__mutable_buffer_span">mutable_buffer_span</link></member>
           <member><link linkend="buffers.ref.boost__buffers__sink">sink</link></member>
           <member><link linkend="buffers.ref.boost__buffers__source">source</link></member>
         </simplelist>
