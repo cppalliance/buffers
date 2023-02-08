@@ -37,13 +37,12 @@ set(PFILES
     type_traits.cpp
     )
 
-set(UNIT_TEST_LINK_LIBRARIES boost_buffers)
-
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "" FILES ${PFILES})
 source_group("_extra" FILES ${EXTRAFILES})
 add_executable(boost_buffers_tests ${PFILES} ${EXTRAFILES})
 target_include_directories(boost_buffers_tests PRIVATE . ../../url/extra)
 target_link_libraries(
     boost_buffers_tests PRIVATE
-    ${UNIT_TEST_LINK_LIBRARIES}
+    boost_buffers
+    Boost::core
     )

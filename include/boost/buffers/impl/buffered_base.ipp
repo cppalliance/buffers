@@ -17,21 +17,13 @@ buffered_base::
 
 void
 buffered_base::
-do_init(
-    allocator&)
-{
-    // do nothing
-}
-
-void
-buffered_base::
 init(allocator& a)
 {
     // Can't call twice
     if(inited_)
         detail::throw_logic_error();
 
-    do_init(a);
+    on_init(a);
     inited_ = true;
 }
 
@@ -52,9 +44,17 @@ init(
     auto const n =
         a.max_size() - max_size;
     a.remove(n);
-    do_init(a);
+    on_init(a);
     inited_ = true;
     a.restore(n);
+}
+
+void
+buffered_base::
+on_init(
+    allocator&)
+{
+    // do nothing
 }
 
 //------------------------------------------------

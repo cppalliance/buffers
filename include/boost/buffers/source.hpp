@@ -165,7 +165,7 @@ private:
 
         @par Preconditions
         @code
-        this->is_inited() && ! this->is_finished()
+        this->is_inited() && this->is_finished() == false
         @endcode
 
         @return The result of the operation.
@@ -182,7 +182,7 @@ private:
     /** Implementation for producing data.
 
         This virtual function is called by the
-        implementation. The default implementation
+        implementation. The default function
         simply calls @ref do_read_one for each
         mutable buffer in the span. Derived
         classes may override this function to
@@ -194,7 +194,7 @@ private:
 
         @par Preconditions
         @code
-        this->is_inited() && ! this->is_finished()
+        this->is_inited() && this->is_finished() == false
         @endcode
 
         @return The result of the operation.

@@ -70,7 +70,7 @@ struct source_test
         }
 
         void
-        do_init(allocator& a) override
+        on_init(allocator& a) override
         {
             BOOST_TEST(
                 a.max_size() == max_size_);

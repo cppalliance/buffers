@@ -1,10 +1,10 @@
 //
-// Copyright (c) 2019 Vinnie Falco (vinnie.falco@gmail.com)
+// Copyright (c) 2023 Vinnie Falco (vinnie.falco@gmail.com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/CPPAlliance/http_proto
+// Official repository: https://github.com/CPPAlliance/buffers
 //
 
 #ifndef BOOST_BUFFERS_BUFFERED_BASE_HPP
@@ -28,7 +28,7 @@ class BOOST_SYMBOL_VISIBLE
     bool inited_ = false;
 
 public:
-    /** Provides memory to buffered algorithms.
+    /** Allocator for buffered algorithms.
     */
     class allocator;
 
@@ -46,18 +46,19 @@ public:
         return inited_;
     }
 
-    /** Called to initialize the algorithm.
+    /** Initialize the algorithm.
 
-        This virtual function is called once
-        before any other members. The default
-        implementation does nothing. The purpose
-        of this function is to give the algorithm
-        the opportunity to allocate memory using
-        the specified allocator, which could
-        offer advantages.
+        The derived class must be initialized
+        before invoking any other members,
+        except destruction.
+        The default implementation does nothing.
+        The purpose of this function is to
+        allow the object to optionally allocate
+        temporary storage using the specified
+        allocator, which could offer advantages.
         <br>
         Subclasses are still required to operate
-        correctly even when insufficient memory
+        correctly even when insufficient storage
         is available from the allocator. In this
         case they should simply allocate normally.
 
@@ -71,22 +72,26 @@ public:
     void
     init(allocator& a);
 
-    /** Called to initialize the algorithm.
+    /** Initialize the algorithm.
 
-        This function will call @ref init, and
-        for the duration of the invocation the
-        maximum size returned by the allocator
-        will be initially set to `max_size`.
-        When the function returns, the maximum
-        size of the allocator will be restored
-        to its previous value, minus the amount
-        used in any calls to allocate.
+        The derived class must be initialized
+        before invoking any other members,
+        except destruction.
+        The default implementation does nothing.
+        The purpose of this function is to
+        allow the object to optionally allocate
+        temporary storage using the specified
+        allocator, which could offer advantages.
         <br>
-        This function is designed to be used by
-        implementations which need to initialize
-        sub-objects which implement the
-        @ref buffered_base interface.
+        Subclasses are still required to operate
+        correctly even when insufficient storage
+        is available from the allocator. In this
+        case they should simply allocate normally.
         
+        @throws std::logic_error Function called more than once
+
+        @throws std::invalid_argument `max_size > a.max_size()`
+
         @param a The allocator which may be used
             by the algorithm to obtain contiguous
             storage.
@@ -106,10 +111,28 @@ protected:
 #else
 private:
 #endif
+    /** Implementation for initialization.
+
+        This virtual function is called by
+        the implementation. The default
+        function does nothing. Derived classes
+        may override this to optionally obtain
+        temporary storage from the specified
+        allocator, and to perform other
+        initialization activity.
+
+        @par Preconditions
+        @code
+        this->is_inited() == false
+        @endcode
+
+        @param a The allocator for obtaining
+            temporary storage.
+    */
     BOOST_BUFFERS_DECL
     virtual
     void
-    do_init(allocator& a);
+    on_init(allocator& a);
 };
 
 //------------------------------------------------

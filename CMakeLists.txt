@@ -28,7 +28,7 @@ endif()
 
 include(GNUInstallDirs)
 if(BOOST_BUFFERS_IS_ROOT)
-    set(BOOST_INCLUDE_LIBRARIES buffers)
+    set(BOOST_INCLUDE_LIBRARIES buffers core)
     set(BOOST_EXCLUDE_LIBRARIES buffers)
     set(CMAKE_FOLDER Dependencies)
     add_subdirectory(../.. Dependencies/boost EXCLUDE_FROM_ALL)

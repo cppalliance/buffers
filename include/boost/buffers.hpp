@@ -14,6 +14,7 @@
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/buffer_copy.hpp>
 #include <boost/buffers/buffer_size.hpp>
+#include <boost/buffers/buffered_base.hpp>
 #include <boost/buffers/circular_buffer.hpp>
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
