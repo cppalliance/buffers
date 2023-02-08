@@ -12,7 +12,7 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffered_base.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/mutable_buffer_span.hpp>
 #include <boost/system/error_code.hpp>
 #include <cstddef>
 
@@ -101,7 +101,7 @@ public:
 
         This function produces data and places
         the result into zero or more contiguous
-        storage areas described by an array of
+        storage areas described by a span of
         mutable buffers.
         Afterwards, if there is no more data
         remaining then @ref is_finished will
@@ -117,17 +117,11 @@ public:
 
         @return The result of the operation.
 
-        @param dest A pointer to an array of
-            @ref mutable_buffer of at least
-            `dest_len` valid elements.
-
-        @param dest_len The number of valid
-            elements pointed to by `dest`.
+        @param bs A mutable buffer span.
     */
     results
     read(
-        mutable_buffer const* dest,
-        std::size_t dest_len);
+        mutable_buffer_span bs);
 
     /** Produce data.
 
@@ -164,7 +158,7 @@ private:
         This pure virtual function is called by
         the implementation. Derived classes should
         place zero or more bytes of data into the
-        buffer pointed to by `dest`.
+        passed buffer.
         <br>
         This will will only be called if @ref init
         was called and the source is not finished.
@@ -176,26 +170,23 @@ private:
 
         @return The result of the operation.
 
-        @param dest A pointer to contiguous storage.
-
-        @param size The number of valid bytes
-            of storage pointed to by `dest`.
+        @param b A modifiable buffer to hold
+            the data.
     */
     BOOST_BUFFERS_DECL
     virtual
     results
     do_read_one(
-        void* dest,
-        std::size_t size) = 0;
+        mutable_buffer b) = 0;
 
     /** Implementation for producing data.
 
         This virtual function is called by the
         implementation. The default implementation
         simply calls @ref do_read_one for each
-        mutable buffer in the array. Derived
+        mutable buffer in the span. Derived
         classes may override this function to
-        optimize the case where a range of
+        optimize the case where a span of
         buffers is presented for reading.
         <br>
         This will will only be called if @ref init
@@ -208,17 +199,13 @@ private:
 
         @return The result of the operation.
 
-        @param dest An array of mutable buffers.
-
-        @param dest_len The number of elements
-            in the array pointed to by `dest`.
+        @param bs A span of mutable buffers.
     */
     BOOST_BUFFERS_DECL
     virtual
     results
     do_read(
-        mutable_buffer const* dest,
-        std::size_t dest_len);
+        mutable_buffer_span bs);
 };
 
 //------------------------------------------------

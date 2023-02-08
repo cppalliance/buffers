@@ -79,8 +79,7 @@ struct source_test
 
         results
         do_read_one(
-            void* dest,
-            std::size_t size) override
+            mutable_buffer b) override
         {
             results rv;
             if(n_success_-- == 0)
@@ -90,9 +89,7 @@ struct source_test
                     boost::system::generic_category());
                 return rv;
             }
-            rv.bytes = buffer_copy(
-                mutable_buffer(
-                    dest, size), cb_);
+            rv.bytes = buffer_copy(b, cb_);
             cb_ += rv.bytes;
             rv.finished = cb_.size() == 0;
             return rv;

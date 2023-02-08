@@ -19,20 +19,16 @@ namespace buffers {
 auto
 source::
 do_read(
-    mutable_buffer const* dest,
-    std::size_t dest_len) ->
+    mutable_buffer_span bs) ->
         results
 {
     results rv;
-    while(dest_len--)
+    for(auto const& b : bs)
     {
-        mutable_buffer b(*dest++);
-        auto saved = rv.bytes;
-        rv = read(b);
-        rv.bytes += saved;
+        rv += read(b);
         if(rv.ec.failed())
             return rv;
-        if(! rv.finished)
+        if(rv.finished)
             break;
     }
     return rv;

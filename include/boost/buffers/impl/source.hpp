@@ -26,8 +26,8 @@ operator+=(
     results const& rv) ->
         results&
 {
-    BOOST_ASSERT(! rv.ec.failed());
-    BOOST_ASSERT(! rv.finished);
+    BOOST_ASSERT(! ec.failed());
+    BOOST_ASSERT(! finished);
     ec = rv.ec;
     bytes += rv.bytes;
     finished = rv.finished;
@@ -51,8 +51,7 @@ read(
     if(is_finished())
         detail::throw_logic_error();
 
-    auto rv = do_read_one(
-        b.data(), b.size());
+    auto rv = do_read_one(b);
     finished_ = rv.finished;
     return rv;
 }
@@ -61,8 +60,7 @@ inline
 auto
 source::
 read(
-    mutable_buffer const* dest,
-    std::size_t dest_len) ->
+    mutable_buffer_span bs) ->
         results
 {
     // Forgot to call init
@@ -73,7 +71,7 @@ read(
     if(is_finished())
         detail::throw_logic_error();
 
-    auto rv = do_read(dest, dest_len);
+    auto rv = do_read(bs);
     finished_ = rv.finished;
     return rv;
 }
@@ -88,6 +86,14 @@ read(MutableBufferSequence const& dest) ->
         is_mutable_buffer_sequence<
             MutableBufferSequence>::value,
         "Type requirements not met");
+
+    // Forgot to call init
+    if(! is_inited())
+        detail::throw_logic_error();
+
+    // Already finished
+    if(is_finished())
+        detail::throw_logic_error();
 
     results rv;
     constexpr int SmallArraySize = 16;
@@ -106,9 +112,9 @@ read(MutableBufferSequence const& dest) ->
         while(
             p != tmp_end &&
             it != end_);
-        auto saved = rv.bytes;
-        rv = read(tmp, p - tmp);
-        rv.bytes += saved;
+        rv += do_read(
+            mutable_buffer_span(
+                tmp, p - tmp));
         if(rv.ec.failed())
             return rv;
         if(rv.finished)
