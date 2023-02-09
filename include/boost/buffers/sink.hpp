@@ -12,85 +12,181 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffered_base.hpp>
-#include <boost/buffers/const_buffer.hpp>
+#include <boost/buffers/const_buffer_span.hpp>
+#include <boost/buffers/type_traits.hpp>
 #include <boost/system/error_code.hpp>
+#include <cstddef>
+#include <type_traits>
 
 namespace boost {
 namespace buffers {
 
-/** A consumer of buffered data.
+/** An algorithm for consuming buffers of data.
 
     This interface abstracts the consumption of
-    a finite stream of data, represented by
-    zero or more caller provided, read-only
-    buffers passed sequentially until there
-    are no more buffers.
+    a finite stream of data, passed by reading
+    from caller-provided buffers until there
+    is no more input data.
 
     @par Thread Safety
     Non-const member functions may not be
     called concurrently on the same instance.
 */
-class BOOST_SYMBOL_VISIBLE
+struct BOOST_SYMBOL_VISIBLE
     sink
     : buffered_base
 {
-public:
     /** The results of consuming data.
-
-        Partial success is possible.
     */
     struct results
     {
+        /** The error, if any occurred.
+        */
+        system::error_code ec;
+
         /** The number of bytes consumed in the input.
         */
         std::size_t bytes = 0;
 
-        /** The error, if any occurred.
+        /** Accumulate results.
         */
-        system::error_code ec;
+        results&
+        operator+=(
+            results const& rv);
     };
 
     /** Consume data.
 
-        This function consumes zero or more
-        bytes of data from the passed buffer.
+        This function attempts to write to the
+        sink, by transferring data from the given
+        constant buffer sequence.
+        The return value indicates the number of
+        bytes consumed from the buffers and the
+        error if any occurred.
 
         @par Preconditions
-        @ref init was called once before any
-            calls to `read_one`, and:
-        @code
-        dest != nullptr || size == 0
-        @endcode
+        @li @ref init was called, and
+        @li This is the first call to @ref write,
+            or the last value of `more` was `true`.
 
-        @param src A pointer to contiguous
-            storage of at least `size` bytes.
+        @return The result of the operation.
 
-        @param size The number of valid bytes
-            of storage pointed to by `dest`.
+        @param bs The buffers to use.
+            Each buffer in the sequence will be
+            consumed completely before the next
+            buffer is accessed.
 
-        @param more `true` if there will be a
-            subsequent call to `write_one`.
+        @param more `true` if there will be one
+            or more subsequent calls to @ref write.
     */
-    virtual
-    results
-    write_one(
-        void const* src,
-        std::size_t src_size,
-        bool more) = 0;
-
-    BOOST_BUFFERS_DECL
-    virtual
-    results
-    write(
-        const_buffer const* src,
-        std::size_t src_len,
-        bool more);
-
     template<class ConstBufferSequence>
     results
     write(
-        ConstBufferSequence const& src,
+        ConstBufferSequence const& bs,
+        bool more)
+    {
+        static_assert(
+            is_const_buffer_sequence<
+                ConstBufferSequence>::value,
+            "Type requirements not met");
+
+        return write_impl(bs, more);
+    }
+
+#ifdef BOOST_BUFFERS_DOCS
+protected:
+#else
+private:
+#endif
+    /** Derived class override.
+
+        This pure virtual function is called by
+        the implementation and must be overriden.
+        The callee should attempt to consume data
+        from the given constant buffer.
+        The return value must be set to indicate
+        the number of bytes consumed from the
+        buffers, and the error if any occurred.
+
+        @par Preconditions
+        @li @ref init was called, and
+        @li This is the first call to @ref on_write,
+            or the last value of `more` was `true`.
+
+        @return The result of the operation.
+
+        @param b The buffer to use.
+            If `more` is true then the results
+            must indicate that the buffer was
+            consumed completely, or that an error
+            occurred.
+
+        @param more `true` if there will be one
+            or more subsequent calls to @ref write.
+    */
+    BOOST_BUFFERS_DECL
+    virtual
+    results
+    on_write(
+        const_buffer b,
+        bool more) = 0;
+
+    /** Derived class override.
+
+        This pure virtual function is called by
+        the implementation and must be overriden.
+        The callee should attempt to consume data
+        from the given constant buffer sequence.
+        The return value must be set to indicate
+        the number of bytes consumed from the
+        buffers, and the error if any occurred.
+
+        @par Preconditions
+        @li @ref init was called, and
+        @li This is the first call to @ref on_write,
+            or the last value of `more` was `true`.
+
+        @return The result of the operation.
+
+        @param bs The buffer sequence to use.
+            Each buffer in the sequence must
+            be completely consumed before data
+            is consumed from the next buffer.
+            If `more` is true then the results
+            must indicate that the buffer was
+            consumed completely, or that an error
+            occurred.
+
+        @param more `true` if there will be one
+            or more subsequent calls to @ref write.
+    */
+    BOOST_BUFFERS_DECL
+    virtual
+    results
+    on_write(
+        const_buffer_span bs,
         bool more);
+
+private:
+    results
+    write_impl(
+        const_buffer const& b,
+        bool more)
+    {
+        return on_write(b, more);
+    }
+
+    results
+    write_impl(
+        const_buffer_span const& bs,
+        bool more)
+    {
+        return on_write(bs, more);
+    }
+
+    template<class T>
+    results
+    write_impl(T const&, bool);
 };
 
 //------------------------------------------------

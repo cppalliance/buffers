@@ -22,12 +22,9 @@ namespace buffers {
     @ref source, or @ref sink inherit from
     this common interface.
 */
-class BOOST_SYMBOL_VISIBLE
+struct BOOST_SYMBOL_VISIBLE
     buffered_base
 {
-    bool inited_ = false;
-
-public:
     /** Allocator for buffered algorithms.
     */
     class allocator;
@@ -38,14 +35,6 @@ public:
     virtual
     ~buffered_base() = 0;
 
-    /** Return true if init was called.
-    */
-    bool
-    is_inited() const noexcept
-    {
-        return inited_;
-    }
-
     /** Initialize the algorithm.
 
         The derived class must be initialized
@@ -53,21 +42,23 @@ public:
         except destruction.
         The default implementation does nothing.
         The purpose of this function is to
-        allow the object to optionally allocate
-        temporary storage using the specified
-        allocator, which could offer advantages.
+        allow the derived class to optionally
+        allocate temporary storage using the
+        specified allocator, which could offer
+        advantages.
         <br>
         Subclasses are still required to operate
         correctly even when insufficient storage
         is available from the allocator. In this
         case they should simply allocate normally.
 
-        @throws std::logic_error Function called more than once
+        @par Preconditions
+        Initialization has not already occurred.
 
-        @param a The allocator, which may be used
-            to obtain temporary storage.
+        @param a The allocator to use.
     */
     BOOST_BUFFERS_DECL
+    virtual
     void
     init(allocator& a);
 
@@ -78,59 +69,32 @@ public:
         except destruction.
         The default implementation does nothing.
         The purpose of this function is to
-        allow the object to optionally allocate
-        temporary storage using the specified
-        allocator, which could offer advantages.
+        allow the derived class to optionally
+        allocate temporary storage using the
+        specified allocator, which could offer
+        advantages.
         <br>
         Subclasses are still required to operate
         correctly even when insufficient storage
         is available from the allocator. In this
         case they should simply allocate normally.
         
-        @throws std::logic_error Function called more than once
+        @par Preconditions
+        Initialization has not already occurred.
 
         @throws std::invalid_argument `max_size > a.max_size()`
 
-        @param a The allocator, which may be used
-            to obtain temporary storage.
+        @param a The allocator to use.
 
         @param max_size The largest allowed
-            total amount of bytes passed to the
-            allocator's allocate function.
+            total amount of bytes for the
+            allocator.
     */
     BOOST_BUFFERS_DECL
     void
     init(
         allocator& a,
         std::size_t max_size);
-
-#ifdef BOOST_BUFFERS_DOCS
-protected:
-#else
-private:
-#endif
-    /** Implementation for initialization.
-
-        This virtual function is called by
-        the implementation. The default
-        function does nothing. Derived classes
-        may override this to optionally obtain
-        temporary storage from the specified
-        allocator, and to perform other
-        initialization activity.
-
-        @par Preconditions
-        @code
-        this->is_inited() == false
-        @endcode
-
-        @param a The allocator, which may be used
-            to obtain temporary storage.
-    */
-    BOOST_BUFFERS_DECL
-    virtual
-    void
-    on_init(allocator& a);
 };
 
 //------------------------------------------------
@@ -238,7 +202,7 @@ private:
         size_ += n;
     }
 
-    friend class buffered_base;
+    friend struct buffered_base;
 
     unsigned char* base_ = nullptr;
     std::size_t size_ = 0;

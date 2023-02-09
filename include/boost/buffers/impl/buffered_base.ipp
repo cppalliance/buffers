@@ -17,14 +17,8 @@ buffered_base::
 
 void
 buffered_base::
-init(allocator& a)
+init(allocator&)
 {
-    // Can't call twice
-    if(inited_)
-        detail::throw_logic_error();
-
-    on_init(a);
-    inited_ = true;
 }
 
 void
@@ -33,10 +27,6 @@ init(
     allocator& a,
     std::size_t max_size)
 {
-    // Can't call twice
-    if(inited_)
-        detail::throw_logic_error();
-
     // max_size exceeds limit
     if(max_size > a.max_size())
         detail::throw_invalid_argument();
@@ -44,17 +34,8 @@ init(
     auto const n =
         a.max_size() - max_size;
     a.remove(n);
-    on_init(a);
-    inited_ = true;
+    init(a);
     a.restore(n);
-}
-
-void
-buffered_base::
-on_init(
-    allocator&)
-{
-    // do nothing
 }
 
 //------------------------------------------------

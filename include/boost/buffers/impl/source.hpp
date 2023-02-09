@@ -36,42 +36,6 @@ operator+=(
 
 //------------------------------------------------
 
-template<class MutableBufferSequence>
-auto
-source::
-read(
-    MutableBufferSequence const& bs) ->
-        results
-{
-    static_assert(
-        is_mutable_buffer_sequence<
-            MutableBufferSequence>::value,
-        "Type requirements not met");
-
-    // Forgot to call init
-    if(! is_inited())
-        detail::throw_logic_error();
-
-    // Already finished
-    if(is_finished())
-        detail::throw_logic_error();
-
-    auto rv = read_impl(bs);
-    finished_ = rv.finished;
-    return rv;
-}
-
-inline
-auto
-source::
-read_impl(
-    mutable_buffer const& b) ->
-        results
-{
-    return on_read(
-        mutable_buffer_span(&b, 1));
-}
-
 template<class T>
 auto
 source::
@@ -96,7 +60,7 @@ read_impl(
         while(
             p != tmp_end &&
             it != end_);
-        rv += read_impl(
+        rv += on_read(
             mutable_buffer_span(
                 tmp, p - tmp));
         if(rv.ec.failed())

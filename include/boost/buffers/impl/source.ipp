@@ -19,57 +19,31 @@ namespace buffers {
 
 auto
 source::
-read_impl(
+on_read(
     mutable_buffer_span bs) ->
         results
 {
-    results rv;
     auto it = bs.begin();
     auto const end = bs.end();
-    std::size_t n0 = 0;
-    for(;;)
+    if(it != end)
     {
-        // on_read is always
-        // called at least once
-        rv += on_read(bs);
-        if(rv.ec.failed())
-            return rv;
-        if(rv.finished)
-            goto done;
-        auto n = rv.bytes - n0;
-        // skip filled buffers
+        results rv;
         do
         {
-            if(it->size() == 0)
-            {
-                // 0 sized buffer
-                ++it;
-                if(it == end)
-                    goto done;
-                continue;
-            }
-            if(n < it->size())
-            {
-                // partial fill
-                goto done;
-            }
-            // filled buffer
-            n -= it->size();
-            ++it;
-            if(it == end)
-            {
-                // on_read returned
-                // too many bytes
-                BOOST_ASSERT(n == 0);
-                goto done;
-            }
+            mutable_buffer b(*it++);
+            rv += on_read(b);
+            if(rv.ec.failed())
+                return rv;
+            if(rv.finished)
+                break;
         }
-        while(n > 0);
-        bs = mutable_buffer_span(
-            it, end - it);
+        while(it != end);
+        return rv;
     }
-done:
-    return rv;
+
+    // call on_read at least once
+    return on_read(
+        mutable_buffer{});
 }
 
 } // buffers
