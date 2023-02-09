@@ -14,16 +14,16 @@
 [section ConstBufferSequence]
 [endsect]
 
-[section Filter]
+[section MutableBufferSequence]
 [endsect]
 
-[section MutableBufferSequence]
+[section Source]
 [endsect]
 
 [section Sink]
 [endsect]
 
-[section Source]
+[section Filter]
 [endsect]
 
 [endsect]

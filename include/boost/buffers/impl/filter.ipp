@@ -7,8 +7,8 @@
 // Official repository: https://github.com/CPPAlliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_IMPL_SINK_IPP
-#define BOOST_BUFFERS_IMPL_SINK_IPP
+#ifndef BOOST_BUFFERS_IMPL_FILTER_IPP
+#define BOOST_BUFFERS_IMPL_FILTER_IPP
 
 #include <boost/buffers/filter.hpp>
 

@@ -76,8 +76,8 @@ struct algorithm_test
     testBufferSize()
     {
         {
-            char a[7];
-            char b[11];
+            char a[7]{};
+            char b[11]{};
             const_buffer_pair p(
                 const_buffer(a, sizeof(a)),
                 const_buffer(b, sizeof(b)));
@@ -131,14 +131,14 @@ struct algorithm_test
         // prefix
         
         {
-            char buf[16];
+            char buf[16]{};
             const_buffer b(buf, sizeof(buf));
             const_buffer bp = prefix(b, 5);
             BOOST_TEST_EQ(bp.size(), 5);
         }
  
         {
-            char buf[16];
+            char buf[16]{};
             mutable_buffer b(buf, sizeof(buf));
             mutable_buffer bp = prefix(b, 5);
             BOOST_TEST_EQ(bp.size(), 5);
@@ -147,14 +147,14 @@ struct algorithm_test
         // sans_prefix
         
         {
-            char buf[16];
+            char buf[16]{};
             const_buffer b(buf, sizeof(buf));
             const_buffer bp = sans_prefix(b, 5);
             BOOST_TEST_EQ(bp.size(), 11);
         }
  
         {
-            char buf[16];
+            char buf[16]{};
             mutable_buffer b(buf, sizeof(buf));
             mutable_buffer bp = sans_prefix(b, 5);
             BOOST_TEST_EQ(bp.size(), 11);
@@ -163,14 +163,14 @@ struct algorithm_test
         // suffix
 
         {
-            char buf[16];
+            char buf[16]{};
             const_buffer b(buf, sizeof(buf));
             const_buffer bp = suffix(b, 5);
             BOOST_TEST_EQ(bp.size(), 5);
         }
 
         {
-            char buf[16];
+            char buf[16]{};
             mutable_buffer b(buf, sizeof(buf));
             mutable_buffer bp = suffix(b, 5);
             BOOST_TEST_EQ(bp.size(), 5);
@@ -179,14 +179,14 @@ struct algorithm_test
         // sans_suffix
 
         {
-            char buf[16];
+            char buf[16]{};
             const_buffer b(buf, sizeof(buf));
             const_buffer bp = sans_suffix(b, 5);
             BOOST_TEST_EQ(bp.size(), 11);
         }
 
         {
-            char buf[16];
+            char buf[16]{};
             mutable_buffer b(buf, sizeof(buf));
             mutable_buffer bp = sans_suffix(b, 5);
             BOOST_TEST_EQ(bp.size(), 11);

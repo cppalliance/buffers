@@ -17,40 +17,32 @@ namespace buffers {
 
 auto
 sink::
-write(
-    const_buffer const* src,
-    std::size_t src_len,
+on_write(
+    const_buffer_span bs,
     bool more) ->
         results
 {
-    results rv;
-    if(src_len == 0)
-        return rv;
-    if(src_len > 1)
+    auto it = bs.begin();
+    auto const end = bs.end();
+    if(it != end)
     {
-        while(--src_len)
+        results rv;
+        do
         {
-            const_buffer cb(*src++);
-            auto saved = rv.bytes;
-            rv = write_one(
-                cb.data(),
-                cb.size(),
-                true);
-            rv.bytes += saved;
+            const_buffer b(*it++);
+            rv += on_write(b,
+                it != end ||
+                more);
             if(rv.ec.failed())
                 return rv;
         }
-    }
-    const_buffer cb(*src);
-    auto saved = rv.bytes;
-    rv = write_one(
-        cb.data(),
-        cb.size(),
-        ! more);
-    rv.bytes += saved;
-    if(rv.ec.failed())
+        while(it != end);
         return rv;
-    return rv;
+    }
+
+    // call on_write at least once
+    return on_write(
+        mutable_buffer{}, more);
 }
 
 } // buffers

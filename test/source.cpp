@@ -70,7 +70,7 @@ struct source_test
         }
 
         void
-        on_init(allocator& a) override
+        init(allocator& a) override
         {
             BOOST_TEST(
                 a.max_size() == max_size_);
@@ -79,28 +79,20 @@ struct source_test
 
         results
         on_read(
-            mutable_buffer_span bs) override
+            mutable_buffer b) override
         {
             results rv;
-            for(auto const& b : bs)
+            if(n_success_-- == 0)
             {
-                if(n_success_-- == 0)
-                {
-                    rv.ec = boost::system::error_code(
-                        boost::system::errc::invalid_argument,
-                        boost::system::generic_category());
-                    return rv;
-                }
-                auto const n =
-                    buffer_copy(b, cb_);
-                cb_ += n;
-                rv.bytes += n;
-                rv.finished = cb_.size() == 0;
-                if(rv.ec.failed())
-                    return rv;
-                if(rv.finished)
-                    break;
+                rv.ec = boost::system::error_code(
+                    boost::system::errc::invalid_argument,
+                    boost::system::generic_category());
+                return rv;
             }
+            auto const n = buffer_copy(b, cb_);
+            cb_ += n;
+            rv.bytes += n;
+            rv.finished = cb_.size() == 0;
             return rv;
         }
 
@@ -160,15 +152,6 @@ struct source_test
             BOOST_TEST(equal(
                 const_buffer(tmp, sizeof(tmp)),
                 pattern()));
-        }
-
-        // forgot init
-        {
-            char tmp[40];
-            test_source ts(0, 0);
-            BOOST_TEST_THROWS(
-                ts.read(buffer(tmp)),
-                std::logic_error);
         }
     }
 

@@ -12,32 +12,42 @@
 
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/iterators.hpp>
-#include <boost/buffers/type_traits.hpp>
 #include <boost/buffers/detail/except.hpp>
-
+#include <boost/assert.hpp>
 namespace boost {
 namespace buffers {
 
-template<class ConstBufferSequence>
+inline
 auto
 sink::
-write(
-    ConstBufferSequence const& src,
-    bool more) ->
-    results
+results::
+operator+=(
+    results const& rv) ->
+        results&
 {
-    static_assert(
-        is_const_buffer_sequence<
-            ConstBufferSequence>::value,
-        "Type requirements not met");
+    BOOST_ASSERT(! ec.failed());
+    ec = rv.ec;
+    bytes += rv.bytes;
+    return *this;
+}
 
+//------------------------------------------------
+
+template<class T>
+auto
+sink::
+write_impl(
+    T const& bs,
+    bool more) ->
+        results
+{
     results rv;
     constexpr int SmallArraySize = 16;
     const_buffer tmp[SmallArraySize];
     auto const tmp_end =
         tmp + SmallArraySize;
-    auto it = (begin)(src);
-    auto const end_ = (end)(src);
+    auto it = (begin)(bs);
+    auto const end_ = (end)(bs);
     while(it != end_)
     {
         auto p = tmp;
@@ -48,12 +58,11 @@ write(
         while(
             p != tmp_end &&
             it != end_);
-        auto saved = rv.bytes;
-        rv = write(
-            tmp,
-            p - tmp,
-            it != end_ || more);
-        rv.bytes += saved;
+        rv += on_write(
+            const_buffer_span(
+                tmp, p - tmp),
+            it != end_ ||
+                more);
         if(rv.ec.failed())
             return rv;
     }

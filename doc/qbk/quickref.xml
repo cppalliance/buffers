@@ -63,8 +63,11 @@
         <bridgehead renderas="sect3">Type Traits</bridgehead>
         <simplelist type="vert" columns="1">
           <member><link linkend="buffers.ref.boost__buffers__is_const_buffer_sequence">is_const_buffer_sequence</link></member>
-          <member><link linkend="buffers.ref.boost__buffers__is_dynamic_buffer">is_dynamic_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__is_mutable_buffer_sequence">is_mutable_buffer_sequence</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__is_dynamic_buffer">is_dynamic_buffer</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__is_source">is_source</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__is_sink">is_sink</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__is_filter">is_filter</link></member>
         </simplelist>
       </entry>
 
@@ -72,10 +75,10 @@
         <bridgehead renderas="sect3">Concepts</bridgehead>
         <simplelist type="vert" columns="1">
           <member><link linkend="buffers.concepts.constbuffersequence">ConstBufferSequence</link></member>
-          <member><link linkend="buffers.concepts.filter">Filter</link></member>
           <member><link linkend="buffers.concepts.mutablebuffersequence">MutableBufferSequence</link></member>
-          <member><link linkend="buffers.concepts.sink">Sink</link></member>
           <member><link linkend="buffers.concepts.source">Source</link></member>
+          <member><link linkend="buffers.concepts.sink">Sink</link></member>
+          <member><link linkend="buffers.concepts.filter">Filter</link></member>
         </simplelist>
       </entry>
 
