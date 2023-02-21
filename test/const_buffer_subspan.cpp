@@ -16,7 +16,7 @@
 #include <boost/buffers/type_traits.hpp>
 #include <boost/static_assert.hpp>
 
-#include "test_suite.hpp"
+#include "test_helpers.hpp"
 
 #include <string>
 
@@ -32,8 +32,7 @@ struct const_buffer_subspan_test
     void
     testSpecial()
     {
-        std::string const pat =
-            "012" "34567" "89abcde"; // 15
+        auto const pat = test_pattern();
         const_buffer const cb[3] = {
             { pat.data(), 3 },
             { pat.data() + 3, 5 },
@@ -64,6 +63,18 @@ struct const_buffer_subspan_test
             s = const_buffer_subspan(cb, 3);
             BOOST_TEST_EQ(buffer_size(s), 15);
         }
+    }
+
+    void
+    testSequence()
+    {
+        auto const pat = test_pattern();
+        const_buffer const cb[3] = {
+            { pat.data(), 3 },
+            { pat.data() + 3, 5 },
+            { pat.data() + 8, 7 } };
+        const_buffer_subspan s(cb, 3);
+        test_buffer_sequence(s);
     }
 
     void
@@ -134,6 +145,7 @@ struct const_buffer_subspan_test
     run()
     {
         testSpecial();
+        testSequence();
         testSubspan();
     }
 };

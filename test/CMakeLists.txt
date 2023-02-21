@@ -15,6 +15,7 @@ set(EXTRAFILES
 set(PFILES
     CMakeLists.txt
     Jamfile
+    test_helpers.hpp
     algorithm.cpp
     buffer.cpp
     buffer_copy.cpp
