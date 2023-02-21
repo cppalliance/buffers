@@ -14,16 +14,12 @@
 #include <boost/buffers/buffer_size.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
-
-#include <boost/core/detail/string_view.hpp>
 #include <boost/static_assert.hpp>
-
+#include <string>
 #include "test_suite.hpp"
 
 namespace boost {
 namespace buffers {
-
-using string_view = core::string_view;
 
 struct asio_mutable_buffer
 {
@@ -90,7 +86,7 @@ struct algorithm_test
     void
     testBufferCopy()
     {
-        string_view s =
+        std::string const s =
             "Howdy partner";
         auto const N = s.size();
         for(std::size_t i = 0;
@@ -119,7 +115,7 @@ struct algorithm_test
                     BOOST_TEST_LE(n, N);
                     BOOST_TEST_EQ(
                         s.substr(0, n),
-                        string_view(tmp, n));
+                        std::string(tmp, n));
                 }
             }
         }

@@ -12,6 +12,7 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer.hpp>
+#include <boost/buffers/range.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 
@@ -42,31 +43,34 @@ tag_invoke(
     Buffers const& bs) noexcept
 {
     std::size_t n = 0;
-    for(const_buffer b : bs)
+    for(const_buffer b : range(bs))
         n += b.size();
     return n;
 }
 
 namespace detail {
 
-struct buffer_size_t
+struct buffer_size_impl
 {
-    template<
-        class Buffers,
-        class = typename std::enable_if<
-            is_const_buffer_sequence<Buffers>::value
-        >::type>
+    template<class Buffers>
     std::size_t
     operator()(
         Buffers const& bs) const noexcept
     {
+        // If you get a compile error here it
+        // means that your type does not meet
+        // the requirements.
+        static_assert(
+            is_const_buffer_sequence<Buffers>::value,
+            "Type requirements not met.");
+
         return tag_invoke(size_tag{}, bs);
     }
 };
 
 } // detail
 
-constexpr detail::buffer_size_t buffer_size{};
+constexpr detail::buffer_size_impl buffer_size{};
 
 #endif
 

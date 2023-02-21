@@ -50,6 +50,8 @@
           <member><link linkend="buffers.ref.boost__buffers__front">front</link></member>
           <member><link linkend="buffers.ref.boost__buffers__prefix">prefix</link></member>
           <member><link linkend="buffers.ref.boost__buffers__range">range</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__sans_prefix">sans_prefix</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__sans_suffix">sans_suffix</link></member>
           <member><link linkend="buffers.ref.boost__buffers__suffix">suffix</link></member>
         </simplelist>
       </entry>
@@ -69,6 +71,8 @@
           <member><link linkend="buffers.ref.boost__buffers__is_source">is_source</link></member>
           <member><link linkend="buffers.ref.boost__buffers__is_sink">is_sink</link></member>
           <member><link linkend="buffers.ref.boost__buffers__is_filter">is_filter</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__prefix_type">prefix_type</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__suffix_type">suffix_type</link></member>
         </simplelist>
       </entry>
 

@@ -63,7 +63,7 @@ using prefix_type = decltype(
 
 namespace detail {
 
-struct prefix_t
+struct prefix_impl
 {
     template<class BufferSequence>
     prefix_type<BufferSequence>
@@ -83,11 +83,11 @@ struct prefix_t
 
 } // detail
 
-constexpr detail::prefix_t prefix{};
+constexpr detail::prefix_impl prefix{};
 
 namespace detail {
 
-struct sans_suffix_t
+struct sans_suffix_impl
 {
     template<class BufferSequence>
     prefix_type<BufferSequence>
@@ -104,7 +104,7 @@ struct sans_suffix_t
 
 } // detail
 
-constexpr detail::sans_suffix_t sans_suffix{};
+constexpr detail::sans_suffix_impl sans_suffix{};
 
 #endif
 
@@ -151,7 +151,7 @@ using suffix_type = decltype(
 
 namespace detail {
 
-struct suffix_t
+struct suffix_impl
 {
     template<class BufferSequence>
     suffix_type<BufferSequence>
@@ -160,7 +160,8 @@ struct suffix_t
         std::size_t n) const
     {
         static_assert(
-            is_const_buffer_sequence<BufferSequence>::value,
+            is_const_buffer_sequence<
+                BufferSequence>::value,
             "Type requirements not met");
 
         return tag_invoke(
@@ -170,11 +171,11 @@ struct suffix_t
 
 } // detail
 
-constexpr detail::suffix_t suffix{};
+constexpr detail::suffix_impl suffix{};
 
 namespace detail {
 
-struct sans_prefix_t
+struct sans_prefix_impl
 {
     template<class BufferSequence>
     suffix_type<BufferSequence>
@@ -183,7 +184,8 @@ struct sans_prefix_t
         std::size_t n) const
     {
         static_assert(
-            is_const_buffer_sequence<BufferSequence>::value,
+            is_const_buffer_sequence<
+                BufferSequence>::value,
             "Type requirements not met");
 
         auto const n0 = buffer_size(b);
@@ -195,7 +197,7 @@ struct sans_prefix_t
 
 } // detail
 
-constexpr detail::sans_prefix_t sans_prefix{};
+constexpr detail::sans_prefix_impl sans_prefix{};
 
 #endif
 
@@ -214,7 +216,7 @@ front(
 
 namespace detail {
 
-struct front_t
+struct front_impl
 {
     template<
         class MutableBufferSequence
@@ -256,7 +258,7 @@ struct front_t
 
 } // detail
 
-constexpr detail::front_t front{};
+constexpr detail::front_impl front{};
 
 #endif
 

@@ -38,7 +38,7 @@ buffer_copy(
 
 namespace detail {
 
-struct buffer_copy_t
+struct buffer_copy_impl
 {
     template<
         class MutableBuffers,
@@ -118,7 +118,7 @@ struct buffer_copy_t
 
 } // detail
 
-constexpr detail::buffer_copy_t buffer_copy{};
+constexpr detail::buffer_copy_impl buffer_copy{};
 
 #endif
 

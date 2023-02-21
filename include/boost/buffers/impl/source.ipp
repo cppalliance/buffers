@@ -24,8 +24,8 @@ on_read(
         results
 {
     auto it = bs.begin();
-    auto const end = bs.end();
-    if(it != end)
+    auto const end_ = bs.end();
+    if(it != end_)
     {
         results rv;
         do
@@ -37,7 +37,7 @@ on_read(
             if(rv.finished)
                 break;
         }
-        while(it != end);
+        while(it != end_);
         return rv;
     }
 

@@ -46,5 +46,4 @@ target_include_directories(boost_buffers_tests PRIVATE . ../../url/extra)
 target_link_libraries(
     boost_buffers_tests PRIVATE
     boost_buffers
-    Boost::core
     )

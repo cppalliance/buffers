@@ -23,20 +23,20 @@ on_write(
         results
 {
     auto it = bs.begin();
-    auto const end = bs.end();
-    if(it != end)
+    auto const end_ = bs.end();
+    if(it != end_)
     {
         results rv;
         do
         {
             const_buffer b(*it++);
             rv += on_write(b,
-                it != end ||
+                it != end_ ||
                 more);
             if(rv.ec.failed())
                 return rv;
         }
-        while(it != end);
+        while(it != end_);
         return rv;
     }
 

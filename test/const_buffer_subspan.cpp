@@ -44,6 +44,10 @@ struct const_buffer_subspan_test
             const_buffer_subspan s(cb, 3);
             BOOST_TEST_EQ(buffer_size(s), 15);
         }
+        {
+            const_buffer_subspan s(cb, 0);
+            BOOST_TEST_EQ(buffer_size(s), 0);
+        }
 
         // const_buffer_subspan(
         //  const_buffer_subspan const&)
