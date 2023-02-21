@@ -8,75 +8,75 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers/const_buffer_subspan.hpp>
+#include <boost/buffers/mutable_buffer_subspan.hpp>
 
-#include <boost/buffers/const_buffer_span.hpp>
+#include <boost/buffers/mutable_buffer_span.hpp>
 #include "test_helpers.hpp"
 
 namespace boost {
 namespace buffers {
 
-struct const_buffer_subspan_test
+struct mutable_buffer_subspan_test
 {
     void
     testMembers()
     {
-        auto const& pat = test_pattern();
-        const_buffer const cb[3] = {
-            { pat.data(), 3 },
-            { pat.data() + 3, 5 },
-            { pat.data() + 8, 7 } };
+        std::string pat = test_pattern();
+        mutable_buffer const mb[3] = {
+            { &pat[0], 3 },
+            { &pat[0] + 3, 5 },
+            { &pat[0] + 8, 7 } };
 
-        // const_buffer_subspan()
+        // mutable_buffer_subspan()
         {
-            const_buffer_subspan bs;
+            mutable_buffer_subspan bs;
             BOOST_TEST_EQ(buffer_size(bs), 0);
         }
 
-        // const_buffer_subspan(
-        //  const_buffer const*, std::size_t)
+        // mutable_buffer_subspan(
+        //  mutable_buffer const*, std::size_t)
         {
-            const_buffer_subspan s(cb, 3);
+            mutable_buffer_subspan s(mb, 3);
             BOOST_TEST_EQ(buffer_size(s), 15);
         }
         {
-            const_buffer_subspan s(cb, 0);
+            mutable_buffer_subspan s(mb, 0);
             BOOST_TEST_EQ(buffer_size(s), 0);
         }
 
-        // const_buffer_subspan(
-        //  const_buffer_span const&)
+        // mutable_buffer_subspan(
+        //  mutable_buffer_span const&)
         {
-            const_buffer_span cs0(cb, 3);
-            const_buffer_subspan cs1(cs0);
+            mutable_buffer_span ms0(mb, 3);
+            mutable_buffer_subspan ms1(ms0);
             BOOST_TEST_EQ(
-                buffer_size(cs0),
-                buffer_size(cs1));
+                buffer_size(ms0),
+                buffer_size(ms1));
         }
         {
-            const_buffer_span cs0(cb, 0);
-            const_buffer_subspan cs1(cs0);
+            mutable_buffer_span ms0(mb, 0);
+            mutable_buffer_subspan ms1(ms0);
             BOOST_TEST_EQ(
-                buffer_size(cs0),
-                buffer_size(cs1));
+                buffer_size(ms0),
+                buffer_size(ms1));
         }
 
-        // const_buffer_subspan(
-        //  const_buffer_subspan const&)
+        // mutable_buffer_subspan(
+        //  mutable_buffer_subspan const&)
         {
-            const_buffer_subspan s0(cb, 3);
-            const_buffer_subspan s1(s0);
+            mutable_buffer_subspan s0(mb, 3);
+            mutable_buffer_subspan s1(s0);
             BOOST_TEST_EQ(
                 buffer_size(s1),
                 buffer_size(s0));
         }
 
         // operator=(
-        //  const_buffer_subspan const&)
+        //  mutable_buffer_subspan const&)
         {
-            const_buffer_subspan s;
+            mutable_buffer_subspan s;
             BOOST_TEST_EQ(buffer_size(s), 0);
-            s = const_buffer_subspan(cb, 3);
+            s = mutable_buffer_subspan(mb, 3);
             BOOST_TEST_EQ(buffer_size(s), 15);
         }
     }
@@ -84,12 +84,12 @@ struct const_buffer_subspan_test
     void
     testSequence()
     {
-        auto const pat = test_pattern();
-        const_buffer const cb[3] = {
-            { pat.data(), 3 },
-            { pat.data() + 3, 5 },
-            { pat.data() + 8, 7 } };
-        const_buffer_subspan s(cb, 3);
+        std::string pat = test_pattern();
+        mutable_buffer const mb[3] = {
+            { &pat[0], 3 },
+            { &pat[3], 5 },
+            { &pat[8], 7 } };
+        mutable_buffer_subspan s(mb, 3);
         test_buffer_sequence(s);
     }
 
@@ -97,12 +97,12 @@ struct const_buffer_subspan_test
     testSubspan()
     {
         std::string tmp;
-        auto const& pat = test_pattern();
-        const_buffer const cb[3] = {
+        std::string pat = test_pattern();
+        mutable_buffer const mb[3] = {
             { &pat[0], 3 },
             { &pat[3], 5 },
             { &pat[8], 7 } };
-        const_buffer_span const cs0(cb, 3);
+        mutable_buffer_span const cs0(mb, 3);
 
         for(std::size_t i = 0; i <= pat.size(); ++i )
         {
@@ -164,8 +164,8 @@ struct const_buffer_subspan_test
 };
 
 TEST_SUITE(
-    const_buffer_subspan_test,
-    "boost.buffers.const_buffer_subspan");
+    mutable_buffer_subspan_test,
+    "boost.buffers.mutable_buffer_subspan");
 
 } // buffers
 } // boost

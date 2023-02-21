@@ -32,6 +32,7 @@ set(PFILES
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
     mutable_buffer_span.cpp
+    mutable_buffer_subspan.cpp
     range.cpp
     sink.cpp
     source.cpp

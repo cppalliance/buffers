@@ -62,7 +62,7 @@ public:
 
     /** Constructor.
     */
-    // VFALCO explicit?
+    explicit
     const_buffer_subspan(
         const_buffer_span const& s) noexcept;
 

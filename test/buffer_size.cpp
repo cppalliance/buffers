@@ -9,6 +9,7 @@
 
 // Test that header file is self-contained.
 #include <boost/buffers/buffer_size.hpp>
+#include <boost/buffers/const_buffer_span.hpp>
 
 #include "test_suite.hpp"
 
@@ -18,8 +19,28 @@ namespace buffers {
 struct buffer_size_test
 {
     void
+    testBufferSize()
+    {
+        char data[9];
+        for(std::size_t i = 0; i < 3; ++i)
+        for(std::size_t j = 0; j < 3; ++j)
+        for(std::size_t k = 0; k < 3; ++k)
+        {
+            const_buffer cb[3] = {
+                { data, i },
+                { data + i, j },
+                { data + i + j, k }
+            };
+            const_buffer_span s(cb, 3);
+            BOOST_TEST_EQ(
+                buffer_size(s), i + j + k);
+        }
+    }
+
+    void
     run()
     {
+        testBufferSize();
     }
 };
 

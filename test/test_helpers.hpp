@@ -10,6 +10,10 @@
 #ifndef BOOST_BUFFERS_TEST_HELPERS_HPP
 #define BOOST_BUFFERS_TEST_HELPERS_HPP
 
+#include <boost/buffers/algorithm.hpp>
+#include <boost/buffers/buffer.hpp>
+#include <boost/buffers/buffer_copy.hpp>
+#include <boost/buffers/buffer_size.hpp>
 #include <boost/buffers/range.hpp>
 #include <string>
 #include "test_suite.hpp"
@@ -17,6 +21,7 @@
 namespace boost {
 namespace buffers {
 
+inline
 std::string const&
 test_pattern()
 {
@@ -25,13 +30,30 @@ test_pattern()
     return pat;
 }
 
+template<class Buffers>
+std::string
+test_to_string(Buffers const& bs)
+{
+    std::string s(
+        buffer_size(bs), 0);
+    s.resize(buffer_copy(
+        buffer(&s[0], s.size()),
+        bs));
+    return s;
+}
+
 template<class T>
 void
-test_buffer_sequence(T& t)
+test_buffer_sequence(T&& t)
 {
+    static_assert(
+        is_const_buffer_sequence<T>::value,
+        "");
+
     auto const& pat = test_pattern();
     auto const& ct = t;
 
+    // operator++()
     {
         std::string s;
         auto it = begin(t);
@@ -46,6 +68,7 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+    // operator++(int)
     {
         std::string s;
         auto it = begin(t);
@@ -60,6 +83,7 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+    // operator++() const
     {
         std::string s;
         auto it = begin(ct);
@@ -74,6 +98,7 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+    // operator++(int) const
     {
         std::string s;
         auto it = begin(ct);
@@ -88,6 +113,8 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+
+    // operator--()
     {
         std::string s;
         auto it = end(t);
@@ -102,6 +129,7 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+    // operator--(int)
     {
         std::string s;
         auto it = end(t);
@@ -116,6 +144,7 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+    // operator--() const
     {
         std::string s;
         auto it = end(ct);
@@ -130,6 +159,7 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+    // operator--(int) const
     {
         std::string s;
         auto it = end(ct);
@@ -144,6 +174,34 @@ test_buffer_sequence(T& t)
         }
         BOOST_TEST_EQ(s, pat);
     }
+
+    // prefix
+    for(std::size_t i = 0;
+        i <= pat.size(); ++i)
+        BOOST_TEST_EQ(
+            test_to_string(prefix(t, i)),
+            pat.substr(0, i));
+
+    // prefix
+    for(std::size_t i = 0;
+        i <= pat.size(); ++i)
+        BOOST_TEST_EQ(
+            test_to_string(prefix(ct, i)),
+            pat.substr(0, i));
+
+    // suffix
+    for(std::size_t i = 0;
+        i <= pat.size(); ++i)
+        BOOST_TEST_EQ(
+            test_to_string(suffix(t, i)),
+            pat.substr(pat.size() - i, i));
+
+    // suffix
+    for(std::size_t i = 0;
+        i <= pat.size(); ++i)
+        BOOST_TEST_EQ(
+            test_to_string(suffix(ct, i)),
+            pat.substr(pat.size() - i, i));
 }
 
 } // buffers

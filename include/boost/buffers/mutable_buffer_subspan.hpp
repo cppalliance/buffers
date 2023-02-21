@@ -7,27 +7,38 @@
 // Official repository: https://github.com/CPPAlliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_MUTABLE_BUFFER_SPAN_HPP
-#define BOOST_BUFFERS_MUTABLE_BUFFER_SPAN_HPP
+#ifndef BOOST_BUFFERS_MUTABLE_BUFFER_SUBSPAN_HPP
+#define BOOST_BUFFERS_MUTABLE_BUFFER_SUBSPAN_HPP
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
-#include <boost/buffers/mutable_buffer_subspan.hpp>
 
 namespace boost {
 namespace buffers {
 
-/** Holds a span of buffers that are modifiable.
+#ifndef BOOST_BUFFERS_DOCS
+class mutable_buffer_span;
+#endif
+
+/** Holds a span of buffers whose contents are modifiable.
 
     Objects of this type meet the requirements
     of <em>MutableBufferSequence</em>.
 */
-class mutable_buffer_span
+class mutable_buffer_subspan
 {
     mutable_buffer const* p_ = nullptr;
     std::size_t n_ = 0;
+    std::size_t p0_ = 0;
+    std::size_t p1_ = 0;
 
-    friend class mutable_buffer_subspan;
+    friend class mutable_buffer_span;
+
+    mutable_buffer_subspan(
+        mutable_buffer const* p,
+        std::size_t n,
+        std::size_t p0,
+        std::size_t p1) noexcept;
 
 public:
     /** The type of buffer.
@@ -36,54 +47,51 @@ public:
 
     /** The type of iterators returned.
     */
-    using const_iterator = value_type const*;
+    class const_iterator;
 
     /** Constructor.
     */
-    mutable_buffer_span() = default;
+    mutable_buffer_subspan() = default;
 
     /** Constructor.
     */
-    mutable_buffer_span(
+    BOOST_BUFFERS_DECL
+    mutable_buffer_subspan(
         mutable_buffer const* p,
-        std::size_t n) noexcept
-        : p_(p)
-        , n_(n)
-    {
-    }
+        std::size_t n) noexcept;
 
     /** Constructor.
     */
-    mutable_buffer_span(
-        mutable_buffer_span const&) = default;
+    explicit
+    mutable_buffer_subspan(
+        mutable_buffer_span const& s) noexcept;
+
+    /** Constructor.
+    */
+    mutable_buffer_subspan(
+        mutable_buffer_subspan const&) = default;
 
     /** Assignment.
     */
-    mutable_buffer_span& operator=(
-        mutable_buffer_span const&) = default;
+    mutable_buffer_subspan& operator=(
+        mutable_buffer_subspan const&) = default;
 
     /** Return an iterator to the beginning.
     */
     const_iterator
-    begin() const noexcept
-    {
-        return p_;
-    }
+    begin() const noexcept;
 
     /** Return an iterator to the end.
     */
     const_iterator
-    end() const noexcept
-    {
-        return p_ + n_;
-    }
+    end() const noexcept;
 
 #ifndef BOOST_BUFFERS_DOCS
     friend
     mutable_buffer_subspan
     tag_invoke(
         prefix_tag const&,
-        mutable_buffer_span const& s,
+        mutable_buffer_subspan const& s,
         std::size_t n) noexcept
     {
         return s.prefix_impl(n);
@@ -93,7 +101,7 @@ public:
     mutable_buffer_subspan
     tag_invoke(
         suffix_tag const&,
-        mutable_buffer_span const& s,
+        mutable_buffer_subspan const& s,
         std::size_t n) noexcept
     {
         return s.suffix_impl(n);
@@ -101,15 +109,15 @@ public:
 #endif
 
 private:
-    mutable_buffer_subspan prefix_impl(
-        std::size_t n) const noexcept;
-    mutable_buffer_subspan suffix_impl(
-        std::size_t n) const noexcept;
+    BOOST_BUFFERS_DECL mutable_buffer_subspan
+        prefix_impl(std::size_t n) const noexcept;
+    BOOST_BUFFERS_DECL mutable_buffer_subspan
+        suffix_impl(std::size_t n) const noexcept;
 };
 
 } // buffers
 } // boost
 
-#include <boost/buffers/impl/mutable_buffer_span.hpp>
+#include <boost/buffers/impl/mutable_buffer_subspan.hpp>
 
 #endif

@@ -10,12 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/source.hpp>
 
-#include <boost/buffers/buffer.hpp>
-#include <boost/buffers/buffer_copy.hpp>
-#include <boost/buffers/buffer_size.hpp>
-#include <cstring>
-
-#include "test_suite.hpp"
+#include "test_helpers.hpp"
 
 namespace boost {
 namespace buffers {

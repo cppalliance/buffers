@@ -10,23 +10,58 @@
 // Test that header file is self-contained.
 #include <boost/buffers/const_buffer_span.hpp>
 
-#include <boost/buffers/type_traits.hpp>
-#include <boost/static_assert.hpp>
-
-#include "test_suite.hpp"
+#include "test_helpers.hpp"
 
 namespace boost {
 namespace buffers {
 
-BOOST_STATIC_ASSERT(
-    is_const_buffer_sequence<
-        const_buffer_span>::value);
-
 struct const_buffer_span_test
 {
     void
+    testMembers()
+    {
+        auto const& pat = test_pattern();
+        const_buffer cb[3] = {
+            { &pat[0], 3 },
+            { &pat[3], 5 },
+            { &pat[8], 7 } };
+
+        // const_buffer_span()
+        {
+            const_buffer_span bs;
+            BOOST_TEST_EQ(buffer_size(bs), 0);
+        }
+
+        // const_buffer_span(
+        //  const_buffer const*,
+        //  std::size_t n)
+        {
+            const_buffer_span cbs(cb, 3);
+            test_buffer_sequence(cbs);
+        }
+
+        // const_buffer_span(
+        //  const_buffer_span const&)
+        {
+            const_buffer_span cbs0(cb, 3);
+            const_buffer_span cbs1(cbs0);
+            test_buffer_sequence(cbs1);
+        }
+
+        // operator=(
+        //  const_buffer_span const&)
+        {
+            const_buffer_span cbs0(cb, 3);
+            const_buffer_span cbs1;
+            cbs1 = cbs0;
+            test_buffer_sequence(cbs1);
+        }
+    }
+
+    void
     run()
     {
+        testMembers();
     }
 };
 

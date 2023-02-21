@@ -41,13 +41,13 @@ public:
 
     /** Constructor.
     */
-    explicit
     flat_buffer(
-        mutable_buffer const& b,
-        std::size_t initial_size = 0) noexcept
+        void* data,
+        std::size_t capacity,
+        std::size_t initial_size = 0)
         : data_(static_cast<
-            unsigned char*>(b.data()))
-        , cap_(b.size())
+            unsigned char*>(data))
+        , cap_(capacity)
         , in_size_(initial_size)
     {
         // initial size too large
@@ -57,18 +57,15 @@ public:
 
     /** Constructor.
     */
+    explicit
     flat_buffer(
-        void* data,
-        std::size_t capacity,
-        std::size_t initial_size = 0) noexcept
-        : data_(static_cast<
-            unsigned char*>(data))
-        , cap_(capacity)
-        , in_size_(initial_size)
+        mutable_buffer const& b,
+        std::size_t initial_size = 0)
+        : flat_buffer(
+            b.data(),
+            b.size(),
+            initial_size)
     {
-        // initial size too large
-        if(in_size_ > cap_)
-            detail::throw_invalid_argument();
     }
 
     /** Constructor.
@@ -120,28 +117,30 @@ public:
     }
 
     void
-    commit(std::size_t n)
+    commit(
+        std::size_t n) noexcept
     {
-        // n exceeds output size
-        if(n > out_size_)
-            detail::throw_invalid_argument();
-
-        in_size_ += n;
+        if(n < out_size_)
+            in_size_ += n;
+        else
+            in_size_ += out_size_;
         out_size_ = 0;
     }
 
     void
-    consume(std::size_t n) noexcept
+    consume(
+        std::size_t n) noexcept
     {
-        // n exceeds input size
-        if(n > in_size_)
-            detail::throw_invalid_argument();
-
-        in_size_ -= n;
-        if(in_size_ > 0)
+        if(n < in_size_)
+        {
             in_pos_ += n;
+            in_size_ -= n;
+        }
         else
+        {
             in_pos_ = 0;
+            in_size_ = 0;
+        }
     }
 };
 

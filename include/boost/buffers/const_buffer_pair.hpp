@@ -68,14 +68,6 @@ public:
         return *this;
     }
 
-    const_buffer
-    operator[](
-        std::size_t i) const noexcept
-    {
-        BOOST_ASSERT(i < 2);
-        return b_[i];
-    }
-
     const_iterator
     begin() const noexcept
     {

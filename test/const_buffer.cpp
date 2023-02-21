@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/const_buffer.hpp>
 
-#include "test_suite.hpp"
+#include "test_helpers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -18,7 +18,7 @@ namespace buffers {
 struct const_buffer_test
 {
     void
-    run()
+    testMembers()
     {
         // const_buffer()
         BOOST_TEST_EQ(const_buffer().size(), 0);
@@ -90,6 +90,21 @@ struct const_buffer_test
             BOOST_TEST_EQ(b0.data(), b1.data());
             BOOST_TEST_EQ(b0.size(), b1.size());
         }
+    }
+
+    void
+    testBuffer()
+    {
+        auto const& pat = test_pattern();
+        const_buffer cb(&pat[0], pat.size());
+        test_buffer_sequence(cb);
+    }
+
+    void
+    run()
+    {
+        testMembers();
+        testBuffer();
     }
 };
 

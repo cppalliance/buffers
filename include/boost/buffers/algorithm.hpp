@@ -29,6 +29,11 @@ namespace buffers {
 template<class BufferSequence>
 using prefix_type = __see_below__;
 
+/** Returns the type of a suffix of a buffer sequence.
+*/
+template<class BufferSequence>
+using suffix_type = __see_below__;
+
 /** Return a prefix of the buffer sequence.
 */
 template<class BufferSequence>
@@ -45,6 +50,29 @@ sans_suffix(
     BufferSequence const& b,
     std::size_t n);
 
+/** Return a suffix of the buffer sequence.
+*/
+template<class BufferSequence>
+suffix_type<BufferSequence>
+suffix(
+    BufferSequence const& b,
+    std::size_t n);
+
+/** Return a suffix of the buffer sequence.
+*/
+template<class BufferSequence>
+suffix_type<BufferSequence>
+sans_prefix(
+    BufferSequence const& b,
+    std::size_t n);
+
+/** Return the first buffer in a sequence.
+*/
+template<class BufferSequence>
+__see_below__
+front(
+    BufferSequence const& b);
+
 #else
 
 template<class BufferSequence>
@@ -55,9 +83,23 @@ tag_invoke(
     std::size_t) = delete;
 
 template<class BufferSequence>
+void
+tag_invoke(
+    suffix_tag const&,
+    BufferSequence const&,
+    std::size_t) = delete;
+
+template<class BufferSequence>
 using prefix_type = decltype(
     tag_invoke(
         prefix_tag{},
+        std::declval<BufferSequence const&>(),
+        std::size_t{}));
+
+template<class BufferSequence>
+using suffix_type = decltype(
+    tag_invoke(
+        suffix_tag{},
         std::declval<BufferSequence const&>(),
         std::size_t{}));
 
@@ -81,12 +123,6 @@ struct prefix_impl
     }
 };
 
-} // detail
-
-constexpr detail::prefix_impl prefix{};
-
-namespace detail {
-
 struct sans_suffix_impl
 {
     template<class BufferSequence>
@@ -96,60 +132,13 @@ struct sans_suffix_impl
         std::size_t n) const
     {
         auto const n0 = buffer_size(b);
-        if( n > n0)
-            n = n0;
-        return prefix(b, n0 - n);
+        if(n < n0)
+            return tag_invoke(
+                prefix_tag{}, b, n0 - n);
+        return tag_invoke(
+            prefix_tag{}, b, 0);
     }
 };
-
-} // detail
-
-constexpr detail::sans_suffix_impl sans_suffix{};
-
-#endif
-
-//------------------------------------------------
-
-#ifdef BOOST_BUFFERS_DOCS
-
-/** Returns the type of a suffix of a buffer sequence.
-*/
-template<class BufferSequence>
-using suffix_type = __see_below__;
-
-/** Return a suffix of the buffer sequence.
-*/
-template<class BufferSequence>
-suffix_type<BufferSequence>
-suffix(
-    BufferSequence const& b,
-    std::size_t n);
-
-/** Return a suffix of the buffer sequence.
-*/
-template<class BufferSequence>
-suffix_type<BufferSequence>
-sans_prefix(
-    BufferSequence const& b,
-    std::size_t n);
-
-#else
-
-template<class BufferSequence>
-void
-tag_invoke(
-    suffix_tag const&,
-    BufferSequence const&,
-    std::size_t) = delete;
-
-template<class BufferSequence>
-using suffix_type = decltype(
-    tag_invoke(
-        suffix_tag{},
-        std::declval<BufferSequence const&>(),
-        std::size_t{}));
-
-namespace detail {
 
 struct suffix_impl
 {
@@ -169,12 +158,6 @@ struct suffix_impl
     }
 };
 
-} // detail
-
-constexpr detail::suffix_impl suffix{};
-
-namespace detail {
-
 struct sans_prefix_impl
 {
     template<class BufferSequence>
@@ -189,32 +172,13 @@ struct sans_prefix_impl
             "Type requirements not met");
 
         auto const n0 = buffer_size(b);
-        if( n > n0)
-            n = n0;
-        return suffix(b, n0 - n);
+        if(n < n0)
+            return tag_invoke(
+                suffix_tag{}, b, n0 - n);
+        return tag_invoke(
+            suffix_tag{}, b, 0);
     }
 };
-
-} // detail
-
-constexpr detail::sans_prefix_impl sans_prefix{};
-
-#endif
-
-//------------------------------------------------
-
-#ifdef BOOST_BUFFERS_DOCS
-
-/** Return the first buffer in a sequence.
-*/
-template<class BufferSequence>
-__see_below__
-front(
-    BufferSequence const& b);
-
-#else
-
-namespace detail {
 
 struct front_impl
 {
@@ -258,11 +222,13 @@ struct front_impl
 
 } // detail
 
+constexpr detail::prefix_impl prefix{};
+constexpr detail::suffix_impl suffix{};
+constexpr detail::sans_prefix_impl sans_prefix{};
+constexpr detail::sans_suffix_impl sans_suffix{};
 constexpr detail::front_impl front{};
 
 #endif
-
-//------------------------------------------------
 
 } // buffers
 } // boost

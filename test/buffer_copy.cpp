@@ -10,7 +10,9 @@
 // Test that header file is self-contained.
 #include <boost/buffers/buffer_copy.hpp>
 
-#include "test_suite.hpp"
+#include <boost/buffers/const_buffer_span.hpp>
+#include <boost/buffers/mutable_buffer_span.hpp>
+#include "test_helpers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -18,8 +20,62 @@ namespace buffers {
 struct buffer_copy_test
 {
     void
+    testBufferCopy()
+    {
+        auto const& pat = test_pattern();
+
+        for(std::size_t i = 0;
+            i <= pat.size(); ++i)
+        {
+            for(std::size_t j = 0;
+                j <= pat.size(); ++j)
+            {
+                std::string s;
+                s.resize(pat.size());
+                const_buffer cb[2] = {
+                    { &pat[0], i },
+                    { &pat[i],
+                        pat.size() - i } };
+                mutable_buffer mb[2] = {
+                    { &s[0], j },
+                    { &s[j],
+                        pat.size() - j } };
+                auto n = buffer_copy(
+                    mutable_buffer_span(mb, 2),
+                    const_buffer_span(cb, 2));
+                BOOST_TEST_EQ(n, pat.size());
+                BOOST_TEST_EQ(s, pat);
+            }
+            for(std::size_t j = 0;
+                j <= pat.size(); ++j)
+            {
+                for(std::size_t k = 0;
+                    k <= pat.size(); ++k)
+                {
+                    std::string s;
+                    s.resize(pat.size());
+                    const_buffer cb[2] = {
+                        { &pat[0], i },
+                        { &pat[i],
+                            pat.size() - i } };
+                    mutable_buffer mb[2] = {
+                        { &s[0], j },
+                        { &s[j],
+                            pat.size() - j } };
+                    auto n = buffer_copy(
+                        mutable_buffer_span(mb, 2),
+                        const_buffer_span(cb, 2), k);
+                    s.resize(n);
+                    BOOST_TEST_EQ(s,
+                        pat.substr(0, k));
+                }
+            }
+        }
+    }
+    void
     run()
     {
+        testBufferCopy();
     }
 };
 

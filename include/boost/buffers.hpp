@@ -24,6 +24,7 @@
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
 #include <boost/buffers/mutable_buffer_span.hpp>
+#include <boost/buffers/mutable_buffer_subspan.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/sink.hpp>
 #include <boost/buffers/source.hpp>

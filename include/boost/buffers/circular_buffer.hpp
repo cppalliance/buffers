@@ -43,6 +43,17 @@ public:
 
     /** Constructor.
     */
+    explicit
+    circular_buffer(
+        mutable_buffer b) noexcept
+        : base_(static_cast<
+            unsigned char*>(b.data()))
+        , cap_(b.size())
+    {
+    }
+
+    /** Constructor.
+    */
     circular_buffer(
         void* base,
         std::size_t capacity) noexcept
@@ -85,16 +96,11 @@ public:
 
     BOOST_BUFFERS_DECL
     void
-    commit(std::size_t n);
+    commit(std::size_t n) noexcept;
 
     BOOST_BUFFERS_DECL
     void
     consume(std::size_t n) noexcept;
-
-    // VFALCO I'm not happy with this
-    BOOST_BUFFERS_DECL
-    void
-    uncommit(std::size_t n);
 };
 
 } // buffers

@@ -20,7 +20,8 @@ namespace boost {
 namespace buffers {
 
 BOOST_STATIC_ASSERT(
-    is_dynamic_buffer<circular_buffer>::value);
+    is_dynamic_buffer<
+        circular_buffer>::value);
 
 auto
 circular_buffer::
@@ -65,19 +66,20 @@ prepare(std::size_t n) ->
 
 void
 circular_buffer::
-commit(std::size_t n)
+commit(
+    std::size_t n) noexcept
 {
-    // Precondition violation
-    if(n > out_size_)
-        detail::throw_length_error();
-
-    in_len_ += n;
+    if(n < out_size_)
+        in_len_ += n;
+    else
+        in_len_ += out_size_;
     out_size_ = 0;
 }
 
 void
 circular_buffer::
-consume(std::size_t n) noexcept
+consume(
+    std::size_t n) noexcept
 {
     if(n < in_len_)
     {
@@ -91,19 +93,6 @@ consume(std::size_t n) noexcept
         in_pos_ = 0;
         in_len_ = 0;
     }
-}
-
-void
-circular_buffer::
-uncommit(
-    std::size_t n)
-{
-    // Precondition violation
-    if( n > in_len_ ||
-        out_size_ > 0)
-        detail::throw_length_error();
-
-    in_len_ -= n;
 }
 
 } // buffers

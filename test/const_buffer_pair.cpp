@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/const_buffer_pair.hpp>
 
-#include "test_suite.hpp"
+#include "test_helpers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -18,8 +18,119 @@ namespace buffers {
 struct const_buffer_pair_test
 {
     void
+    testMembers()
+    {
+        auto const& pat = test_pattern();
+
+        // const_buffer_pair()
+        {
+            const_buffer_pair cb;
+            BOOST_TEST_EQ(
+                buffer_size(cb), 0);
+        }
+
+        // const_buffer_pair(
+        //  const_buffer_pair const&),
+        // const_buffer_pair(
+        //  const_buffer const&)
+        //  const_buffer const&)
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                const_buffer_pair cb0(
+                    { &pat[0], i },
+                    { &pat[i],
+                        pat.size() - i });
+                const_buffer_pair cb1(cb0);
+                BOOST_TEST_EQ(
+                    test_to_string(cb0), pat);
+                BOOST_TEST_EQ(
+                    test_to_string(cb0),
+                    test_to_string(cb1));
+            }
+        }
+
+        // const_buffer_pair(
+        //  mutable_buffer_pair)
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                auto s = pat;
+                mutable_buffer_pair b(
+                    { &s[0], i },
+                    { &s[i],
+                        s.size() - i });
+                const_buffer_pair cb(b);
+                BOOST_TEST_EQ(
+                    test_to_string(cb), pat);
+                BOOST_TEST_EQ(
+                    test_to_string(cb),
+                    test_to_string(b));
+            }
+        }
+
+        // operator=(const_buffer_pair const&)
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                const_buffer_pair cb0(
+                    { &pat[0], i },
+                    { &pat[i],
+                        pat.size() - i });
+                const_buffer_pair cb1;
+                cb1 = cb0;
+                BOOST_TEST_EQ(
+                    test_to_string(cb0), pat);
+                BOOST_TEST_EQ(
+                    test_to_string(cb0),
+                    test_to_string(cb1));
+            }
+        }
+
+        // operator=(mutable_buffer_pair const&)
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                auto s = pat;
+                mutable_buffer_pair b(
+                    { &s[0], i },
+                    { &s[i],
+                        s.size() - i });
+                const_buffer_pair cb;
+                cb = b;
+                BOOST_TEST_EQ(
+                    test_to_string(cb), pat);
+                BOOST_TEST_EQ(
+                    test_to_string(cb),
+                    test_to_string(b));
+            }
+        }
+    }
+
+    void
+    testBuffer()
+    {
+        auto const& pat = test_pattern();
+        for(std::size_t i = 0;
+            i <= pat.size(); ++i)
+        {
+            const_buffer_pair cb(
+                { &pat[0], i },
+                { &pat[i],
+                    pat.size() - i });
+            test_buffer_sequence(cb);
+        }
+    }
+
+    void
     run()
     {
+        testMembers();
+        testBuffer();
     }
 };
 
