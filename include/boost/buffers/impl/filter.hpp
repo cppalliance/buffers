@@ -10,7 +10,7 @@
 #ifndef BOOST_BUFFERS_IMPL_FILTER_HPP
 #define BOOST_BUFFERS_IMPL_FILTER_HPP
 
-#include <boost/buffers/iterators.hpp>
+#include <boost/buffers/range.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/buffers/detail/except.hpp>
 

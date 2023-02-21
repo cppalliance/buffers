@@ -7,27 +7,38 @@
 // Official repository: https://github.com/CPPAlliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_CONST_BUFFER_SPAN_HPP
-#define BOOST_BUFFERS_CONST_BUFFER_SPAN_HPP
+#ifndef BOOST_BUFFERS_CONST_BUFFER_SUBSPAN_HPP
+#define BOOST_BUFFERS_CONST_BUFFER_SUBSPAN_HPP
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/const_buffer_subspan.hpp>
 
 namespace boost {
 namespace buffers {
+
+#ifndef BOOST_BUFFERS_DOCS
+class const_buffer_span;
+#endif
 
 /** Holds a span of buffers that cannot be modified.
 
     Objects of this type meet the requirements
     of <em>ConstBufferSequence</em>.
 */
-class const_buffer_span
+class const_buffer_subspan
 {
     const_buffer const* p_ = nullptr;
     std::size_t n_ = 0;
+    std::size_t p0_ = 0;
+    std::size_t p1_ = 0;
 
-    friend class const_buffer_subspan;
+    friend class const_buffer_span;
+
+    const_buffer_subspan(
+        const_buffer const* p,
+        std::size_t n,
+        std::size_t p0,
+        std::size_t p1) noexcept;
 
 public:
     /** The type of buffer.
@@ -36,54 +47,51 @@ public:
 
     /** The type of iterators returned.
     */
-    using const_iterator = value_type const*;
+    class const_iterator;
 
     /** Constructor.
     */
-    const_buffer_span() = default;
+    const_buffer_subspan() = default;
 
     /** Constructor.
     */
-    const_buffer_span(
+    BOOST_BUFFERS_DECL
+    const_buffer_subspan(
         const_buffer const* p,
-        std::size_t n) noexcept
-        : p_(p)
-        , n_(n)
-    {
-    }
+        std::size_t n) noexcept;
 
     /** Constructor.
     */
-    const_buffer_span(
-        const_buffer_span const&) = default;
+    // VFALCO explicit?
+    const_buffer_subspan(
+        const_buffer_span const& s) noexcept;
+
+    /** Constructor.
+    */
+    const_buffer_subspan(
+        const_buffer_subspan const&) = default;
 
     /** Assignment.
     */
-    const_buffer_span& operator=(
-        const_buffer_span const&) = default;
+    const_buffer_subspan& operator=(
+        const_buffer_subspan const&) = default;
 
     /** Return an iterator to the beginning.
     */
     const_iterator
-    begin() const noexcept
-    {
-        return p_;
-    }
+    begin() const noexcept;
 
     /** Return an iterator to the end.
     */
     const_iterator
-    end() const noexcept
-    {
-        return p_ + n_;
-    }
+    end() const noexcept;
 
 #ifndef BOOST_BUFFERS_DOCS
     friend
     const_buffer_subspan
     tag_invoke(
         prefix_tag const&,
-        const_buffer_span const& s,
+        const_buffer_subspan const& s,
         std::size_t n) noexcept
     {
         return s.prefix_impl(n);
@@ -93,7 +101,7 @@ public:
     const_buffer_subspan
     tag_invoke(
         suffix_tag const&,
-        const_buffer_span const& s,
+        const_buffer_subspan const& s,
         std::size_t n) noexcept
     {
         return s.suffix_impl(n);
@@ -101,17 +109,15 @@ public:
 #endif
 
 private:
-    const_buffer_subspan prefix_impl(
-        std::size_t n) const noexcept;
-    const_buffer_subspan suffix_impl(
-        std::size_t n) const noexcept;
+    BOOST_BUFFERS_DECL const_buffer_subspan
+        prefix_impl(std::size_t n) const noexcept;
+    BOOST_BUFFERS_DECL const_buffer_subspan
+        suffix_impl(std::size_t n) const noexcept;
 };
-
-//-----------------------------------------------
 
 } // buffers
 } // boost
 
-#include <boost/buffers/impl/const_buffer_span.hpp>
+#include <boost/buffers/impl/const_buffer_subspan.hpp>
 
 #endif

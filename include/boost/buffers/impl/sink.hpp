@@ -11,7 +11,7 @@
 #define BOOST_BUFFERS_IMPL_SINK_HPP
 
 #include <boost/buffers/mutable_buffer.hpp>
-#include <boost/buffers/iterators.hpp>
+#include <boost/buffers/range.hpp>
 #include <boost/buffers/detail/except.hpp>
 #include <boost/assert.hpp>
 namespace boost {

@@ -8,14 +8,14 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers/iterators.hpp>
+#include <boost/buffers/range.hpp>
 
 #include "test_suite.hpp"
 
 namespace boost {
 namespace buffers {
 
-struct iterators_test
+struct range_test
 {
     void
     run()
@@ -24,8 +24,8 @@ struct iterators_test
 };
 
 TEST_SUITE(
-    iterators_test,
-    "boost.buffers.iterators");
+    range_test,
+    "boost.buffers.range");
 
 } // buffers
 } // boost

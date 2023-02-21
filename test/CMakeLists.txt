@@ -25,12 +25,13 @@ set(PFILES
     const_buffer.cpp
     const_buffer_pair.cpp
     const_buffer_span.cpp
+    const_buffer_subspan.cpp
     filter.cpp
     flat_buffer.cpp
-    iterators.cpp
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
     mutable_buffer_span.cpp
+    range.cpp
     sink.cpp
     source.cpp
     tag_invoke.cpp

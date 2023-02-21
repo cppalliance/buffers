@@ -13,8 +13,8 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer_size.hpp>
 #include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/iterators.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/range.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <memory>
