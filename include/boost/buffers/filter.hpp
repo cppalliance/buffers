@@ -15,6 +15,7 @@
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/const_buffer_span.hpp>
 #include <boost/buffers/mutable_buffer_span.hpp>
+#include <boost/buffers/type_traits.hpp>
 #include <boost/system/error_code.hpp>
 #include <cstddef>
 
@@ -61,11 +62,45 @@ public:
 
         @par Preconditions
         @ref init was called once before any
-            calls to `process`
+            calls to `process`.
     */
-    virtual
+    template<
+        class MutableBufferSequence,
+        class ConstBufferSequence>
     results
     process(
+        MutableBufferSequence const& out,
+        ConstBufferSequence const& in,
+        bool more)
+    {
+        static_assert(
+            is_mutable_buffer_sequence<
+                MutableBufferSequence>::value,
+            "Type requirements not met");
+
+        static_assert(
+            is_const_buffer_sequence<
+                ConstBufferSequence>::value,
+            "Type requirements not met");
+
+        return process_impl(out, in, more);
+    }
+
+#ifdef BOOST_BUFFERS_DOCS
+protected:
+#else
+private:
+#endif
+    /** Derived class override.
+
+        @par Preconditions
+        @ref init was called once before any
+            calls to `process`
+    */
+    BOOST_BUFFERS_DECL
+    virtual
+    results
+    on_process(
         mutable_buffer out,
         const_buffer in,
         bool more) = 0;
@@ -79,24 +114,35 @@ public:
     BOOST_BUFFERS_DECL
     virtual
     results
-    process(
-        mutable_buffer_span const& out,
-        const_buffer_span const& in,
+    on_process(
+        mutable_buffer_span out,
+        const_buffer_span in,
         bool more);
 
-    /** Called to process the filter.
-
-        @par Preconditions
-        @ref init was called once before any
-            calls to `process`.
-    */
-    template<
-        class MutableBufferSequence,
-        class ConstBufferSequence>
+private:
     results
-    process(
-        MutableBufferSequence const& out,
-        ConstBufferSequence const& in,
+    process_impl(
+        mutable_buffer const& out,
+        const_buffer const& in,
+        bool more)
+    {
+        return on_process(out, in, more);
+    }
+
+    results
+    process_impl(
+        mutable_buffer_span const& out,
+        const_buffer_span const& in,
+        bool more)
+    {
+        return on_process(out, in, more);
+    }
+
+    template<class B0, class B1>
+    results
+    process_impl(
+        B0 const& out,
+        B1 const& in,
         bool more);
 };
 

@@ -17,29 +17,123 @@
 namespace boost {
 namespace buffers {
 
+/*
+namespace detail {
+
 template<
-    class MutableBufferSequence,
-    class ConstBufferSequence>
+    class Buffers,
+    class = void>
+struct buffer_traits
+{
+};
+
+template<class T>
+struct buffer_traits<T, void_t<
+    typename std::enable_if<
+        is_mutable_buffer_sequence<T>::value
+            >::type
+    > >
+{
+    using value_type = mutable_buffer;
+    using pair_type = mutable_buffer_pair;
+    using span_type = mutable_buffer_span;
+    using subspan_type = mutable_buffer_subspan;
+};
+
+template<class T>
+struct buffer_traits<T, void_t<
+    typename std::enable_if<
+        is_const_buffer_sequence<T>::value &&
+        ! is_mutable_buffer_sequence<T>::value
+            >::type
+    > >
+{
+    using value_type = const_buffer;
+    using pair_type = const_buffer_pair;
+    using span_type = const_buffer_span;
+    using subspan_type = const_buffer_subspan;
+};
+
+} // detail
+*/
+
+namespace detail {
+
+template<
+    class T,
+    std::size_t N>
+class unrolled
+{
+    using value_type = typename
+        std::conditional<
+            is_mutable_buffer_sequence<T>::value,
+            mutable_buffer,
+            const_buffer
+                >::type;
+
+    using span_type = typename
+        std::conditional<
+            is_mutable_buffer_sequence<T>::value,
+            mutable_buffer_span,
+            const_buffer_span
+                >::type;
+    
+    using iter_type = decltype(
+        begin(std::declval<T const&>()));
+    
+    using end_type = decltype(
+        end(std::declval<T const&>()));
+
+    value_type b_[N];
+    iter_type it_;
+    end_type end_;
+    std::size_t n_;
+
+public:
+    explicit
+    unrolled(
+        T const& t) noexcept
+        : it_(begin(t))
+        , end_(end(t))
+    {
+    }
+
+    bool
+    empty() const noexcept
+    {
+        return n_ == 0;
+    }
+
+    span_type
+    increment()
+    {
+        n_ = 0;
+        while(n_ < N)
+        {
+            if(it_ == end_)
+                break;
+            b_[n_++] = *it_++;
+        }
+        return span_type(&b_[0], n_);
+    }
+};
+
+} // detail
+
+template<class B0, class B1>
 auto
 filter::
-process(
-    MutableBufferSequence const& out,
-    ConstBufferSequence const& in,
+process_impl(
+    B0 const& out,
+    B1 const& in,
     bool more) ->
         results
 {
-    static_assert(
-        is_const_buffer_sequence<
-            ConstBufferSequence>::value,
-        "Type requirements not met");
-
-    static_assert(
-        is_mutable_buffer_sequence<
-            MutableBufferSequence>::value,
-        "Type requirements not met");
-
     results rv;
-    // VFALCO TODO
+    constexpr int N = 16;
+    detail::unrolled<B1, N> u0(in);
+    detail::unrolled<B0, N> u1(out);
+
     return rv;
 }
 

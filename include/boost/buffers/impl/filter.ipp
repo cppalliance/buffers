@@ -18,9 +18,9 @@ namespace buffers {
 
 auto
 filter::
-process(
-    mutable_buffer_span const& out,
-    const_buffer_span const& in,
+on_process(
+    mutable_buffer_span out,
+    const_buffer_span in,
     bool more) ->
         results
 {
@@ -29,7 +29,9 @@ process(
     auto it1 = begin(out);
     auto const end0 = end(in);
     auto const end1 = end(out);
-    while(it1 != end1)
+    while(
+        it0 != end0 ||
+        it1 != end1)
     {
         ++it1;
         (void)more;
