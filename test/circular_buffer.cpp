@@ -68,6 +68,18 @@ struct circular_buffer_test
                 cb.prepare(cb.capacity() + 1),
                 std::length_error);
         }
+
+        // commit(std::size_t)
+        {
+            circular_buffer cb(buffer(
+                &pat[0], pat.size()));
+            auto n = pat.size() / 2;
+            cb.prepare(pat.size());
+            cb.commit(n);
+            BOOST_TEST_EQ(
+                test_to_string(cb.data()),
+                pat.substr(0, n));
+        }
     }
 
     void

@@ -23,27 +23,22 @@ on_read(
     mutable_buffer_span bs) ->
         results
 {
+    results rv;
     auto it = bs.begin();
     auto const end_ = bs.end();
-    if(it != end_)
-    {
-        results rv;
-        do
-        {
-            mutable_buffer b(*it++);
-            rv += on_read(b);
-            if(rv.ec.failed())
-                return rv;
-            if(rv.finished)
-                break;
-        }
-        while(it != end_);
+    if(it == end_)
         return rv;
+    do
+    {
+        mutable_buffer b(*it++);
+        rv += on_read(b);
+        if(rv.ec.failed())
+            return rv;
+        if(rv.finished)
+            break;
     }
-
-    // call on_read at least once
-    return on_read(
-        mutable_buffer{});
+    while(it != end_);
+    return rv;
 }
 
 } // buffers

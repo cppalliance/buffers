@@ -65,10 +65,10 @@ struct buffer_copy_impl
         std::size_t total = 0;
         std::size_t pos0 = 0;
         std::size_t pos1 = 0;
-        auto const end0 = (end)(from);
-        auto const end1 = (end)(to);
-        auto it0 = (begin)(from);
-        auto it1 = (begin)(to);
+        auto const end0 = end(from);
+        auto const end1 = end(to);
+        auto it0 = begin(from);
+        auto it1 = begin(to);
         while(
             total < at_most &&
             it0 != end0 &&

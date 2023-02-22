@@ -24,25 +24,20 @@ on_write(
 {
     auto it = bs.begin();
     auto const end_ = bs.end();
-    if(it != end_)
-    {
-        results rv;
-        do
-        {
-            const_buffer b(*it++);
-            rv += on_write(b,
-                it != end_ ||
-                more);
-            if(rv.ec.failed())
-                return rv;
-        }
-        while(it != end_);
+    results rv;
+    if(it == end_)
         return rv;
+    do
+    {
+        const_buffer b(*it++);
+        rv += on_write(b,
+            it != end_ ||
+            more);
+        if(rv.ec.failed())
+            return rv;
     }
-
-    // call on_write at least once
-    return on_write(
-        mutable_buffer{}, more);
+    while(it != end_);
+    return rv;
 }
 
 } // buffers

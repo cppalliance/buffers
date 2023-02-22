@@ -22,9 +22,6 @@ BOOST_BUFFERS_DECL void BOOST_NORETURN throw_invalid_argument(
 BOOST_BUFFERS_DECL void BOOST_NORETURN throw_length_error(
     source_location const& loc = BOOST_CURRENT_LOCATION);
 
-BOOST_BUFFERS_DECL void BOOST_NORETURN throw_logic_error(
-    source_location const& loc = BOOST_CURRENT_LOCATION);
-
 } // detail
 } // buffers
 } // boost

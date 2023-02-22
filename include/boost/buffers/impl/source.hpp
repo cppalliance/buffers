@@ -23,7 +23,7 @@ auto
 source::
 results::
 operator+=(
-    results const& rv) ->
+    results const& rv) noexcept ->
         results&
 {
     BOOST_ASSERT(! ec.failed());
@@ -48,8 +48,8 @@ read_impl(
     mutable_buffer tmp[SmallArraySize];
     auto const tmp_end =
         tmp + SmallArraySize;
-    auto it = (begin)(bs);
-    auto const end_ = (end)(bs);
+    auto it = begin(bs);
+    auto const end_ = end(bs);
     while(it != end_)
     {
         auto p = tmp;

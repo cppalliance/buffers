@@ -17,7 +17,7 @@ buffered_base::
 
 void
 buffered_base::
-init(allocator&)
+on_init(allocator&)
 {
 }
 
@@ -31,11 +31,22 @@ init(
     if(max_size > a.max_size())
         detail::throw_invalid_argument();
 
+    struct restorer
+    {
+        allocator& a;
+        std::size_t n;
+
+        ~restorer()
+        {
+            a.restore(n);
+        }
+    };
+
     auto const n =
         a.max_size() - max_size;
     a.remove(n);
+    restorer r{a, n};
     init(a);
-    a.restore(n);
 }
 
 //------------------------------------------------

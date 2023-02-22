@@ -11,6 +11,7 @@
 #define BOOST_BUFFERS_IMPL_FILTER_IPP
 
 #include <boost/buffers/filter.hpp>
+#include <boost/buffers/range.hpp>
 
 namespace boost {
 namespace buffers {
@@ -18,20 +19,23 @@ namespace buffers {
 auto
 filter::
 process(
-    mutable_buffer const* dest,
-    std::size_t dest_len,
-    const_buffer const* src,
-    std::size_t src_len,
+    mutable_buffer_span const& out,
+    const_buffer_span const& in,
     bool more) ->
         results
 {
     results rv;
-    // VFALCO TODO
-    (void)dest;
-    (void)dest_len;
-    (void)src;
-    (void)src_len;
-    (void)more;
+    auto it0 = begin(in);
+    auto it1 = begin(out);
+    auto const end0 = end(in);
+    auto const end1 = end(out);
+    while(it1 != end1)
+    {
+        ++it1;
+        (void)more;
+        (void)end0;
+        (void)it0;
+    }
     return rv;
 }
 

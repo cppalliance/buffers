@@ -17,59 +17,19 @@ namespace buffers {
 
 struct source_test
 {
-    static
-    const_buffer
-    pattern()
-    {
-        return const_buffer(
-            "0123456789"
-            "0123456789"
-            "0123456789"
-            "0123456789", 40);
-    }
-
-    template<class Bs0, class Bs1>
-    static
-    bool
-    equal(
-        Bs0 const& bs0,
-        Bs1 const& bs1)
-    {
-        auto const n =
-            buffer_size(bs0);
-        if(buffer_size(bs1) != n)
-            return false;
-        auto p = new char[n * 2];
-        buffer_copy(
-            mutable_buffer(p, n), bs0);
-        buffer_copy(
-            mutable_buffer(p + n, n), bs1);
-        auto const result =
-            std::memcmp(p, p + n, n) == 0;
-        delete[] p;
-        return result;
-    }
-
     struct test_source : source
     {
-        test_source(
-            std::size_t max_size,
-            std::size_t alloc,
-            std::size_t n_success =
-                std::size_t(-1)) noexcept
-            : max_size_(max_size)
-            , alloc_(alloc)
-            , n_success_(n_success)
-            , cb_(pattern())
-        {
-        }
+        const_buffer cb_;
+        std::size_t fail_;
 
-        void
-        init(allocator& a) override
+        explicit
+        test_source(
+            std::size_t fail) noexcept
+            : fail_(fail)
         {
-            BOOST_TEST(
-                a.max_size() == max_size_);
-            a.allocate(alloc_);
+            auto const& pat =
+                test_pattern();
+            cb_ = { &pat[0], pat.size() };
         }
 
         results
@@ -77,76 +37,75 @@ struct source_test
             mutable_buffer b) override
         {
             results rv;
-            if(n_success_-- == 0)
+            if(fail_-- == 0)
             {
                 rv.ec = boost::system::error_code(
                     boost::system::errc::invalid_argument,
                     boost::system::generic_category());
                 return rv;
             }
-            auto const n = buffer_copy(b, cb_);
+            auto const n =
+                buffer_copy(b, cb_);
             cb_ += n;
             rv.bytes += n;
             rv.finished = cb_.size() == 0;
             return rv;
         }
-
-    private:
-        std::size_t max_size_;
-        std::size_t alloc_;
-        std::size_t n_success_;
-        const_buffer cb_;
     };
 
     void
     testSource()
     {
-        // max_size == 0
+        auto const& pat = test_pattern();
+
+        // read(MutableBufferSequence)
+        for(std::size_t i = 0;;++i)
         {
-            buffered_base::allocator a;
-            test_source ts(0, 0);
-            ts.init(a);
+            test_source src(i);
+            std::string s(
+                pat.size(), 0);
+            mutable_buffer mb[3] = {
+                { &s[0], 3 },
+                { &s[3], 5 },
+                { &s[8], 7 } };
+            mutable_buffer_span bs(mb, 3);
+            auto rv = src.read(bs);
+            if(rv.ec.failed())
+                continue;
+            BOOST_TEST(rv.finished);
+            BOOST_TEST_EQ(
+                rv.bytes, pat.size());
+            s.resize(rv.bytes);
+            BOOST_TEST_EQ(s, pat);
+            break;
         }
 
-        // max_size > 0
+        // read(mutable_buffer)
+        for(std::size_t i = 0;;++i)
         {
-            {
-                char tmp[10];
-                buffered_base::allocator a(
-                    tmp, sizeof(tmp), false);
-                test_source ts(10, 0);
-                ts.init(a);
-            }
-            {
-                char tmp[10];
-                buffered_base::allocator a(
-                    tmp, sizeof(tmp), false);
-                test_source ts(10, 6);
-                ts.init(a);
-            }
+            test_source src(i);
+            std::string s(
+                pat.size(), 0);
+            mutable_buffer mb(
+                &s[0], s.size());
+            auto rv = src.read(mb);
+            if(rv.ec.failed())
+                continue;
+            BOOST_TEST(rv.finished);
+            BOOST_TEST_EQ(
+                rv.bytes, pat.size());
+            s.resize(rv.bytes);
+            BOOST_TEST_EQ(s, pat);
+            break;
         }
 
-        // max_size exceeded
+        // empty sequence
         {
-            char tmp[10];
-            buffered_base::allocator a(
-                tmp, sizeof(tmp), false);
-            test_source ts(10, 20);
-            BOOST_TEST_THROWS(
-                ts.init(a),
-                std::invalid_argument);
-        }
-
-        // 40 character string
-        {
-            char tmp[40];
-            buffered_base::allocator a;
-            test_source ts(0, 0);
-            ts.init(a);
-            ts.read(buffer(tmp));
-            BOOST_TEST(equal(
-                const_buffer(tmp, sizeof(tmp)),
-                pattern()));
+            test_source src(99);
+            mutable_buffer_span bs;
+            auto rv = src.read(bs);
+            BOOST_TEST(! rv.ec.failed());
+            BOOST_TEST_EQ(rv.bytes, 0);
         }
     }
 

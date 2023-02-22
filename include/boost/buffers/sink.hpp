@@ -52,7 +52,7 @@ struct BOOST_SYMBOL_VISIBLE
         */
         results&
         operator+=(
-            results const& rv);
+            results const& rv) noexcept;
     };
 
     /** Consume data.
@@ -171,6 +171,14 @@ private:
     results
     write_impl(
         const_buffer const& b,
+        bool more)
+    {
+        return on_write(b, more);
+    }
+
+    results
+    write_impl(
+        mutable_buffer const& b,
         bool more)
     {
         return on_write(b, more);

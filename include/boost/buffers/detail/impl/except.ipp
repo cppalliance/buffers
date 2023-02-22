@@ -37,15 +37,6 @@ throw_length_error(
             "length error"), loc);
 }
 
-void
-throw_logic_error(
-    source_location const& loc)
-{
-    throw_exception(
-        std::logic_error(
-            "logic error"), loc);
-}
-
 } // detail
 } // buffers
 } // boost

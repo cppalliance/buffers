@@ -33,7 +33,7 @@ struct BOOST_SYMBOL_VISIBLE
     */
     BOOST_BUFFERS_DECL
     virtual
-    ~buffered_base() = 0;
+    ~buffered_base();
 
     /** Initialize the algorithm.
 
@@ -57,10 +57,11 @@ struct BOOST_SYMBOL_VISIBLE
 
         @param a The allocator to use.
     */
-    BOOST_BUFFERS_DECL
-    virtual
     void
-    init(allocator& a);
+    init(allocator& a)
+    {
+        on_init(a);
+    }
 
     /** Initialize the algorithm.
 
@@ -95,6 +96,31 @@ struct BOOST_SYMBOL_VISIBLE
     init(
         allocator& a,
         std::size_t max_size);
+
+protected:
+    /** Initialize the algorithm.
+
+        The default implementation does nothing.
+        The purpose of this function is to
+        allow the derived class to optionally
+        allocate temporary storage using the
+        specified allocator, which could offer
+        advantages.
+        <br>
+        Subclasses are still required to operate
+        correctly even when insufficient storage
+        is available from the allocator. In this
+        case they should simply allocate normally.
+
+        @par Preconditions
+        Initialization has not already occurred.
+
+        @param a The allocator to use.
+    */
+    BOOST_BUFFERS_DECL
+    virtual
+    void
+    on_init(allocator& a);
 };
 
 //------------------------------------------------

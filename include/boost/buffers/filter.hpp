@@ -13,7 +13,8 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffered_base.hpp>
 #include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/const_buffer_span.hpp>
+#include <boost/buffers/mutable_buffer_span.hpp>
 #include <boost/system/error_code.hpp>
 #include <cstddef>
 
@@ -37,7 +38,7 @@ public:
             of bytes available for writing in the
             destination buffers.
         */
-        std::size_t dest_bytes= 0;
+        std::size_t out_bytes = 0;
 
         /** The number of bytes consumed from the input.
 
@@ -45,7 +46,7 @@ public:
             of bytes available for reading in the
             source buffers.
         */
-        std::size_t src_bytes = 0;
+        std::size_t in_bytes = 0;
 
         /** The error, if any occurred.
         */
@@ -60,18 +61,13 @@ public:
 
         @par Preconditions
         @ref init was called once before any
-            calls to `process`, and:
-        @code
-        (dest != nullptr || dest_size == 0) && (src != nullptr || src_size == 0)
-        @endcode
+            calls to `process`
     */
     virtual
     results
-    process_one(
-        void* dest,
-        std::size_t dest_size,
-        void const* src,
-        std::size_t src_size,
+    process(
+        mutable_buffer out,
+        const_buffer in,
         bool more) = 0;
 
     /** Called to process the filter.
@@ -84,10 +80,8 @@ public:
     virtual
     results
     process(
-        mutable_buffer const* dest,
-        std::size_t dest_len,
-        const_buffer const* src,
-        std::size_t src_len,
+        mutable_buffer_span const& out,
+        const_buffer_span const& in,
         bool more);
 
     /** Called to process the filter.
@@ -101,8 +95,8 @@ public:
         class ConstBufferSequence>
     results
     process(
-        MutableBufferSequence const& dest,
-        ConstBufferSequence const& src,
+        MutableBufferSequence const& out,
+        ConstBufferSequence const& in,
         bool more);
 };
 

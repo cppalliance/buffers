@@ -56,7 +56,7 @@ struct BOOST_SYMBOL_VISIBLE
         */
         results&
         operator+=(
-            results const& rv);
+            results const& rv) noexcept;
     };
 
     /** Produce data.

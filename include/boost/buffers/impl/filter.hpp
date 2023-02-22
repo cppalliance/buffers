@@ -23,8 +23,8 @@ template<
 auto
 filter::
 process(
-    MutableBufferSequence const& dest,
-    ConstBufferSequence const& src,
+    MutableBufferSequence const& out,
+    ConstBufferSequence const& in,
     bool more) ->
         results
 {
