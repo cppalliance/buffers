@@ -55,6 +55,7 @@ function(boost_buffers_setup_properties target)
             Boost::config
             Boost::static_assert
             Boost::system
+        PRIVATE
             Boost::throw_exception
     )
 endfunction()
@@ -76,6 +77,11 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "" FILES Jamfile)
 add_library(boost_buffers ${BOOST_BUFFERS_HEADERS} ${BOOST_BUFFERS_SOURCES})
 add_library(Boost::buffers ALIAS boost_buffers)
 boost_buffers_setup_properties(boost_buffers)
+
+target_compile_definitions(boost_buffers
+  PUBLIC
+  BOOST_BUFFERS_NO_LIB
+)
 
 if(BUILD_SHARED_LIBS)
     target_compile_definitions(boost_buffers PUBLIC BOOST_BUFFERS_DYN_LINK=1)
