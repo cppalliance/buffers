@@ -48,6 +48,16 @@ struct mutable_buffer_pair_test
                 BOOST_TEST_EQ(
                     test_to_string(mb0),
                     test_to_string(mb1));
+                BOOST_TEST_EQ(
+                    mb0[0].data(), mb1[0].data());
+                BOOST_TEST_EQ(
+                    mb0[1].size(), mb1[1].size());
+                auto const& cmb0 = mb0;
+                auto const& cmb1 = mb1;
+                BOOST_TEST_EQ(
+                    cmb0[0].data(), cmb1[0].data());
+                BOOST_TEST_EQ(
+                    cmb0[1].size(), cmb1[1].size());
             }
         }
 

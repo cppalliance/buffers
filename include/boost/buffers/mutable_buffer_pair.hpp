@@ -49,6 +49,20 @@ public:
     mutable_buffer_pair& operator=(
         mutable_buffer_pair const&) = default;
 
+    mutable_buffer const&
+    operator[](unsigned i) const noexcept
+    {
+        BOOST_ASSERT(i < 2);
+        return b_[i];
+    }
+
+    mutable_buffer&
+    operator[](unsigned i) noexcept
+    {
+        BOOST_ASSERT(i < 2);
+        return b_[i];
+    }
+
     const_iterator
     begin() const noexcept
     {

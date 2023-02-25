@@ -68,6 +68,20 @@ public:
         return *this;
     }
 
+    const_buffer const&
+    operator[](unsigned i) const noexcept
+    {
+        BOOST_ASSERT(i < 2);
+        return b_[i];
+    }
+
+    const_buffer&
+    operator[](unsigned i) noexcept
+    {
+        BOOST_ASSERT(i < 2);
+        return b_[i];
+    }
+
     const_iterator
     begin() const noexcept
     {

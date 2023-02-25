@@ -48,6 +48,16 @@ struct const_buffer_pair_test
                 BOOST_TEST_EQ(
                     test_to_string(cb0),
                     test_to_string(cb1));
+                BOOST_TEST_EQ(
+                    cb0[0].data(), cb1[0].data());
+                BOOST_TEST_EQ(
+                    cb0[1].size(), cb1[1].size());
+                auto const& ccb0 = cb0;
+                auto const& ccb1 = cb1;
+                BOOST_TEST_EQ(
+                    ccb0[0].data(), ccb1[0].data());
+                BOOST_TEST_EQ(
+                    ccb0[1].size(), ccb1[1].size());
             }
         }
 
