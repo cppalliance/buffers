@@ -13,6 +13,10 @@ import boostbook ;
 import os ;
 import ../../../tools/docca/docca.jam ;
 
+path-constant broot : ../../../ ;
+
+path-constant out : . ;
+
 docca.reference reference.qbk
     :
         xsl/custom-overrides.xsl
@@ -63,15 +67,6 @@ docca.reference reference.qbk
 # Produce the Boost.Book XML from the QuickBook
 #
 
-install images
-    :
-        [ glob images/*.png images/*.svg ]
-    :
-        <location>html/buffers/images
-    ;
-
-explicit images ;
-
 install stylesheets
     :
         $(broot)/doc/src/boostbook.css
@@ -81,14 +76,14 @@ install stylesheets
 
 explicit stylesheets ;
 
-#install treeimages
-#    :
-#        [ glob $(broot)/doc/src/images/*.png ]
-#    :
-#        <location>$(out)/html/images
-#    ;
-#
-#explicit treeimages ;
+install images
+    :
+        [ glob images/*.png images/*.svg ]
+    :
+        <location>html/buffers/images
+    ;
+
+explicit images ;
 
 xml buffers_doc
     :
@@ -100,6 +95,16 @@ xml buffers_doc
 
 explicit buffers_doc ;
 
+install treeimages
+    :
+        [ glob $(broot)/doc/src/images/*.png ]
+        images/doc-logo.png
+    :
+        <location>$(out)/html/images
+    ;
+
+explicit treeimages ;
+
 #-------------------------------------------------------------------------------
 #
 # HTML documentation for $(BOOST_ROOT)/doc/html
@@ -110,7 +115,14 @@ boostbook buffers
     :
         buffers_doc
     :
+        <xsl:param>boost.image.src=images/doc-logo.png
+        <xsl:param>boost.image.alt="Boost.HTTP-Proto Logo"
+        <xsl:param>boost.image.w=277
+        <xsl:param>boost.image.h=86
+        <xsl:param>boost.graphics.root=images/
+        <xsl:param>html.stylesheet=boostbook.css
         <xsl:param>boost.root=../../../..
+        <xsl:param>nav.layout=none
         <xsl:param>chapter.autolabel=1
         <xsl:param>chunk.section.depth=8                # Depth to which sections should be chunked
         <xsl:param>chunk.first.sections=1               # Chunk the first top-level section?
@@ -120,7 +132,7 @@ boostbook buffers
         <include>../../../tools/boostbook/dtd
     :
         <dependency>stylesheets
-#        <dependency>treeimages
+        <dependency>treeimages
         <dependency>images
     ;
 
