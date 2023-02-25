@@ -10,6 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/const_buffer_span.hpp>
 
+#include <boost/buffers/const_buffer_pair.hpp>
 #include "test_helpers.hpp"
 
 namespace boost {
@@ -38,6 +39,15 @@ struct const_buffer_span_test
         {
             const_buffer_span cbs(cb, 3);
             test_buffer_sequence(cbs);
+        }
+
+        // const_buffer_span(
+        //  ConstBufferSequence
+        {
+            const_buffer_pair bp;
+            const_buffer_span sp(bp);
+            BOOST_TEST(
+                sp.end() - sp.begin() == 2);
         }
 
         // const_buffer_span(

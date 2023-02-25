@@ -10,6 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/mutable_buffer_span.hpp>
 
+#include <boost/buffers/mutable_buffer_pair.hpp>
 #include "test_helpers.hpp"
 
 namespace boost {
@@ -38,6 +39,15 @@ struct mutable_buffer_span_test
         {
             mutable_buffer_span mbs(mb, 3);
             test_buffer_sequence(mbs);
+        }
+
+        // mutable_buffer_span(
+        //  MutableBufferSequence)
+        {
+            mutable_buffer_pair bp;
+            mutable_buffer_span sp(bp);
+            BOOST_TEST(
+                sp.end() - sp.begin() == 2);
         }
 
         // mutable_buffer_span(

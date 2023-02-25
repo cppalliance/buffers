@@ -33,7 +33,8 @@ struct is_const_buffer_sequence
 #else
 
 template<class T, class = void>
-struct is_const_buffer_sequence : std::false_type
+struct is_const_buffer_sequence
+    : std::false_type
 {
 };
 
@@ -101,9 +102,10 @@ struct is_const_buffer_sequence<T, void_t<
                 std::iterator_traits<
                     typename T::const_iterator
                         >::value_type>::type
-                >::value)
-        >::type
-    > > : std::is_move_constructible<T>
+                >::value) &&
+        std::is_move_constructible<T>::value
+            >::type
+    > > : std::true_type
 {
 };
 
@@ -170,9 +172,10 @@ struct is_mutable_buffer_sequence<T, void_t<
                 std::iterator_traits<
                     typename T::const_iterator
                         >::value_type>::type
-                >::value
-        >::type
-    >> : std::is_move_constructible<T>
+                >::value &&
+        std::is_move_constructible<T>::value
+            >::type
+    >> : std::true_type
 {
 };
 

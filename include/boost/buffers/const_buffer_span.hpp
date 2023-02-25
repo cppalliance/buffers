@@ -13,6 +13,7 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/const_buffer_subspan.hpp>
+#include <boost/buffers/type_traits.hpp>
 
 namespace boost {
 namespace buffers {
@@ -49,6 +50,29 @@ public:
         std::size_t n) noexcept
         : p_(p)
         , n_(n)
+    {
+    }
+
+    /** Constructor.
+    */
+    template<
+        class ConstBufferSequence
+#ifndef BOOST_BUFFERS_DOCS
+        , class = typename std::enable_if<
+            is_const_buffer_sequence<
+                ConstBufferSequence>::value &&
+            std::is_same<decltype(
+                std::declval<ConstBufferSequence
+                    const&>().begin()),
+                const_buffer const*>::value
+            >::type
+#endif
+    >
+    explicit
+    const_buffer_span(
+        ConstBufferSequence const& bs) noexcept
+        : p_(bs.begin())
+        , n_(bs.end() - bs.begin())
     {
     }
 
