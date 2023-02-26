@@ -85,12 +85,33 @@ struct const_buffer_subspan_test
     testSequence()
     {
         auto const pat = test_pattern();
-        const_buffer const cb[3] = {
-            { pat.data(), 3 },
-            { pat.data() + 3, 5 },
-            { pat.data() + 8, 7 } };
-        const_buffer_subspan s(cb, 3);
-        test_buffer_sequence(s);
+
+        // length 1
+        {
+            const_buffer cb = {
+                &pat[0], pat.size() };
+            const_buffer_subspan s(&cb, 1);
+            test_buffer_sequence(s);
+        }
+
+        // length 2
+        {
+            const_buffer const cb[2] = {
+                { &pat[0], 7 },
+                { &pat[7], 8 } };
+            const_buffer_subspan s(cb, 2);
+            test_buffer_sequence(s);
+        }
+
+        // length 3
+        {
+            const_buffer const cb[3] = {
+                { &pat[0], 3 },
+                { &pat[3], 5 },
+                { &pat[8], 7 } };
+            const_buffer_subspan s(cb, 3);
+            test_buffer_sequence(s);
+        }
     }
 
     void

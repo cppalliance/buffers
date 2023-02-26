@@ -181,6 +181,8 @@ test_buffer_sequence(T&& t)
         BOOST_TEST_EQ(
             test_to_string(prefix(t, i)),
             pat.substr(0, i));
+    BOOST_TEST_EQ(test_to_string(prefix(
+        t, std::size_t(-1))), pat);
 
     // prefix
     for(std::size_t i = 0;
@@ -188,6 +190,8 @@ test_buffer_sequence(T&& t)
         BOOST_TEST_EQ(
             test_to_string(prefix(ct, i)),
             pat.substr(0, i));
+    BOOST_TEST_EQ(test_to_string(prefix(
+        ct, std::size_t(-1))), pat);
 
     // suffix
     for(std::size_t i = 0;
@@ -195,6 +199,8 @@ test_buffer_sequence(T&& t)
         BOOST_TEST_EQ(
             test_to_string(suffix(t, i)),
             pat.substr(pat.size() - i, i));
+    BOOST_TEST_EQ(test_to_string(suffix(
+        t, std::size_t(-1))), pat);
 
     // suffix
     for(std::size_t i = 0;
@@ -202,6 +208,8 @@ test_buffer_sequence(T&& t)
         BOOST_TEST_EQ(
             test_to_string(suffix(ct, i)),
             pat.substr(pat.size() - i, i));
+    BOOST_TEST_EQ(test_to_string(suffix(
+        ct, std::size_t(-1))), pat);
 }
 
 } // buffers

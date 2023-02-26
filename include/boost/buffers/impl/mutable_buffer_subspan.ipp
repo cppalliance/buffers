@@ -71,6 +71,8 @@ prefix_impl(
     {
         if(n == 0)
             return { p_, 0, p0_, p0_ };
+        if(n == std::size_t(-1))
+            return *this;
         auto const d = p1_ - p0_;
         if(n <= d)
             return { p_, 1, p0_, p0_ + n };
@@ -80,6 +82,8 @@ prefix_impl(
     {
         if(n == 0)
             return { p_, 0, p0_, p0_ };
+        if(n == std::size_t(-1))
+            return *this;
         auto d = p_[0].size() - p0_;
         if(n <= d)
             return { p_, 1, p0_, p0_ + n };
@@ -116,6 +120,8 @@ suffix_impl(
     {
         if(n == 0)
             return { p_, 0, p1_, p1_ };
+        if(n == std::size_t(-1))
+            return *this;
         auto const d = p1_ - p0_;
         if(n < d)
             return { p_, 1, p1_ - n, p1_ };
@@ -125,6 +131,8 @@ suffix_impl(
     {
         if(n == 0)
             return { p_, 0, p1_, p1_ };
+        if(n == std::size_t(-1))
+            return *this;
         std::size_t i = n_ - 1;
         if(n <= p1_)
             return { p_ + i, 1, p1_ - n, p1_ };

@@ -85,12 +85,33 @@ struct mutable_buffer_subspan_test
     testSequence()
     {
         std::string pat = test_pattern();
-        mutable_buffer const mb[3] = {
-            { &pat[0], 3 },
-            { &pat[3], 5 },
-            { &pat[8], 7 } };
-        mutable_buffer_subspan s(mb, 3);
-        test_buffer_sequence(s);
+
+        // length 1
+        {
+            mutable_buffer mb = {
+                &pat[0], pat.size() };
+            mutable_buffer_subspan s(&mb, 1);
+            test_buffer_sequence(s);
+        }
+
+        // length 2
+        {
+            mutable_buffer const mb[2] = {
+                { &pat[0], 7 },
+                { &pat[7], 8 } };
+            mutable_buffer_subspan s(mb, 2);
+            test_buffer_sequence(s);
+        }
+
+        // length 3
+        {
+            mutable_buffer const mb[3] = {
+                { &pat[0], 3 },
+                { &pat[3], 5 },
+                { &pat[8], 7 } };
+            mutable_buffer_subspan s(mb, 3);
+            test_buffer_sequence(s);
+        }
     }
 
     void
