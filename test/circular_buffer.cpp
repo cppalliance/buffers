@@ -60,6 +60,12 @@ struct circular_buffer_test
                 test_to_string(cb.data()),
                 pat.substr(0, 6));
         }
+        {
+            BOOST_TEST_THROWS(
+                circular_buffer(
+                    &pat[0], pat.size(), 600),
+                std::exception);
+        }
 
         // circular_buffer(
         //  circular_buffer const&)
