@@ -59,6 +59,9 @@ public:
         class ConstBufferSequence
 #ifndef BOOST_BUFFERS_DOCS
         , class = typename std::enable_if<
+            ! std::is_same<
+                ConstBufferSequence,
+                const_buffer_span>::value &&
             is_const_buffer_sequence<
                 ConstBufferSequence>::value &&
             std::is_same<decltype(

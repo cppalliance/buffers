@@ -102,8 +102,10 @@ struct is_const_buffer_sequence<T, void_t<
                 std::iterator_traits<
                     typename T::const_iterator
                         >::value_type>::type
-                >::value) &&
-        std::is_move_constructible<T>::value
+                >::value)
+        // VFALCO This causes problems when the
+        // trait is used to constrain ctors
+        // && std::is_move_constructible<T>::value
             >::type
     > > : std::true_type
 {
@@ -172,8 +174,10 @@ struct is_mutable_buffer_sequence<T, void_t<
                 std::iterator_traits<
                     typename T::const_iterator
                         >::value_type>::type
-                >::value &&
-        std::is_move_constructible<T>::value
+                >::value
+        // VFALCO This causes problems when the
+        // trait is used to constrain ctors
+        // && std::is_move_constructible<T>::value
             >::type
     >> : std::true_type
 {

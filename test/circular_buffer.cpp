@@ -28,6 +28,7 @@ struct circular_buffer_test
             BOOST_TEST_EQ(cb.size(), 0);
         }
 
+#if 0
         // circular_buffer(mutable_buffer)
         {
             circular_buffer cb(
@@ -35,6 +36,29 @@ struct circular_buffer_test
             BOOST_TEST_EQ(cb.size(), 0);
             BOOST_TEST_EQ(cb.capacity(), pat.size());
             BOOST_TEST_EQ(cb.max_size(), pat.size());
+        }
+#endif
+
+        // circular_buffer(void*, std::size_t)
+        {
+            circular_buffer cb(
+                &pat[0], pat.size());
+            BOOST_TEST_EQ(cb.size(), 0);
+            BOOST_TEST_EQ(cb.capacity(), pat.size());
+            BOOST_TEST_EQ(cb.max_size(), pat.size());
+        }
+
+        // circular_buffer(
+        //  void*, std::size_t, std:size_t)
+        {
+            circular_buffer cb(
+                &pat[0], pat.size(), 6);
+            BOOST_TEST_EQ(cb.size(), 6);
+            BOOST_TEST_EQ(cb.capacity(), pat.size());
+            BOOST_TEST_EQ(cb.max_size(), pat.size());
+            BOOST_TEST_EQ(
+                test_to_string(cb.data()),
+                pat.substr(0, 6));
         }
 
         // circular_buffer(

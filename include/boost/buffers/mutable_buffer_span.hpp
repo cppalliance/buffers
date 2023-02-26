@@ -59,6 +59,9 @@ public:
         class MutableBufferSequence
 #ifndef BOOST_BUFFERS_DOCS
         , class = typename std::enable_if<
+            ! std::is_same<
+                MutableBufferSequence,
+                mutable_buffer_span>::value &&
             is_mutable_buffer_sequence<
                 MutableBufferSequence>::value &&
             std::is_same<decltype(

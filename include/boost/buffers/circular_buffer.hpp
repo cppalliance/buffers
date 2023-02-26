@@ -13,6 +13,7 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
+#include <boost/buffers/detail/except.hpp>
 
 namespace boost {
 namespace buffers {
@@ -41,6 +42,7 @@ public:
     circular_buffer(
         circular_buffer const&) = default;
 
+#if 0
     /** Constructor.
     */
     explicit
@@ -51,6 +53,7 @@ public:
         , cap_(b.size())
     {
     }
+#endif
 
     /** Constructor.
     */
@@ -61,6 +64,21 @@ public:
             unsigned char*>(base))
         , cap_(capacity)
     {
+    }
+
+    /** Constructor.
+    */
+    circular_buffer(
+        void* base,
+        std::size_t capacity,
+        std::size_t initial_size)
+        : base_(static_cast<
+            unsigned char*>(base))
+        , cap_(capacity)
+        , in_len_(initial_size)
+    {
+        if(in_len_ > capacity)
+            detail::throw_invalid_argument();
     }
 
     /** Assignment.
