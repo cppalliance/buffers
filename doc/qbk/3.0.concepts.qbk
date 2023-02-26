@@ -17,13 +17,4 @@
 [section MutableBufferSequence]
 [endsect]
 
-[section Source]
-[endsect]
-
-[section Sink]
-[endsect]
-
-[section Filter]
-[endsect]
-
 [endsect]
