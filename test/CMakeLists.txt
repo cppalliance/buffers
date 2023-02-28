@@ -17,6 +17,7 @@ set(PFILES
     Jamfile
     test_helpers.hpp
     algorithm.cpp
+    any_dynamic_buffer.cpp
     buffer.cpp
     buffer_copy.cpp
     buffer_size.cpp

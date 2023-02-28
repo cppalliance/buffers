@@ -66,6 +66,7 @@
           <member><link linkend="buffers.ref.boost__buffers__is_dynamic_buffer">is_dynamic_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__prefix_type">prefix_type</link></member>
           <member><link linkend="buffers.ref.boost__buffers__suffix_type">suffix_type</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__value_type">value_type</link></member>
         </simplelist>
       </entry>
 

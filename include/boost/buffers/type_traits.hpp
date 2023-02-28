@@ -233,6 +233,16 @@ struct is_dynamic_buffer<
 {
 };
 
+/** Return the underlying buffer type of a sequence.
+*/
+template<class T>
+using value_type = typename
+    std::conditional<
+        is_mutable_buffer_sequence<T>::value,
+        mutable_buffer,
+        const_buffer
+            >::type;
+
 #endif
 
 } // buffers
