@@ -16,8 +16,12 @@ for /F %%i in ("%DRONE_REPO%") do @set SELF=%%~nxi
 SET BOOST_CI_TARGET_BRANCH=%DRONE_COMMIT_BRANCH%
 SET BOOST_CI_SRC_FOLDER=%cd%
 
+echo "call ci\common_install.bat"
 call ci\common_install.bat
+echo "git submodule update -q --init libs/url"
 git submodule update -q --init libs/url
+echo "dir"
+dir
 
 echo '==================================> COMPILE'
 
