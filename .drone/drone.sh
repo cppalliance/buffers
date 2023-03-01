@@ -18,11 +18,6 @@ export CC=${CC:-gcc}
 export PATH=~/.local/bin:/usr/local/bin:$PATH
 
 common_install () {
-  pwd
-  ls
-  cd libs
-  git clone https://github.com/boostorg/url.git url --depth 1
-  cd ..
   git clone https://github.com/boostorg/boost-ci.git boost-ci-cloned --depth 1
   cp -prf boost-ci-cloned/ci .
   rm -rf boost-ci-cloned
@@ -43,6 +38,12 @@ if [ "$DRONE_JOB_BUILDTYPE" == "boost" ]; then
 echo '==================================> INSTALL'
 
 common_install 
+
+pwd
+ls
+cd ..
+git clone https://github.com/boostorg/url.git url --depth 1
+cd $SELF
 
 echo '==================================> SCRIPT'
 
