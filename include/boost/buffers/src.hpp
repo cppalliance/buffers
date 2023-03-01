@@ -31,12 +31,4 @@ in a translation unit of the program.
 #include <boost/buffers/impl/mutable_buffer_pair.ipp>
 #include <boost/buffers/impl/mutable_buffer_subspan.ipp>
 
-//------------------------------------------------
-
-// Trick boostdep into requiring URL
-// since we need it for the unit tests
-#ifdef BOOST_BUFFERS_BOOSTDEP
-#include <boost/url/url.hpp>
-#endif
-
 #endif
