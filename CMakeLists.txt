@@ -29,7 +29,7 @@ endif()
 include(GNUInstallDirs)
 if(BOOST_BUFFERS_IS_ROOT)
     set(BOOST_INCLUDE_LIBRARIES buffers core)
-    set(BOOST_EXCLUDE_LIBRARIES buffers)
+    set(BOOST_EXCLUDE_LIBRARIES buffers url)
     set(CMAKE_FOLDER Dependencies)
     add_subdirectory(../.. Dependencies/boost EXCLUDE_FROM_ALL)
     unset(CMAKE_FOLDER)
@@ -54,7 +54,6 @@ function(boost_buffers_setup_properties target)
             Boost::assert
             Boost::config
             Boost::static_assert
-            Boost::system
         PRIVATE
             Boost::throw_exception
     )
