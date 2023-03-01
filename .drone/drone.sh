@@ -18,6 +18,8 @@ export CC=${CC:-gcc}
 export PATH=~/.local/bin:/usr/local/bin:$PATH
 
 common_install () {
+  pwd
+  ls
   cd libs
   git clone https://github.com/boostorg/url.git url --depth 1
   cd ..
