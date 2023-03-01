@@ -17,6 +17,7 @@ SET BOOST_CI_TARGET_BRANCH=%DRONE_COMMIT_BRANCH%
 SET BOOST_CI_SRC_FOLDER=%cd%
 
 call ci\common_install.bat
+git submodule update -q --init libs/url
 
 echo '==================================> COMPILE'
 
