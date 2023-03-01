@@ -178,7 +178,7 @@ export CXXFLAGS="-Wall -Wextra"
 mkdir __build_static
 cd __build_static
 cmake -DBOOST_ENABLE_CMAKE=1 -DBUILD_TESTING=ON -DBoost_VERBOSE=1 \
-    -DBOOST_INCLUDE_LIBRARIES=$SELF ..
+    -DBOOST_INCLUDE_LIBRARIES=$SELF -DBOOST_EXCLUDE_LIBRARIES=url ..
 cmake --build .
 ctest --output-on-failure -R boost_$SELF
 
@@ -187,7 +187,7 @@ cd ..
 mkdir __build_shared
 cd __build_shared
 cmake -DBOOST_ENABLE_CMAKE=1 -DBUILD_TESTING=ON -DBoost_VERBOSE=1 \
-    -DBOOST_INCLUDE_LIBRARIES=$SELF -DBUILD_SHARED_LIBS=ON ..
+    -DBOOST_INCLUDE_LIBRARIES=$SELF -DBOOST_INCLUDE_LIBRARIES=url -DBUILD_SHARED_LIBS=ON ..
 cmake --build .
 ctest --output-on-failure -R boost_$SELF
 
@@ -217,7 +217,7 @@ cp -r $DRONE_BUILD_DIR/* libs/$SELF
 # CMake tests
 cd libs/$SELF
 mkdir __build__ && cd __build__
-cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+cmake -DBOOST_INCLUDE_LIBRARIES=$SELF -DBOOST_INCLUDE_LIBRARIES=url -DCMAKE_INSTALL_PREFIX=~/.local ..
 cmake --build . --target install
 ctest --output-on-failure
 
