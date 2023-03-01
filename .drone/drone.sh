@@ -31,18 +31,18 @@ common_install () {
   export BOOST_CI_SRC_FOLDER=$(pwd)
   
   . ./ci/common_install.sh
+
+  echo '==================================> STANDALONE LIBS'
+
+  # Standalone Boost.URL test_suite (buffers does not depend on Boost.URL)
+  git submodule update -q --init libs/url
 }
 
 if [ "$DRONE_JOB_BUILDTYPE" == "boost" ]; then
 
 echo '==================================> INSTALL'
 
-common_install 
-
-echo '==================================> STANDALONE LIBS'
-
-# Standalone Boost.URL test_suite (buffers does not depend on Boost.URL)
-git submodule update -q --init libs/url
+common_install
 
 echo '==================================> SCRIPT'
 
