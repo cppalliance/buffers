@@ -39,11 +39,12 @@ echo '==================================> INSTALL'
 
 common_install 
 
-pwd
-ls
-cd ..
+echo '==================================> STANDALONE LIBS'
+
+# Standalone Boost.URL test_suite (buffers does not depend on Boost.URL)
+cd libs
 git clone https://github.com/boostorg/url.git url --depth 1
-cd $SELF
+cd ..
 
 echo '==================================> SCRIPT'
 
