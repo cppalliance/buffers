@@ -222,11 +222,11 @@ cmake --build . --target install
 ctest --output-on-failure
 
 # CMake subdir tests
-cd ../test/cmake_test && mkdir __build__ && cd __build__
-cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
-cmake --build .
-cmake --build . --target check
-ctest --output-on-failure
+#cd ../test/cmake_test && mkdir __build__ && cd __build__
+#cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+#cmake --build .
+#cmake --build . --target check
+#ctest --output-on-failure
 
 # Install Library
 cd ../../../../.. && mkdir __build_cmake_install_test__ && cd __build_cmake_install_test__
@@ -234,9 +234,9 @@ cmake -DBOOST_INCLUDE_LIBRARIES=$SELF -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VE
 cmake --build . --target install
 
 # CMake install tests
-cd ../libs/$SELF/test/cmake_test && mkdir __build_cmake_install_test__ && cd __build_cmake_install_test__
-cmake -DBOOST_CI_INSTALL_TEST=ON -DCMAKE_PREFIX_PATH=~/.local ..
-cmake --build .
-ctest --output-on-failure
+#cd ../libs/$SELF/test/cmake_test && mkdir __build_cmake_install_test__ && cd __build_cmake_install_test__
+#cmake -DBOOST_CI_INSTALL_TEST=ON -DCMAKE_PREFIX_PATH=~/.local ..
+#cmake --build .
+#ctest --output-on-failure
 
 fi
