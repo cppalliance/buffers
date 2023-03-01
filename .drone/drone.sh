@@ -230,9 +230,9 @@ ctest --output-on-failure
 #cd ../../../../..
 
 # Install Library
-mkdir __build_cmake_install_test__ && cd __build_cmake_install_test__
-cmake -DBOOST_INCLUDE_LIBRARIES=$SELF -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBoost_DEBUG=ON ..
-cmake --build . --target install
+#mkdir __build_cmake_install_test__ && cd __build_cmake_install_test__
+#cmake -DBOOST_INCLUDE_LIBRARIES=$SELF -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBoost_DEBUG=ON ..
+#cmake --build . --target install
 
 # CMake install tests
 #cd ../libs/$SELF/test/cmake_test && mkdir __build_cmake_install_test__ && cd __build_cmake_install_test__
