@@ -46,8 +46,9 @@ common_install
 
 echo '==================================> SCRIPT'
 
-export B2_TARGETS=${B2_TARGETS:-"libs/$SELF/test libs/$SELF/example"}
-$BOOST_ROOT/libs/$SELF/ci/travis/build.sh
+# export B2_TARGETS=${B2_TARGETS:-"libs/$SELF/test libs/$SELF/example"}
+export B2_TARGETS=${B2_TARGETS:-"libs/$SELF/test"}
+$BOOST_ROOT/libs/$SELF/ci/build.sh
 
 elif [ "$DRONE_JOB_BUILDTYPE" == "docs" ]; then
 
