@@ -101,7 +101,7 @@ public:
     std::size_t
     capacity() const noexcept
     {
-        return cap_;
+        return cap_ - in_len_;
     }
 
     BOOST_BUFFERS_DECL

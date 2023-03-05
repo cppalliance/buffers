@@ -54,7 +54,8 @@ struct circular_buffer_test
             circular_buffer cb(
                 &pat[0], pat.size(), 6);
             BOOST_TEST_EQ(cb.size(), 6);
-            BOOST_TEST_EQ(cb.capacity(), pat.size());
+            BOOST_TEST_EQ(
+                cb.capacity(), pat.size() - 6);
             BOOST_TEST_EQ(cb.max_size(), pat.size());
             BOOST_TEST_EQ(
                 test_to_string(cb.data()),
@@ -127,11 +128,16 @@ struct circular_buffer_test
             std::string s(pat.size(), 0);
             circular_buffer bs(
                 &s[0], s.size());
+            BOOST_TEST_EQ(
+                bs.capacity(), s.size());
             if( j < pat.size() &&
                 i > 0)
             {
                 bs.prepare(i);
                 bs.commit(i);
+                BOOST_TEST_EQ(
+                    bs.capacity(),
+                    bs.max_size() - bs.size());
                 bs.consume(i - 1);
                 bs.commit(buffer_copy(
                     bs.prepare(j),
@@ -147,6 +153,9 @@ struct circular_buffer_test
                     buffer(
                         pat.data(),
                         pat.size())));
+                BOOST_TEST_EQ(
+                    bs.capacity(),
+                    bs.max_size() - bs.size());
             }
             bs.commit(buffer_copy(
                 bs.prepare(pat.size() - j),
