@@ -32,6 +32,7 @@
           <member><link linkend="buffers.ref.boost__buffers__mutable_buffer">mutable_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__mutable_buffer_pair">mutable_buffer_pair</link></member>
           <member><link linkend="buffers.ref.boost__buffers__mutable_buffer_span">mutable_buffer_span</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__string_buffer">string_buffer</link></member>
         </simplelist>
       </entry>
      
