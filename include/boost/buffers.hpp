@@ -25,6 +25,7 @@
 #include <boost/buffers/mutable_buffer_span.hpp>
 #include <boost/buffers/mutable_buffer_subspan.hpp>
 #include <boost/buffers/range.hpp>
+#include <boost/buffers/string_buffer.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 

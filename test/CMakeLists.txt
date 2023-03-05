@@ -33,6 +33,7 @@ set(PFILES
     mutable_buffer_span.cpp
     mutable_buffer_subspan.cpp
     range.cpp
+    string_buffer.cpp
     tag_invoke.cpp
     type_traits.cpp
     )
