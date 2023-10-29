@@ -18,6 +18,13 @@
 namespace boost {
 namespace buffers {
 
+/** A circular buffer.
+
+    This implements a fixed-size, circular
+    buffer. Buffer sequences returned from
+    @ref prepare and @ref data always have
+    length two.
+*/
 class circular_buffer
 {
     unsigned char* base_ = nullptr;

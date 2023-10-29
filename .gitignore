@@ -1,7 +1,5 @@
 /bin
 /bin64
-/_build*
-temp
 
 # Emacs
 *#
