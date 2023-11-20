@@ -55,7 +55,6 @@ function(boost_buffers_setup_properties target)
             Boost::assert
             Boost::config
             Boost::static_assert
-            Boost::system
         PRIVATE
             Boost::throw_exception
     )
