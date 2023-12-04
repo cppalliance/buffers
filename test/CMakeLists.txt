@@ -46,3 +46,4 @@ target_link_libraries(
     boost_buffers_tests PRIVATE
     boost_buffers
     )
+add_test(NAME boost_buffers_tests COMMAND boost_buffers_tests)
