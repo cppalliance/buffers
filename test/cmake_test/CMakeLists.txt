@@ -24,25 +24,15 @@ else()
     assert
     config
     static_assert
+    system
     throw_exception
-    url
 
     # Secondary dependencies
 
-    align
-    core
-    mp11
-    optional
-    system
-    type_traits
     variant2
-    detail
-    move
-    predef
-    utility
     winapi
-    preprocessor
-    io
+    mp11
+    predef
   )
 
   foreach(dep IN LISTS deps)
