@@ -6,13 +6,19 @@
 //
 
 #include <boost/buffers.hpp>
-#include <boost/buffers/src.hpp>
+#include <boost/buffers/circular_buffer.hpp>
 
-int main()
-{
-    boost::buffers::flat_buffer fbuf;
-    if (fbuf.size() != 0) {
-      throw 1234;
-    }
-    return 0;
+int main() {
+  boost::buffers::flat_buffer fbuf;
+  if (fbuf.size() != 0) {
+    throw 1234;
+  }
+
+  boost::buffers::circular_buffer cbuf;
+  auto buf_pair = cbuf.data();
+  if (buf_pair[0].data() != nullptr) {
+    throw 4321;
+  }
+
+  return 0;
 }
