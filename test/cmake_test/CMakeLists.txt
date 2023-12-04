@@ -13,16 +13,10 @@ set(__ignore__ ${CMAKE_C_COMPILER})
 set(__ignore__ ${CMAKE_C_FLAGS})
 
 if(BOOST_CI_INSTALL_TEST)
-  find_package(Boost CONFIG REQUIRED COMPONENTS url buffers)
+  find_package(Boost CONFIG REQUIRED COMPONENTS buffers)
 else()
 
-  set(BOOST_BUFFERS_BUILD_TESTS OFF CACHE BOOL "Build the tests." FORCE)
   add_subdirectory(../.. boostorg/buffers)
-
-  # set the project version here to suppress URL's detection that causes it to
-  # re-add all of Boost which errors out with duplicated targets
-  #
-  set(BOOST_SUPERPROJECT_VERSION "1.84.0")
 
   set(deps
     # Primary dependencies
@@ -50,11 +44,10 @@ else()
     preprocessor
     io
   )
-  set(BUILD_TESTING OFF CACHE BOOL "Build the tests." FORCE)
+
   foreach(dep IN LISTS deps)
     add_subdirectory(../../../${dep} boostorg/${dep} EXCLUDE_FROM_ALL)
   endforeach()
-  set(BUILD_TESTING ON CACHE BOOL "Build the tests." FORCE)
 endif()
 
 add_executable(main main.cpp)
