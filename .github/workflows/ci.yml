@@ -15,15 +15,14 @@ name: CI
 
 on:
   pull_request:
+  push:
     branches:
       - master
       - develop
+      - bugfix/**
       - feature/**
-  push:
-    branches:
-      - '*'
-    tags:
-      - "boost-*.*.*"
+      - fix/**
+      - pr/**
 
 
 concurrency:
