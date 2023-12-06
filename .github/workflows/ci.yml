@@ -186,7 +186,7 @@ jobs:
           cxxflags: ${{ matrix.cxxflags }}
           shared: ${{ matrix.shared }}
           install: false
-          cmake-version: '>=3.11'
+          cmake-version: '>=3.8'
           extra-args: -D BOOST_CI_INSTALL_TEST=OFF
           ref-source-dir: ../boost-root/libs/buffers/test/cmake_test
 
@@ -208,9 +208,8 @@ jobs:
           cxxflags: ${{ matrix.cxxflags }}
           shared: ${{ matrix.shared }}
           install: false
+          cmake-version: '>=3.13'
           extra-args: -D BOOST_CI_INSTALL_TEST=ON -D CMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/.local
-          package: false
-          package-artifact: false
           ref-source-dir: ../boost-root/libs/buffers/test/cmake_test
 
       - name: Root Project CMake Workflow
@@ -230,6 +229,7 @@ jobs:
           cxxflags: ${{ matrix.cxxflags }}
           shared: ${{ matrix.shared }}
           extra-args: -D Boost_VERBOSE=ON -D BUILD_TESTING=ON -D BOOST_SRC_DIR="../boost-root"
+          cmake-version: '>=3.8'
           package: false
           package-artifact: false
           ref-source-dir: .
