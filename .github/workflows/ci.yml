@@ -178,7 +178,7 @@ jobs:
           source-dir: ../boost-root/libs/${{ steps.patch.outputs.module }}/test/cmake_test
           build-dir: __build_cmake_subdir_test__
           generator: ${{ matrix.generator }}
-          build-type: ${{ matrix.build_type }}
+          build-type: ${{ matrix.build-type }}
           cxxstd: ${{ matrix.latest-cxxstd }}
           cc: ${{ steps.setup-cpp.outputs.cc || matrix.cc }}
           ccflags: ${{ matrix.ccflags }}
