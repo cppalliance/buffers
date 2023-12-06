@@ -12,12 +12,10 @@ project(cmake_subdir_test LANGUAGES CXX)
 set(__ignore__ ${CMAKE_C_COMPILER})
 set(__ignore__ ${CMAKE_C_FLAGS})
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
 if(BOOST_CI_INSTALL_TEST)
   find_package(Boost CONFIG REQUIRED COMPONENTS buffers)
 else()
-
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
   add_subdirectory(../.. boostorg/buffers)
 
   set(deps
