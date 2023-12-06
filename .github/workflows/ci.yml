@@ -191,7 +191,8 @@ jobs:
           ref-source-dir: ../boost-root/libs/buffers/test/cmake_test
 
       - name: Set Path
-        run: echo "${{ startsWith(matrix.runs-on, 'windows') && '$GITHUB_WORKSPACE/.local/bin' || '' }}" >> $GITHUB_PATH
+        if: startsWith(matrix.runs-on, 'windows') && matrix.shared
+        run: echo "$GITHUB_WORKSPACE/.local/bin" >> $GITHUB_PATH
 
       - name: Find Package Integration Workflow
         uses: alandefreitas/cpp-actions/cmake-workflow@v1.5.0
