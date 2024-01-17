@@ -710,7 +710,7 @@ jobs:
           path: buffers-root
 
       - name: Setup C++
-        uses: alandefreitas/cpp-actions/setup-cpp@v1.7.0
+        uses: alandefreitas/cpp-actions/setup-cpp@v1.8.0
         id: setup-cpp
         with:
           compiler: ${{ matrix.compiler }}
@@ -719,7 +719,7 @@ jobs:
           trace-commands: true
 
       - name: Install packages
-        uses: alandefreitas/cpp-actions/package-install@develop
+        uses: alandefreitas/cpp-actions/package-install@v1.8.0
         id: package-install
         with:
           apt-get: >-
@@ -727,7 +727,7 @@ jobs:
             build-essential
 
       - name: Clone Boost
-        uses: alandefreitas/cpp-actions/boost-clone@v1.7.0
+        uses: alandefreitas/cpp-actions/boost-clone@v1.8.0
         id: boost-clone
         with:
           branch: ${{ (github.ref_name == 'master' && github.ref_name) || 'develop' }}
@@ -787,7 +787,7 @@ jobs:
           stop-on-error: true
 
       - name: Boost CMake Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.7.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
         if: ${{ matrix.coverage || matrix.time-trace || matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root
@@ -823,7 +823,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/.local/lib:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
 
       - name: Find Package Integration Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.7.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
         if: ${{ matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root/libs/${{ steps.patch.outputs.module }}/test/cmake_test
@@ -846,7 +846,7 @@ jobs:
           trace-commands: true
 
       - name: Subdirectory Integration Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.7.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
         if: ${{ matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root/libs/${{ steps.patch.outputs.module }}/test/cmake_test
@@ -866,7 +866,7 @@ jobs:
           ref-source-dir: boost-root/libs/buffers/test/cmake_test
 
       - name: Root Project CMake Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.7.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
         if: ${{ matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root/libs/${{ steps.patch.outputs.module }}
@@ -889,7 +889,7 @@ jobs:
           ref-source-dir: boost-root
 
       - name: FlameGraph
-        uses: alandefreitas/cpp-actions/flamegraph@v1.7.0
+        uses: alandefreitas/cpp-actions/flamegraph@v1.8.0
         if: matrix.time-trace
         with:
           source-dir: boost-root/libs/buffers
@@ -942,7 +942,7 @@ jobs:
           fetch-depth: 100
 
       - name: Changelog
-        uses: alandefreitas/cpp-actions/create-changelog@v1.7.0
+        uses: alandefreitas/cpp-actions/create-changelog@v1.8.0
         with:
           thank-non-regular: ${{ startsWith(github.ref, 'refs/tags/') }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
