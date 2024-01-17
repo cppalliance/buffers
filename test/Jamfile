@@ -21,7 +21,7 @@ project
 local SOURCES =
     algorithm.cpp
     any_dynamic_buffer.cpp
-    buffers.cpp
+    buffer.cpp
     buffer_copy.cpp
     buffer_size.cpp
     buffers.cpp
