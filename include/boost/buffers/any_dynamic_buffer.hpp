@@ -22,7 +22,8 @@ namespace buffers {
 
 /** An abstract, type-erased dynamic buffer.
 */
-struct any_dynamic_buffer
+struct BOOST_SYMBOL_VISIBLE
+    any_dynamic_buffer
 {
     using const_buffers_type =
         buffers::const_buffer_span;

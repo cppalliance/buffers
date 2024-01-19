@@ -23,7 +23,8 @@ namespace buffers {
     Objects of this type meet the requirements
     of <em>ConstBufferSequence</em>.
 */
-class const_buffer_span
+class BOOST_SYMBOL_VISIBLE
+    const_buffer_span
 {
     const_buffer const* p_ = nullptr;
     std::size_t n_ = 0;
@@ -128,10 +129,13 @@ public:
 #endif
 
 private:
-    const_buffer_subspan prefix_impl(
-        std::size_t n) const noexcept;
-    const_buffer_subspan suffix_impl(
-        std::size_t n) const noexcept;
+    inline
+    const_buffer_subspan
+    prefix_impl(std::size_t n) const noexcept;
+
+    inline
+    const_buffer_subspan
+    suffix_impl(std::size_t n) const noexcept;
 };
 
 //-----------------------------------------------

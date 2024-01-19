@@ -19,7 +19,8 @@ namespace buffers {
 
 /** A mutable buffer pair
 */
-class mutable_buffer_pair
+class BOOST_SYMBOL_VISIBLE
+    mutable_buffer_pair
 {
 public:
     using value_type = mutable_buffer;

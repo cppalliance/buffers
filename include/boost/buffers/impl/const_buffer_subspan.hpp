@@ -99,25 +99,8 @@ public:
     }
 };
 
-inline
-auto
-const_buffer_subspan::
-begin() const noexcept ->
-    const_iterator
-{
-    return { *this, 0 };
-}
+//------------------------------------------------
 
-inline
-auto
-const_buffer_subspan::
-end() const noexcept ->
-    const_iterator
-{
-    return { *this, n_ };
-}
-
-inline
 const_buffer_subspan::
 const_buffer_subspan(
     const_buffer const* p,
@@ -138,6 +121,22 @@ const_buffer_subspan(
     BOOST_ASSERT(
         n_ == 0 ||
         p1 <= p[n_ - 1].size());
+}
+
+auto
+const_buffer_subspan::
+begin() const noexcept ->
+    const_iterator
+{
+    return { *this, 0 };
+}
+
+auto
+const_buffer_subspan::
+end() const noexcept ->
+    const_iterator
+{
+    return { *this, n_ };
 }
 
 } // buffers
