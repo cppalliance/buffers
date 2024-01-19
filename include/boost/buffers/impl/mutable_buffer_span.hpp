@@ -13,7 +13,6 @@
 namespace boost {
 namespace buffers {
 
-inline
 mutable_buffer_subspan
 mutable_buffer_span::
 prefix_impl(
@@ -23,7 +22,6 @@ prefix_impl(
         *this).prefix_impl(n);
 }
 
-inline
 mutable_buffer_subspan
 mutable_buffer_span::
 suffix_impl(
@@ -36,7 +34,6 @@ suffix_impl(
 //-----------------------------------------------
 
 // here because circular dependency
-inline
 mutable_buffer_subspan::
 mutable_buffer_subspan(
     mutable_buffer_span const& s) noexcept

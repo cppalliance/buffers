@@ -34,6 +34,7 @@ class mutable_buffer_subspan
 
     friend class mutable_buffer_span;
 
+    inline
     mutable_buffer_subspan(
         mutable_buffer const* p,
         std::size_t n,
@@ -62,6 +63,7 @@ public:
 
     /** Constructor.
     */
+    inline
     explicit
     mutable_buffer_subspan(
         mutable_buffer_span const& s) noexcept;
@@ -78,11 +80,13 @@ public:
 
     /** Return an iterator to the beginning.
     */
+    inline
     const_iterator
     begin() const noexcept;
 
     /** Return an iterator to the end.
     */
+    inline
     const_iterator
     end() const noexcept;
 
@@ -109,10 +113,13 @@ public:
 #endif
 
 private:
-    BOOST_BUFFERS_DECL mutable_buffer_subspan
-        prefix_impl(std::size_t n) const noexcept;
-    BOOST_BUFFERS_DECL mutable_buffer_subspan
-        suffix_impl(std::size_t n) const noexcept;
+    BOOST_BUFFERS_DECL
+    mutable_buffer_subspan
+    prefix_impl(std::size_t n) const noexcept;
+
+    BOOST_BUFFERS_DECL
+    mutable_buffer_subspan
+    suffix_impl(std::size_t n) const noexcept;
 };
 
 } // buffers

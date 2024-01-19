@@ -18,7 +18,10 @@
 namespace boost {
 namespace buffers {
 
-/** A DynamicBuffer with a fixed capacity
+/** A DynamicBuffer with a fixed capacity.
+
+    Buffer sequences returned by this container
+    always have a single element.
 */
 class flat_buffer
 {

@@ -114,7 +114,7 @@ public:
     BOOST_BUFFERS_DECL
     const_buffers_type
     data() const noexcept;
-    
+
     BOOST_BUFFERS_DECL
     mutable_buffers_type
     prepare(std::size_t n);

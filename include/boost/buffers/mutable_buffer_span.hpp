@@ -81,6 +81,7 @@ public:
 
     /** Constructor.
     */
+    inline
     mutable_buffer_span(
         mutable_buffer_span const&) = default;
 
@@ -128,10 +129,13 @@ public:
 #endif
 
 private:
-    mutable_buffer_subspan prefix_impl(
-        std::size_t n) const noexcept;
-    mutable_buffer_subspan suffix_impl(
-        std::size_t n) const noexcept;
+    inline
+    mutable_buffer_subspan
+    prefix_impl(std::size_t n) const noexcept;
+
+    inline
+    mutable_buffer_subspan
+    suffix_impl(std::size_t n) const noexcept;
 };
 
 } // buffers

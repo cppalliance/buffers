@@ -128,10 +128,13 @@ public:
 #endif
 
 private:
-    const_buffer_subspan prefix_impl(
-        std::size_t n) const noexcept;
-    const_buffer_subspan suffix_impl(
-        std::size_t n) const noexcept;
+    inline
+    const_buffer_subspan
+    prefix_impl(std::size_t n) const noexcept;
+
+    inline
+    const_buffer_subspan
+    suffix_impl(std::size_t n) const noexcept;
 };
 
 //-----------------------------------------------
