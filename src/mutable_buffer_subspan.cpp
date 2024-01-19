@@ -7,9 +7,6 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_IMPL_MUTABLE_BUFFER_SUBSPAN_IPP
-#define BOOST_BUFFERS_IMPL_MUTABLE_BUFFER_SUBSPAN_IPP
-
 #include <boost/buffers/mutable_buffer_subspan.hpp>
 #include <boost/buffers/algorithm.hpp>
 #include <boost/assert.hpp>
@@ -157,5 +154,3 @@ suffix_impl(
 
 } // buffers
 } // boost
-
-#endif

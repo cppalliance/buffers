@@ -7,9 +7,6 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_DETAIL_IMPL_EXCEPT_IPP
-#define BOOST_BUFFERS_DETAIL_IMPL_EXCEPT_IPP
-
 #include <boost/buffers/detail/except.hpp>
 #include <boost/version.hpp>
 #include <boost/throw_exception.hpp>
@@ -40,5 +37,3 @@ throw_length_error(
 } // detail
 } // buffers
 } // boost
-
-#endif

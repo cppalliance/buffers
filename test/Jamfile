@@ -44,5 +44,4 @@ local SOURCES =
 for local f in $(SOURCES)
 {
     run $(f) : : : ;
-    #run $(f) : target-name $(f:B)_ ;
 }

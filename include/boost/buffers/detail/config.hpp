@@ -73,4 +73,10 @@ template<class... Ts> using void_t = typename make_void<Ts...>::type;
 } // buffers
 } // boost
 
+// Trick boostdep into requiring URL
+// since we need it for the unit tests
+#ifdef BOOST_BUFFERS_BOOSTDEP
+#include <boost/url/url.hpp>
+#endif
+
 #endif

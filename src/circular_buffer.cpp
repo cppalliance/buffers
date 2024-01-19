@@ -7,9 +7,6 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_IMPL_CIRCULAR_BUFFER_IPP
-#define BOOST_BUFFERS_IMPL_CIRCULAR_BUFFER_IPP
-
 #include <boost/buffers/circular_buffer.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/buffers/detail/except.hpp>
@@ -97,5 +94,3 @@ consume(
 
 } // buffers
 } // boost
-
-#endif

@@ -7,9 +7,6 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_IMPL_MUTABLE_BUFFER_PAIR_IPP
-#define BOOST_BUFFERS_IMPL_MUTABLE_BUFFER_PAIR_IPP
-
 #include <boost/buffers/mutable_buffer_pair.hpp>
 
 namespace boost {
@@ -56,5 +53,3 @@ suffix_impl(
 
 } // buffers
 } // boost
-
-#endif

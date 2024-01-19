@@ -10,16 +10,23 @@
 #ifndef BOOST_BUFFERS_DETAIL_EXCEPT_HPP
 #define BOOST_BUFFERS_DETAIL_EXCEPT_HPP
 
+#include <boost/buffers/detail/config.hpp>
 #include <boost/assert/source_location.hpp>
 
 namespace boost {
 namespace buffers {
 namespace detail {
 
-BOOST_BUFFERS_DECL void BOOST_NORETURN throw_invalid_argument(
+BOOST_BUFFERS_DECL
+void
+BOOST_NORETURN
+throw_invalid_argument(
     source_location const& loc = BOOST_CURRENT_LOCATION);
 
-BOOST_BUFFERS_DECL void BOOST_NORETURN throw_length_error(
+BOOST_BUFFERS_DECL
+void
+BOOST_NORETURN
+throw_length_error(
     source_location const& loc = BOOST_CURRENT_LOCATION);
 
 } // detail
