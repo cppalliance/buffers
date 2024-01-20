@@ -23,8 +23,7 @@ namespace buffers {
     Objects of this type meet the requirements
     of <em>MutableBufferSequence</em>.
 */
-class BOOST_SYMBOL_VISIBLE
-    mutable_buffer_span
+class mutable_buffer_span
 {
     mutable_buffer const* p_ = nullptr;
     std::size_t n_ = 0;

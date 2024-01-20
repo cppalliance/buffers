@@ -20,8 +20,7 @@ namespace buffers {
 
 /** A constant buffer pair
 */
-class BOOST_SYMBOL_VISIBLE
-    const_buffer_pair
+class const_buffer_pair
 {
 public:
     using value_type = const_buffer;

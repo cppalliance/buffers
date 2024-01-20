@@ -25,8 +25,7 @@ class const_buffer_span;
     Objects of this type meet the requirements
     of <em>ConstBufferSequence</em>.
 */
-class BOOST_SYMBOL_VISIBLE
-    const_buffer_subspan
+class const_buffer_subspan
 {
     const_buffer const* p_ = nullptr;
     std::size_t n_ = 0;

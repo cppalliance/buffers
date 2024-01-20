@@ -23,8 +23,7 @@ namespace buffers {
     Objects of this type meet the requirements
     of <em>ConstBufferSequence</em>.
 */
-class BOOST_SYMBOL_VISIBLE
-    const_buffer_span
+class const_buffer_span
 {
     const_buffer const* p_ = nullptr;
     std::size_t n_ = 0;

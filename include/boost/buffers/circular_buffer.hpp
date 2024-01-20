@@ -25,8 +25,7 @@ namespace buffers {
     @ref prepare and @ref data always have
     length two.
 */
-class BOOST_SYMBOL_VISIBLE
-    circular_buffer
+class circular_buffer
 {
     unsigned char* base_ = nullptr;
     std::size_t cap_ = 0;

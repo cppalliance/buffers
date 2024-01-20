@@ -25,8 +25,7 @@ class mutable_buffer_span;
     Objects of this type meet the requirements
     of <em>MutableBufferSequence</em>.
 */
-class BOOST_SYMBOL_VISIBLE
-    mutable_buffer_subspan
+class mutable_buffer_subspan
 {
     mutable_buffer const* p_ = nullptr;
     std::size_t n_ = 0;
