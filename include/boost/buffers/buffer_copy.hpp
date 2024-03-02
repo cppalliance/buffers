@@ -86,10 +86,11 @@ struct buffer_copy_impl
                     n = b1.size();
                 if( n > at_most - total)
                     n = at_most - total;
-                std::memcpy(
-                    b1.data(),
-                    b0.data(),
-                    n);
+                if(n != 0)
+                    std::memcpy(
+                        b1.data(),
+                        b0.data(),
+                        n);
                 return n;
             }();
             total += amount;

@@ -72,10 +72,36 @@ struct buffer_copy_test
             }
         }
     }
+
+    void
+    testEmptyBufferCopy()
+    {
+        std::string s = test_pattern();
+
+        // empty source
+        {
+            const_buffer source{ nullptr, 0 };
+            mutable_buffer target{ &s[0], s.size() };
+
+            auto n = buffer_copy(target, source);
+            BOOST_TEST_EQ(n, 0);
+        }
+
+        // empty target
+        {
+            const_buffer source{ &s[0], s.size() };
+            mutable_buffer target{ nullptr, 0 };
+
+            auto n = buffer_copy(target, source);
+            BOOST_TEST_EQ(n, 0);
+        }
+    }
+
     void
     run()
     {
         testBufferCopy();
+        testEmptyBufferCopy();
     }
 };
 
