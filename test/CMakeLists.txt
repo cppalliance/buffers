@@ -18,7 +18,6 @@ set(PFILES
     test_helpers.hpp
     algorithm.cpp
     any_dynamic_buffer.cpp
-    buffer.cpp
     buffer_copy.cpp
     buffer_size.cpp
     buffers.cpp
@@ -28,6 +27,7 @@ set(PFILES
     const_buffer_span.cpp
     const_buffer_subspan.cpp
     flat_buffer.cpp
+    make_buffer.cpp
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
     mutable_buffer_span.cpp

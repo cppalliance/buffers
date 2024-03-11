@@ -41,7 +41,7 @@ struct string_buffer_test
                 string_buffer b1(std::move(b0));
                 auto n = buffer_copy(
                     b1.prepare(5),
-                    buffer("12345", 5));
+                    make_buffer("12345", 5));
                 BOOST_TEST_EQ(n, 5);
                 b1.commit(5);
             }
@@ -129,7 +129,7 @@ struct string_buffer_test
                 string_buffer b(&s);
                 auto n = buffer_copy(
                     b.prepare(5),
-                    buffer("12345", 5));
+                    make_buffer("12345", 5));
                 BOOST_TEST_EQ(n, 5);
                 b.commit(3);
                 BOOST_TEST_EQ(b.size(), 3);

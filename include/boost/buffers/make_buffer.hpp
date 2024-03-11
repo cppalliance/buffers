@@ -7,8 +7,8 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_BUFFER_HPP
-#define BOOST_BUFFERS_BUFFER_HPP
+#ifndef BOOST_BUFFERS_MAKE_BUFFER_HPP
+#define BOOST_BUFFERS_MAKE_BUFFER_HPP
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer.hpp>
@@ -23,7 +23,7 @@ namespace buffers {
 */
 inline
 mutable_buffer
-buffer(
+make_buffer(
     mutable_buffer const& b) noexcept
 {
     return b;
@@ -33,7 +33,7 @@ buffer(
 */
 inline
 mutable_buffer
-buffer(
+make_buffer(
     void* data,
     std::size_t size) noexcept
 {
@@ -44,7 +44,7 @@ buffer(
 */
 inline
 const_buffer
-buffer(
+make_buffer(
     const_buffer const& b) noexcept
 {
     return b;
@@ -54,7 +54,7 @@ buffer(
 */
 inline
 const_buffer
-buffer(
+make_buffer(
     void const* data,
     std::size_t size) noexcept
 {
@@ -71,7 +71,7 @@ template<
 #endif
 >
 mutable_buffer
-buffer(
+make_buffer(
     T (&data)[N]) noexcept
 {
     return mutable_buffer(
@@ -88,7 +88,7 @@ template<
 #endif
 >
 const_buffer
-buffer(
+make_buffer(
     T const (&data)[N]) noexcept
 {
     return const_buffer(

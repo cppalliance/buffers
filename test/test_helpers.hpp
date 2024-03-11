@@ -11,9 +11,9 @@
 #define BOOST_BUFFERS_TEST_HELPERS_HPP
 
 #include <boost/buffers/algorithm.hpp>
-#include <boost/buffers/buffer.hpp>
 #include <boost/buffers/buffer_copy.hpp>
 #include <boost/buffers/buffer_size.hpp>
+#include <boost/buffers/make_buffer.hpp>
 #include <boost/buffers/range.hpp>
 #include <string>
 #include "test_suite.hpp"
@@ -37,7 +37,7 @@ test_to_string(Buffers const& bs)
     std::string s(
         buffer_size(bs), 0);
     s.resize(buffer_copy(
-        buffer(&s[0], s.size()),
+        make_buffer(&s[0], s.size()),
         bs));
     return s;
 }

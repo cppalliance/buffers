@@ -27,7 +27,7 @@
           <member><link linkend="buffers.ref.boost__buffers__const_buffer">const_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__const_buffer_pair">const_buffer_pair</link></member>
           <member><link linkend="buffers.ref.boost__buffers__const_buffer_span">const_buffer_span</link></member>
-          <member><link linkend="buffers.ref.boost__buffers__const_buffer_subspan">const_buffer_span</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__const_buffer_subspan">const_buffer_subspan</link></member>
           <member><link linkend="buffers.ref.boost__buffers__flat_buffer">flat_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__mutable_buffer">mutable_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__mutable_buffer_pair">mutable_buffer_pair</link></member>
@@ -40,11 +40,11 @@
         <bridgehead renderas="sect3">Functions</bridgehead>
         <simplelist type="vert" columns="1">
           <member><link linkend="buffers.ref.boost__buffers__begin">begin</link></member>
-          <member><link linkend="buffers.ref.boost__buffers__buffer">buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__buffer_copy">buffer_copy</link></member>
           <member><link linkend="buffers.ref.boost__buffers__buffer_size">buffer_size</link></member>
           <member><link linkend="buffers.ref.boost__buffers__end">end</link></member>
           <member><link linkend="buffers.ref.boost__buffers__front">front</link></member>
+          <member><link linkend="buffers.ref.boost__buffers__make_buffer">make_buffer</link></member>
           <member><link linkend="buffers.ref.boost__buffers__prefix">prefix</link></member>
           <member><link linkend="buffers.ref.boost__buffers__range">range</link></member>
           <member><link linkend="buffers.ref.boost__buffers__sans_prefix">sans_prefix</link></member>
