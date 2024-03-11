@@ -19,7 +19,7 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template mode="convenience-header" match="@file[contains(., 'boost/buffers')]">url.hpp</xsl:template>
+  <xsl:template mode="convenience-header" match="@file[contains(., 'boost/buffers')]">buffers.hpp</xsl:template>
   <xsl:template mode="convenience-header" match="@file"/>
 
   <xsl:variable name="emphasized-template-parameter-types" select="

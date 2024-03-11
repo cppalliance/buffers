@@ -17,7 +17,6 @@
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
-#include <memory>
 
 namespace boost {
 namespace buffers {

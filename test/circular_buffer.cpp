@@ -72,7 +72,7 @@ struct circular_buffer_test
         //  circular_buffer const&)
         {
             circular_buffer cb0(
-                buffer(&pat[0], pat.size()));
+                make_buffer(&pat[0], pat.size()));
             circular_buffer cb1(cb0);
             BOOST_TEST_EQ(cb1.size(), cb0.size());
             BOOST_TEST_EQ(cb1.capacity(), cb0.capacity());
@@ -83,7 +83,7 @@ struct circular_buffer_test
         //  circular_buffer const&)
         {
             circular_buffer cb0(
-                buffer(&pat[0], pat.size()));
+                make_buffer(&pat[0], pat.size()));
             circular_buffer cb1;
             cb1 = cb0;
             BOOST_TEST_EQ(cb1.size(), cb0.size());
@@ -93,7 +93,7 @@ struct circular_buffer_test
 
         // prepare(std::size_t)
         {
-            circular_buffer cb(buffer(
+            circular_buffer cb(make_buffer(
                 &pat[0], pat.size()));
             BOOST_TEST_THROWS(
                 cb.prepare(cb.capacity() + 1),
@@ -102,7 +102,7 @@ struct circular_buffer_test
 
         // commit(std::size_t)
         {
-            circular_buffer cb(buffer(
+            circular_buffer cb(make_buffer(
                 &pat[0], pat.size()));
             auto n = pat.size() / 2;
             cb.prepare(pat.size());
@@ -141,7 +141,7 @@ struct circular_buffer_test
                 bs.consume(i - 1);
                 bs.commit(buffer_copy(
                     bs.prepare(j),
-                    buffer(
+                    make_buffer(
                         pat.data(),
                         pat.size())));
                 bs.consume(1);
@@ -150,7 +150,7 @@ struct circular_buffer_test
             {
                 bs.commit(buffer_copy(
                     bs.prepare(j),
-                    buffer(
+                    make_buffer(
                         pat.data(),
                         pat.size())));
                 BOOST_TEST_EQ(
@@ -159,7 +159,7 @@ struct circular_buffer_test
             }
             bs.commit(buffer_copy(
                 bs.prepare(pat.size() - j),
-                buffer(
+                make_buffer(
                     pat.data() + j,
                     pat.size() - j)));
             BOOST_TEST_EQ(test_to_string(

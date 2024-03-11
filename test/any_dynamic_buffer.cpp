@@ -46,7 +46,7 @@ struct any_dynamic_buffer_test
                 db.consume(i - 1);
                 db.commit(buffer_copy(
                     db.prepare(j),
-                    buffer(
+                    make_buffer(
                         pat.data(),
                         pat.size())));
                 db.consume(1);
@@ -55,13 +55,13 @@ struct any_dynamic_buffer_test
             {
                 db.commit(buffer_copy(
                     db.prepare(j),
-                    buffer(
+                    make_buffer(
                         pat.data(),
                         pat.size())));
             }
             db.commit(buffer_copy(
                 db.prepare(pat.size() - j),
-                buffer(
+                make_buffer(
                     pat.data() + j,
                     pat.size() - j)));
             BOOST_TEST_EQ(test_to_string(
