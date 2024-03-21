@@ -134,7 +134,7 @@ public:
         return b += n;
     }
 
-#ifndef BOOST_BUFFER_DOCS
+#ifndef BOOST_BUFFERS_DOCS
     friend
     mutable_buffer
     tag_invoke(
