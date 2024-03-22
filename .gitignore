@@ -1,7 +1,8 @@
 /bin
 /bin64
 
-__build__
+/__build__
+/toolchain.cmake
 
 # Emacs
 *#
@@ -15,3 +16,8 @@ __build__
 
 # Visual Studio Code
 /.vscode
+
+# clangd
+/.cache
+/.clangd
+/compile_commands.json
