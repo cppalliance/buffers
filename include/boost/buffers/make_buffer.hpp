@@ -13,6 +13,8 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/type_traits.hpp>
+#include <boost/core/data.hpp>
 #include <cstdlib>
 #include <type_traits>
 
@@ -93,6 +95,42 @@ make_buffer(
 {
     return const_buffer(
         data, N * sizeof(T));
+}
+
+/** Return a buffer.
+*/
+template<
+    class T
+#ifndef BOOST_BUFFERS_DOCS
+    , typename std::enable_if<
+        detail::is_mutable_contiguous_container<T>::value,
+        int>::type = 0
+#endif
+>
+mutable_buffer
+make_buffer(T& data)
+{
+    return mutable_buffer(
+        boost::data(data),
+        sizeof(*(data.data())) * data.size());
+}
+
+/** Return a buffer.
+*/
+template<
+    class T
+#ifndef BOOST_BUFFERS_DOCS
+    , typename std::enable_if<
+        detail::is_const_contiguous_container<T>::value,
+        int>::type = 0
+#endif
+>
+const_buffer
+make_buffer(T& data)
+{
+    return const_buffer(
+        boost::data(data),
+        sizeof(*(data.data())) * data.size());
 }
 
 } // buffers

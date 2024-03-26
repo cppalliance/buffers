@@ -54,6 +54,7 @@ function(boost_buffers_setup_properties target)
         PUBLIC
             Boost::assert
             Boost::config
+            Boost::core
             Boost::static_assert
             Boost::system
         PRIVATE

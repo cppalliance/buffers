@@ -23,6 +23,7 @@ else()
 
     assert
     config
+    core
     static_assert
     system
     throw_exception

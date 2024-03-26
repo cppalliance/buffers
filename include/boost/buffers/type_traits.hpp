@@ -12,6 +12,7 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/detail/type_traits.hpp>
+#include <boost/core/data.hpp>
 #include <type_traits>
 
 namespace boost {
@@ -31,6 +32,128 @@ template<class T>
 struct is_const_buffer_sequence
     : std::integral_constant<bool, ...>{};
 #else
+
+namespace detail
+{
+    template <class>
+    struct is_buffer
+    {
+        static constexpr bool value = false;
+    };
+
+    template <>
+    struct is_buffer<const_buffer>
+    {
+        static constexpr bool value = true;
+    };
+
+    template <>
+    struct is_buffer<mutable_buffer>
+    {
+        static constexpr bool value = true;
+    };
+
+    template <class T>
+    using buffers_ptr =
+        decltype(boost::data(std::declval<T&>()));
+
+    template <class T, class = void>
+    struct buffers_data
+    {
+    };
+
+    template <class T>
+    struct buffers_data<
+        T, typename std::enable_if<
+            std::is_pointer<buffers_ptr<T>>::value
+        >::type>
+    {
+        using type =
+            typename std::remove_pointer<
+                buffers_ptr<T>>::type;
+    };
+
+    template <class, class = void>
+    struct buffers_has_data
+    {
+        static constexpr bool value = false;
+    };
+
+    template<class T>
+    struct buffers_has_data<
+        T, typename std::enable_if<
+            std::is_trivial<
+                typename buffers_data<T>::type
+            >::value &&
+            !std::is_const<
+                typename buffers_data<T>::type
+            >::value
+        >::type>
+    {
+        static constexpr bool value = true;
+    };
+
+    template <class, class = void>
+    struct buffers_has_cdata
+    {
+        static constexpr bool value = false;
+    };
+
+    template<class T>
+    struct buffers_has_cdata<
+        T, typename std::enable_if<
+            std::is_trivial<
+                typename buffers_data<T>::type
+            >::value &&
+            std::is_const<
+                typename buffers_data<T>::type
+            >::value
+        >::type>
+    {
+        static constexpr bool value = true;
+    };
+
+    template<class T, class=void>
+    struct buffers_has_size {
+        static constexpr bool const value = false;
+    };
+
+    template<class T>
+    struct buffers_has_size<T,
+        typename std::enable_if<
+            std::is_convertible<
+                decltype(std::declval<T&>().size()),
+                std::size_t
+            >::value
+    >::type>
+    {
+        static constexpr bool value = true;
+    };
+
+    template <class T>
+    using buffers_uncvref = typename std::remove_cv<typename
+        std::remove_reference<T>::type>::type;
+
+    template<class T>
+    struct is_mutable_contiguous_container
+    {
+        static constexpr bool value =
+            !is_buffer<buffers_uncvref<T>>::value &&
+            !std::is_array<buffers_uncvref<T>>::value &&
+            buffers_has_data<T>::value &&
+            buffers_has_size<T>::value;
+    };
+
+    template<class T, class = void>
+    struct is_const_contiguous_container
+    {
+        static constexpr bool value =
+            !is_buffer<buffers_uncvref<T>>::value &&
+            !std::is_array<buffers_uncvref<T>>::value &&
+            buffers_has_cdata<T>::value &&
+            buffers_has_size<T>::value;
+    };
+}
 
 template<class T, class = void>
 struct is_const_buffer_sequence
@@ -76,7 +199,7 @@ struct is_const_buffer_sequence<
 template<class T>
 struct is_const_buffer_sequence<T, void_t<
     typename std::enable_if<
-        (std::is_same<const_buffer, typename 
+        (std::is_same<const_buffer, typename
             T::value_type>::value
         || std::is_same<mutable_buffer, typename
             T::value_type>::value
