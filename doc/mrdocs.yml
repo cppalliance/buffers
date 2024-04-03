@@ -1,0 +1,31 @@
+# Input
+input:
+  # Directories that contain documented source files
+  include:
+    - ../include
+  # Patterns to filter out the source-files in the directories
+  file-patterns:
+    - '*.hpp'
+source-root: ..
+
+# Filters
+filters:
+  symbols:
+    exclude:
+      - 'boost::buffers::detail'
+      - 'boost::buffers::*::detail'
+inaccessible-members: never
+inaccessible-bases: never
+
+# Generator
+generate: adoc
+base-url: https://www.github.com/cppalliance/buffers/blob/develop/include/
+
+# Style
+verbose: true
+multipage: true
+
+cmake: '-D BUILD_TESTING=ON'
+
+defines:
+  - BOOST_BUFFERS_DOCS
