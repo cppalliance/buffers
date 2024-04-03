@@ -948,3 +948,33 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           limit: 200
           tag-pattern: 'boost-.*\..*\..*'
+
+  antora:
+    name: Antora Docs
+    needs: [ runner-selection ]
+    runs-on: ${{ fromJSON(needs.runner-selection.outputs.labelmatrix)['ubuntu-latest'] }}
+    steps:
+      - name: Clone Boost.Buffers
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Setup C++
+        uses: alandefreitas/cpp-actions/setup-cpp@v1.8.2
+        id: setup-cpp
+        with:
+          compiler: clang
+          version: 17
+
+      - name: Build Antora Docs
+        run: |
+          cd doc
+          bash ./build_antora.sh
+
+      - name: Create Antora Docs Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: antora-docs
+          path: doc/build/site
