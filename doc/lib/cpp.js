@@ -10,7 +10,7 @@
 const path = require('path');
 const fs = require('fs');
 const xpath = require('xpath');
-const DOMParser = require('xmldom').DOMParser;
+const DOMParser = require('@xmldom/xmldom').DOMParser;
 
 /*
     Load tag files

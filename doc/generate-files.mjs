@@ -172,12 +172,12 @@ if (isBoostDir(cwdParentParent)) {
     // Delete `self` from boost/libs
     const selfDir = path.join(boostDir, 'libs', self)
     console.log(`Deleting ${selfDir}`)
-    execSync(`rm -rf ${selfDir}`)
+    fs.rmSync(selfDir, { recursive: true, force: true })
 
     // Copy contents of cwd to boost/libs/self
     // const selfDirParent = path.join(boostDir, 'libs')
     console.log(`Copying ${cwd} to ${selfDir}`)
-    execSync(`cp -r ${cwd} ${selfDir}`)
+    fs.cpSync(cwd, selfDir, {recursive: true})
 }
 
 /*
@@ -252,7 +252,7 @@ try {
 }
 if (tempDir) {
     console.log(`Deleting temporary directory ${tempDir}`)
-    execSync(`rm -rf ${tempDir}`)
+    fs.rmSync(tempDir, { recursive: true, force: true })
 }
 console.log(`Generated documentation at ${mrDocsOutputDir}`)
 process.exit(mrDocsExitCode)
