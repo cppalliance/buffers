@@ -19,23 +19,6 @@
 
 namespace boost {
 namespace buffers {
-
-#ifdef BOOST_BUFFERS_DOCS
-
-/** Copy buffer contents
-*/
-template<
-    class MutableBufferSequence,
-    class ConstBufferSequence>
-std::size_t
-buffer_copy(
-    MutableBufferSequence const& to,
-    ConstBufferSequence const& from,
-    std::size_t at_most =
-        std::size_t(-1)) noexcept;
-
-#else
-
 namespace detail {
 
 struct buffer_copy_impl
@@ -119,9 +102,9 @@ struct buffer_copy_impl
 
 } // detail
 
+/** Copy buffer contents
+*/
 constexpr detail::buffer_copy_impl buffer_copy{};
-
-#endif
 
 } // buffers
 } // boost

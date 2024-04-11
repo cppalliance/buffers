@@ -19,23 +19,6 @@
 namespace boost {
 namespace buffers {
 
-#ifdef BOOST_BUFFERS_DOCS
-
-/** Return the total octets in a buffer sequence
-
-    @par Constraints
-    @code
-    is_const_buffer_sequence< ConstBufferSequence >::value == true
-    @endcode
-*/
-template<
-    class ConstBufferSequence>
-std::size_t
-buffer_size(
-    ConstBufferSequence const& b) noexcept;
-
-#else
-
 template<class Buffers>
 std::size_t
 tag_invoke(
@@ -70,9 +53,14 @@ struct buffer_size_impl
 
 } // detail
 
-constexpr detail::buffer_size_impl buffer_size{};
+/** Return the total octets in a buffer sequence
 
-#endif
+    @par Constraints
+    @code
+    is_const_buffer_sequence< ConstBufferSequence >::value == true
+    @endcode
+*/
+constexpr detail::buffer_size_impl buffer_size{};
 
 } // buffers
 } // boost

@@ -26,6 +26,3 @@ verbose: true
 multipage: true
 
 cmake: '-D BUILD_TESTING=ON'
-
-defines:
-  - BOOST_BUFFERS_DOCS

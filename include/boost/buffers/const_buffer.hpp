@@ -59,7 +59,6 @@ public:
     const_buffer& operator=(
         const_buffer const&) = default;
 
-#ifndef BOOST_BUFFERS_DOCS
     // conversion to boost::asio::const_buffer
     template<
         class T
@@ -74,7 +73,6 @@ public:
     {
         return T{ data(), size() };
     }
-#endif
 
     void const*
     data() const noexcept
@@ -126,7 +124,6 @@ public:
         return b += n;
     }
 
-#ifndef BOOST_BUFFERS_DOCS
     friend
     const_buffer
     tag_invoke(
@@ -151,7 +148,6 @@ public:
             return { b.p_ + (n0 - n), n };
         return b;
     }
-#endif
 };
 
 } // buffers

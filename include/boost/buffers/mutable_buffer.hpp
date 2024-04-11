@@ -55,7 +55,6 @@ public:
     mutable_buffer& operator=(
         mutable_buffer const&) = default;
 
-#ifndef BOOST_BUFFERS_DOCS
     // conversion to boost::asio::mutable_buffer
     template<
         class T
@@ -70,7 +69,6 @@ public:
     {
         return T{ data(), size() };
     }
-#endif
 
     void*
     data() const noexcept
@@ -134,7 +132,6 @@ public:
         return b += n;
     }
 
-#ifndef BOOST_BUFFERS_DOCS
     friend
     mutable_buffer
     tag_invoke(
@@ -158,7 +155,6 @@ public:
             return { b.p_ + b.n_ - n, n };
         return b;
     }
-#endif
 };
 
 } // buffers
