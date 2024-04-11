@@ -17,9 +17,6 @@ namespace buffers {
 
 //------------------------------------------------
 
-#if defined(BOOST_BUFFERS_DOCS)
-# define BOOST_BUFFERS_DECL
-#else
 # if (defined(BOOST_BUFFERS_DYN_LINK) || defined(BOOST_ALL_DYN_LINK)) && !defined(BOOST_BUFFERS_STATIC_LINK)
 #  if defined(BOOST_BUFFERS_SOURCE)
 #   define BOOST_BUFFERS_DECL        BOOST_SYMBOL_EXPORT
@@ -40,13 +37,10 @@ namespace buffers {
 #  endif
 #  include <boost/config/auto_link.hpp>
 # endif
-#endif
 
 //------------------------------------------------
 
-#if ! defined(BOOST_BUFFERS_DOCS) && ( \
-    defined(BOOST_NO_CXX14_AGGREGATE_NSDMI) || \
-    defined(BOOST_MSVC) )
+#if defined(BOOST_NO_CXX14_AGGREGATE_NSDMI) || defined(BOOST_MSVC)
 # define BOOST_BUFFERS_AGGREGATE_WORKAROUND
 #endif
 

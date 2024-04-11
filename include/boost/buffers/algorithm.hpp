@@ -21,59 +21,6 @@
 namespace boost {
 namespace buffers {
 
-#ifdef BOOST_BUFFERS_DOCS
-
-/** Returns the type of a prefix of a buffer sequence.
-*/
-template<class BufferSequence>
-using prefix_type = __see_below__;
-
-/** Returns the type of a suffix of a buffer sequence.
-*/
-template<class BufferSequence>
-using suffix_type = __see_below__;
-
-/** Return a prefix of the buffer sequence.
-*/
-template<class BufferSequence>
-prefix_type<BufferSequence>
-prefix(
-    BufferSequence const& b,
-    std::size_t n);
-
-/** Return a prefix of the buffer sequence.
-*/
-template<class BufferSequence>
-prefix_type<BufferSequence>
-sans_suffix(
-    BufferSequence const& b,
-    std::size_t n);
-
-/** Return a suffix of the buffer sequence.
-*/
-template<class BufferSequence>
-suffix_type<BufferSequence>
-suffix(
-    BufferSequence const& b,
-    std::size_t n);
-
-/** Return a suffix of the buffer sequence.
-*/
-template<class BufferSequence>
-suffix_type<BufferSequence>
-sans_prefix(
-    BufferSequence const& b,
-    std::size_t n);
-
-/** Return the first buffer in a sequence.
-*/
-template<class BufferSequence>
-__see_below__
-front(
-    BufferSequence const& b);
-
-#else
-
 template<class BufferSequence>
 void
 tag_invoke(
@@ -88,6 +35,8 @@ tag_invoke(
     BufferSequence const&,
     std::size_t) = delete;
 
+/** Returns the type of a prefix of a buffer sequence.
+*/
 template<class BufferSequence>
 using prefix_type = decltype(
     tag_invoke(
@@ -95,6 +44,8 @@ using prefix_type = decltype(
         std::declval<BufferSequence const&>(),
         std::size_t{}));
 
+/** Returns the type of a suffix of a buffer sequence.
+*/
 template<class BufferSequence>
 using suffix_type = decltype(
     tag_invoke(
@@ -221,13 +172,25 @@ struct front_impl
 
 } // detail
 
+/** Return a prefix of the buffer sequence.
+*/
 constexpr detail::prefix_impl prefix{};
-constexpr detail::suffix_impl suffix{};
-constexpr detail::sans_prefix_impl sans_prefix{};
-constexpr detail::sans_suffix_impl sans_suffix{};
-constexpr detail::front_impl front{};
 
-#endif
+/** Return a suffix of the buffer sequence.
+*/
+constexpr detail::suffix_impl suffix{};
+
+/** Return a suffix of the buffer sequence.
+*/
+constexpr detail::sans_prefix_impl sans_prefix{};
+
+/** Return a prefix of the buffer sequence.
+*/
+constexpr detail::sans_suffix_impl sans_suffix{};
+
+/** Return the first buffer in a sequence.
+*/
+constexpr detail::front_impl front{};
 
 } // buffers
 } // boost

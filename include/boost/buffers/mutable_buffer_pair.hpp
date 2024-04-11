@@ -75,7 +75,6 @@ public:
         return b_ + 2;
     }
 
-#ifndef BOOST_BUFFERS_DOCS
     friend
     mutable_buffer_pair
     tag_invoke(
@@ -95,7 +94,6 @@ public:
     {
         return b.suffix_impl(n);
     }
-#endif
 
 private:
     BOOST_BUFFERS_DECL

@@ -57,7 +57,6 @@ public:
     */
     template<
         class ConstBufferSequence
-#ifndef BOOST_BUFFERS_DOCS
         , class = typename std::enable_if<
             ! std::is_same<
                 ConstBufferSequence,
@@ -69,7 +68,6 @@ public:
                     const&>().begin()),
                 const_buffer const*>::value
             >::type
-#endif
     >
     explicit
     const_buffer_span(
@@ -105,7 +103,6 @@ public:
         return p_ + n_;
     }
 
-#ifndef BOOST_BUFFERS_DOCS
     friend
     const_buffer_subspan
     tag_invoke(
@@ -125,7 +122,6 @@ public:
     {
         return s.suffix_impl(n);
     }
-#endif
 
 private:
     inline

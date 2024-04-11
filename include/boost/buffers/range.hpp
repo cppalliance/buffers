@@ -18,29 +18,6 @@
 
 namespace boost {
 namespace buffers {
-
-#ifdef BOOST_BUFFERS_DOCS
-
-/** Return an iterator to the beginning of the buffer sequence.
-*/
-template<class BufferSequence>
-__see_below__
-begin(BufferSequence&& b) noexcept;
-
-/** Return an iterator to the end of the buffer sequence.
-*/
-template<class BufferSequence>
-__see_below__
-end(BufferSequence&& b) noexcept;
-
-/** Return a range representing the buffer sequence.
-*/
-template<class BufferSequence>
-__see_below__
-range(BufferSequence&& bs) noexcept;
-
-#else
-
 namespace detail {
 
 struct begin_impl
@@ -175,7 +152,12 @@ struct end_impl
 
 } // detail
 
+/** Return an iterator to the beginning of the buffer sequence.
+*/
 constexpr detail::begin_impl begin{};
+
+/** Return an iterator to the end of the buffer sequence.
+*/
 constexpr detail::end_impl end{};
 
 //------------------------------------------------
@@ -229,9 +211,9 @@ struct range_impl
 
 } // detail
 
+/** Return a range representing the buffer sequence.
+*/
 constexpr detail::range_impl range{};
-
-#endif
 
 } // buffers
 } // boost

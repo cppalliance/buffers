@@ -17,21 +17,13 @@
 namespace boost {
 namespace buffers {
 
-#ifndef BOOST_BUFFERS_DOCS
 class const_buffer;
 class mutable_buffer;
-#endif
 
 // https://www.boost.org/doc/libs/1_65_0/doc/html/boost_asio/reference/ConstBufferSequence.html
 
 /** Determine if T is a ConstBuffers.
 */
-#if BOOST_BUFFERS_DOCS
-template<class T>
-struct is_const_buffer_sequence
-    : std::integral_constant<bool, ...>{};
-#else
-
 template<class T, class = void>
 struct is_const_buffer_sequence
     : std::false_type
@@ -111,16 +103,8 @@ struct is_const_buffer_sequence<T, void_t<
 {
 };
 
-#endif
-
 /** Determine if T is a MutableBuffers.
 */
-#if BOOST_BUFFERS_DOCS
-template<class T>
-struct is_mutable_buffer_sequence
-    : std::integral_constant<bool, ...>{};
-#else
-
 template<class T, class = void>
 struct is_mutable_buffer_sequence : std::false_type
 {
@@ -183,18 +167,10 @@ struct is_mutable_buffer_sequence<T, void_t<
 {
 };
 
-#endif
-
 //------------------------------------------------
 
 /** Determine if T is a DynamicBuffer
 */
-#if BOOST_BUFFERS_DOCS
-template<class T>
-struct is_dynamic_buffer
-    : std::integral_constant<bool, ...>{};
-#else
-
 template<
     class T,
     class = void>
@@ -242,8 +218,6 @@ using value_type = typename
         mutable_buffer,
         const_buffer
             >::type;
-
-#endif
 
 } // buffers
 } // boost

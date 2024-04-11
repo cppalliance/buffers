@@ -57,7 +57,6 @@ public:
     */
     template<
         class MutableBufferSequence
-#ifndef BOOST_BUFFERS_DOCS
         , class = typename std::enable_if<
             ! std::is_same<
                 MutableBufferSequence,
@@ -69,7 +68,6 @@ public:
                     const&>().begin()),
                 mutable_buffer const*>::value
             >::type
-#endif
     >
     explicit
     mutable_buffer_span(
@@ -106,7 +104,6 @@ public:
         return p_ + n_;
     }
 
-#ifndef BOOST_BUFFERS_DOCS
     friend
     mutable_buffer_subspan
     tag_invoke(
@@ -126,7 +123,6 @@ public:
     {
         return s.suffix_impl(n);
     }
-#endif
 
 private:
     inline

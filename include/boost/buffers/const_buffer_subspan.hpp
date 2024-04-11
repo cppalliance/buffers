@@ -16,9 +16,7 @@
 namespace boost {
 namespace buffers {
 
-#ifndef BOOST_BUFFERS_DOCS
 class const_buffer_span;
-#endif
 
 /** Holds a span of buffers that cannot be modified.
 
@@ -90,7 +88,6 @@ public:
     const_iterator
     end() const noexcept;
 
-#ifndef BOOST_BUFFERS_DOCS
     friend
     const_buffer_subspan
     tag_invoke(
@@ -110,7 +107,6 @@ public:
     {
         return s.suffix_impl(n);
     }
-#endif
 
 private:
     BOOST_BUFFERS_DECL
