@@ -9,3 +9,79 @@
 
 
 = ConstBufferSequence
+
+A __ConstBufferSequence__ represents a collection of `const_buffer` s or `mutable_buffer` s.
+
+
+== Related Identifiers
+
+`is_const_buffer_sequence`.
+
+
+== Requirements
+
+* `T` denotes a type meeting the requirements of __ConstBufferSequence__.
+* `t` denotes a (possibly const) value of type `T`.
+* `u` denotes an identifier.
+
+[cols="1a,1a,3a"]
+|===
+// Headers
+|Expression|Type|Semantics, Pre/Post-conditions
+
+// Row 1, Column 1
+|`T::value_type`
+// Row 1, Column 2
+|`const_buffer` or `mutable_buffer`
+// Row 1, Column 3
+|This type represents a buffer in the sequence.
+
+// Row 2, Column 1
+|`T::const_iterator`
+// Row 2, Column 2
+|
+// Row 2, Column 3
+|This type represents an iterator type that satisfies the requirements of `std::bidirectional_iterator`, whose value type is `const_buffer` or `mutable_buffer`.
+
+// Row 3, Column 1
+|`t.begin()`
+// Row 3, Column 2
+|`T::const_iterator`
+// Row 3, Column 3
+|Returns an iterator to the first element of the sequence.
+
+// Row 4, Column 1
+|`t.end()`
+// Row 4, Column 2
+|`T::const_iterator`
+// Row 4, Column 3
+|Returns an iterator to the element following the last element of the sequence.
+
+// Row 5, Column 1
+|`T u(t)`;
+// Row 5, Column 2
+|
+// Row 5, Column 3
+|`T` satisfies the requirements of `std::copyconstructible` and `std::destructible`.
+
+Post-conditions:
+[source,cpp]
+----
+assert(std::ranges::size(t) == std::ranges::size(u));
+
+for (auto [l, r] : std::views::zip(t, u))
+{
+    assert(l.data() == r.data());
+    assert(l.size() == r.size());
+}
+----
+
+|===
+
+
+== Models
+
+* `const_buffer_span`
+* `mutable_buffer_span`
+* `const_buffer_pair`
+* `mutable_buffer_pair`
