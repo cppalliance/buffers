@@ -1,0 +1,108 @@
+//
+// Copyright (c) 2024 Mohammad Nejati
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+
+= DynamicBuffer
+
+A __DynamicBuffer__ represents a memory storage that may be automatically resized as required, where the memory is divided into an input sequence followed by an output sequence. These memory regions are internal to the dynamic buffer, but direct access to the elements is provided to permit them to be efficiently used with I/O operations, such as the send or receive operations of a socket. Data written to the output sequence of a dynamic buffer object is appended to the input sequence of the same object.
+
+
+== Related Identifiers
+
+`is_dynamic_buffer`.
+
+
+== Requirements
+
+* `D` denotes a dynamic buffer class.
+* `a` denotes a value of type `D`.
+* `c` denotes a (possibly const) value of type `D`.
+* `n` denotes a value of type `std::size_t`.
+* `T` denotes a type meeting the requirements for `xref:./ConstBufferSequence.adoc[]`.
+* `U` denotes a type meeting the requirements for `xref:./MutableBufferSequence.adoc[]`.
+
+[cols="1a,1a,3a"]
+|===
+// Headers
+|Expression|Type|Semantics, Pre/Post-conditions
+
+// Row 1, Column 1
+|`D::const_buffers_type`
+// Row 1, Column 2
+|`T`
+// Row 1, Column 3
+|This type represents the memory associated with the input sequence.
+
+// Row 2, Column 1
+|`D::mutable_buffers_type`
+// Row 2, Column 2
+|`U`
+// Row 2, Column 3
+|This type represents the memory associated with the output sequence.
+
+// Row 3, Column 1
+|`c.size()`
+// Row 3, Column 2
+|`std::size_t`
+// Row 3, Column 3
+|Returns the size, in bytes, of the input sequence.
+
+// Row 4, Column 1
+|`c.max_size()`
+// Row 4, Column 2
+|`std::size_t`
+// Row 4, Column 3
+|Returns the permitted maximum of the sum of the sizes of the input sequence and output sequence.
+
+// Row 5, Column 1
+|`c.capacity()`
+// Row 5, Column 2
+|`std::size_t`
+// Row 5, Column 3
+|Returns the maximum sum of the sizes of the input sequence and output sequence that the dynamic buffer can hold without requiring reallocation.
+
+// Row 6, Column 1
+|`c.data()`
+// Row 6, Column 2
+|`D::const_buffers_type`
+// Row 6, Column 3
+|Returns a constant buffer sequence `u` that represents the memory associated with the input sequence, and where `buffer_size(u) == size()`.
+
+// Row 7, Column 1
+|`a.prepare(n)`
+// Row 7, Column 2
+|`D::mutable_buffers_type`
+// Row 7, Column 3
+|Returns a mutable buffer sequence u representing the output sequence, and where `buffer_size(u) == n`. The dynamic buffer reallocates memory as required. All constant or mutable buffer sequences previously obtained using `data()` or `prepare()` are invalidated.
+
+Throws: `length_error` if `size() + n` exceeds `max_size()`.
+
+// Row 8, Column 1
+|`a.commit(n)`
+// Row 8, Column 2
+|
+// Row 8, Column 3
+|Appends `n` bytes from the start of the output sequence to the end of the input sequence. The remainder of the output sequence is discarded. If `n` is greater than the size of the output sequence, the entire output sequence is appended to the input sequence. All constant or mutable buffer sequences previously obtained using `data()` or `prepare()` are invalidated.
+
+// Row 9, Column 1
+|`a.consume(n)`
+// Row 9, Column 2
+|
+// Row 9, Column 3
+|Removes `n` bytes from beginning of the input sequence. If `n` is greater than the size of the input sequence, the entire input sequence is removed. All constant or mutable buffer sequences previously obtained using `data()` or `prepare()` are invalidated.
+
+|===
+
+
+== Models
+
+* `any_dynamic_buffer`
+* `circular_buffer`
+* `flat_buffer`
+* `string_buffer`

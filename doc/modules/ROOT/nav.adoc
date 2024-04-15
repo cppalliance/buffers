@@ -1,4 +1,5 @@
 * Concepts
 ** xref:concepts/ConstBufferSequence.adoc[]
 ** xref:concepts/MutableBufferSequence.adoc[]
+** xref:concepts/DynamicBuffer.adoc[]
 * xref:reference:boost/buffers.adoc[Reference]
