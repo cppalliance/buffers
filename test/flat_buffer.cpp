@@ -51,7 +51,7 @@ struct flat_buffer_test
             flat_buffer fb(&s[0], s.size(), 6);
             BOOST_TEST_EQ(fb.size(), 6);
             BOOST_TEST_EQ(fb.max_size(), s.size());
-            BOOST_TEST_EQ(fb.capacity(), s.size());
+            BOOST_TEST_EQ(fb.capacity(), s.size() - 6);
         }
         {
             std::string s = pat;
@@ -78,7 +78,7 @@ struct flat_buffer_test
                 &s[0], s.size()), 6);
             BOOST_TEST_EQ(fb.size(), 6);
             BOOST_TEST_EQ(fb.max_size(), s.size());
-            BOOST_TEST_EQ(fb.capacity(), s.size());
+            BOOST_TEST_EQ(fb.capacity(), s.size() - 6);
         }
 
         // flat_buffer(flat_buffer const&)
@@ -110,6 +110,18 @@ struct flat_buffer_test
                 fb.prepare(s.size() + 1),
                 std::invalid_argument);
         }
+        {
+            std::string s = pat;
+            flat_buffer fb(&s[0], s.size(), 6);
+            BOOST_TEST_THROWS(
+                fb.prepare(s.size() + 1),
+                std::invalid_argument);
+
+            BOOST_TEST_EQ(fb.max_size(), s.size());
+            BOOST_TEST_EQ(
+                fb.size() + fb.capacity(),
+                fb.max_size());
+        }
 
         // commit(std::size_t)
         {
@@ -129,6 +141,38 @@ struct flat_buffer_test
 
         // consume(std::size_t)
         {
+            std::string s = pat;
+            flat_buffer fb(&s[0], s.size(), s.size());
+            BOOST_TEST_EQ(
+                test_to_string(fb.data()), pat);
+
+            auto const cap = fb.capacity();
+
+            while( fb.size() > 0 )
+            {
+                fb.prepare(fb.capacity());
+                fb.consume(1);
+
+                if( fb.size() > 0 )
+                    BOOST_TEST_EQ(fb.capacity(), cap);
+            }
+
+            BOOST_TEST_EQ(fb.capacity(), s.size());
+        }
+        {
+            std::string s = pat;
+            flat_buffer fb(&s[0], s.size(), 6);
+
+            auto const cap = fb.capacity();
+
+            BOOST_TEST_NO_THROW(
+                fb.prepare(fb.max_size() - fb.size()));
+
+            fb.consume(1);
+            BOOST_TEST_EQ(fb.capacity(), cap);
+            BOOST_TEST_THROWS(
+                fb.prepare(cap + 1),
+                std::invalid_argument);
         }
     }
 
