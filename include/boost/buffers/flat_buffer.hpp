@@ -96,7 +96,7 @@ public:
     std::size_t
     capacity() const noexcept
     {
-        return cap_ - in_pos_;
+        return cap_ - (in_pos_ + in_size_);
     }
 
     const_buffers_type
@@ -111,7 +111,7 @@ public:
     prepare(std::size_t n)
     {
         // n exceeds available space
-        if(n > cap_ - in_size_)
+        if( n > capacity() )
             detail::throw_invalid_argument();
 
         out_size_ = n;
