@@ -30,7 +30,7 @@ struct const_buffer_span_test
         // const_buffer_span()
         {
             const_buffer_span bs;
-            BOOST_TEST_EQ(buffer_size(bs), 0);
+            BOOST_TEST_EQ(size(bs), 0);
         }
 
         // const_buffer_span(

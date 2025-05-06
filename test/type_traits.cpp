@@ -9,3 +9,11 @@
 
 // Test that header file is self-contained.
 #include <boost/buffers/type_traits.hpp>
+
+#include <boost/buffers/detail/is_span.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/core/span.hpp>
+
+BOOST_STATIC_ASSERT(
+    boost::buffers::detail::is_span<
+        boost::span<char const>>::value);

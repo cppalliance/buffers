@@ -7,8 +7,8 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_BUFFER_SIZE_HPP
-#define BOOST_BUFFERS_BUFFER_SIZE_HPP
+#ifndef BOOST_BUFFERS_SIZE_HPP
+#define BOOST_BUFFERS_SIZE_HPP
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer.hpp>
@@ -60,7 +60,7 @@ struct buffer_size_impl
     is_const_buffer_sequence< ConstBufferSequence >::value == true
     @endcode
 */
-constexpr detail::buffer_size_impl buffer_size{};
+constexpr detail::buffer_size_impl size{};
 
 } // buffers
 } // boost

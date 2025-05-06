@@ -16,6 +16,11 @@
 #include <cstdlib>
 #include <type_traits>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4459)
+#endif
+
 namespace boost {
 namespace buffers {
 
@@ -93,5 +98,9 @@ make_buffer(
 
 } // buffers
 } // boost
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif

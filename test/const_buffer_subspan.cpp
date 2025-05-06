@@ -11,6 +11,7 @@
 #include <boost/buffers/const_buffer_subspan.hpp>
 
 #include <boost/buffers/const_buffer_span.hpp>
+#include <boost/buffers/sans_suffix.hpp>
 #include "test_helpers.hpp"
 
 namespace boost {
@@ -30,18 +31,18 @@ struct const_buffer_subspan_test
         // const_buffer_subspan()
         {
             const_buffer_subspan bs;
-            BOOST_TEST_EQ(buffer_size(bs), 0);
+            BOOST_TEST_EQ(size(bs), 0);
         }
 
         // const_buffer_subspan(
         //  const_buffer const*, std::size_t)
         {
             const_buffer_subspan s(cb, 3);
-            BOOST_TEST_EQ(buffer_size(s), 15);
+            BOOST_TEST_EQ(size(s), 15);
         }
         {
             const_buffer_subspan s(cb, 0);
-            BOOST_TEST_EQ(buffer_size(s), 0);
+            BOOST_TEST_EQ(size(s), 0);
         }
 
         // const_buffer_subspan(
@@ -50,15 +51,15 @@ struct const_buffer_subspan_test
             const_buffer_span cs0(cb, 3);
             const_buffer_subspan cs1(cs0);
             BOOST_TEST_EQ(
-                buffer_size(cs0),
-                buffer_size(cs1));
+                size(cs0),
+                size(cs1));
         }
         {
             const_buffer_span cs0(cb, 0);
             const_buffer_subspan cs1(cs0);
             BOOST_TEST_EQ(
-                buffer_size(cs0),
-                buffer_size(cs1));
+                size(cs0),
+                size(cs1));
         }
 
         // const_buffer_subspan(
@@ -67,17 +68,17 @@ struct const_buffer_subspan_test
             const_buffer_subspan s0(cb, 3);
             const_buffer_subspan s1(s0);
             BOOST_TEST_EQ(
-                buffer_size(s1),
-                buffer_size(s0));
+                size(s1),
+                size(s0));
         }
 
         // operator=(
         //  const_buffer_subspan const&)
         {
             const_buffer_subspan s;
-            BOOST_TEST_EQ(buffer_size(s), 0);
+            BOOST_TEST_EQ(size(s), 0);
             s = const_buffer_subspan(cb, 3);
-            BOOST_TEST_EQ(buffer_size(s), 15);
+            BOOST_TEST_EQ(size(s), 15);
         }
     }
 
@@ -132,9 +133,9 @@ struct const_buffer_subspan_test
                 auto b1 = sans_prefix(cs0, i);
                 tmp = std::string(pat.size(), ' ');
                 mutable_buffer dest(&tmp[0], tmp.size());
-                auto n = buffer_copy(dest, b0);
-                dest += n;
-                n += buffer_copy(dest, b1);
+                auto n = copy(dest, b0);
+                dest = sans_prefix(dest, n);
+                n += copy(dest, b1);
                 BOOST_TEST_EQ(n, pat.size());
                 BOOST_TEST_EQ(tmp, pat);
             }
@@ -142,7 +143,7 @@ struct const_buffer_subspan_test
             {
                 auto b = prefix(sans_prefix(cs0, i), j);
                 tmp.resize(pat.size());
-                tmp.resize(buffer_copy(
+                tmp.resize(copy(
                     mutable_buffer(
                         &tmp[0], tmp.size()), b));
                 if(i <= pat.size())
@@ -154,7 +155,7 @@ struct const_buffer_subspan_test
             {
                 auto b = suffix(sans_suffix(cs0, i), j);
                 tmp.resize(pat.size());
-                tmp.resize(buffer_copy(
+                tmp.resize(copy(
                     mutable_buffer(
                         &tmp[0], tmp.size()), b));
                 if(i <= pat.size())

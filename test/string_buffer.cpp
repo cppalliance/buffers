@@ -39,7 +39,7 @@ struct string_buffer_test
             {
                 string_buffer b0(&s0);
                 string_buffer b1(std::move(b0));
-                auto n = buffer_copy(
+                auto n = copy(
                     b1.prepare(5),
                     make_buffer("12345", 5));
                 BOOST_TEST_EQ(n, 5);
@@ -109,7 +109,7 @@ struct string_buffer_test
                 string_buffer b(&s);
                 auto dest = b.prepare(10);
                 BOOST_TEST_GE(s.capacity(),
-                    buffer_size(dest));
+                    size(dest));
             }
             {
                 s = std::string();
@@ -117,7 +117,7 @@ struct string_buffer_test
                 b.prepare(10);
                 auto dest = b.prepare(10);
                 BOOST_TEST_EQ(
-                    buffer_size(dest),
+                    size(dest),
                     10);
             }
         }
@@ -127,7 +127,7 @@ struct string_buffer_test
             s = "";
             {
                 string_buffer b(&s);
-                auto n = buffer_copy(
+                auto n = copy(
                     b.prepare(5),
                     make_buffer("12345", 5));
                 BOOST_TEST_EQ(n, 5);
@@ -153,7 +153,7 @@ struct string_buffer_test
                     string_buffer b(&s);
                     b.consume(5);
                     BOOST_TEST_EQ(
-                        buffer_size(b.data()), 0);
+                        size(b.data()), 0);
                 }
                 BOOST_TEST(s.empty());
             }

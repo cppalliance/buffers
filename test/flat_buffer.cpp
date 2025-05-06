@@ -185,10 +185,10 @@ struct flat_buffer_test
         {
             std::string s(pat.size(), 0);
             flat_buffer fb(&s[0], s.size());
-            fb.commit(buffer_copy(
+            fb.commit(copy(
                 fb.prepare(i),
                 make_buffer(&pat[0], i)));
-            fb.commit(buffer_copy(
+            fb.commit(copy(
                 fb.prepare(pat.size() - i),
                 make_buffer(&pat[i], pat.size() - i)));
             BOOST_TEST_EQ(test_to_string(

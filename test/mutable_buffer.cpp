@@ -58,38 +58,8 @@ struct mutable_buffer_test
             BOOST_TEST_EQ(b.size(), 5);
         }
 
-        // operator+=(std::size_t)
-        {
-            {
-                char p[6] = "12345";
-                mutable_buffer b;
-                b = mutable_buffer(p, 5);
-                b += 2;
-                BOOST_TEST_EQ(b.data(), p + 2);
-                BOOST_TEST_EQ(b.size(), 3);
-            }
-            {
-                char p[6] = "12345";
-                mutable_buffer b;
-                b = mutable_buffer(p, 5);
-                b += 6;
-                BOOST_TEST_EQ(b.size(), 0);
-            }
-        }
-
-        // operator+(mutable_buffer, size_t)
-        // operator+(size_t, mutable_buffer)
-        {
-            char p[6] = "12345";
-            mutable_buffer b0(p, 5);
-            mutable_buffer b1(p, 5);
-            b0 = b0 + 2;
-            b1 = 2 + b1;
-            BOOST_TEST_EQ(b0.data(), p + 2);
-            BOOST_TEST_EQ(b0.size(), 3);
-            BOOST_TEST_EQ(b0.data(), b1.data());
-            BOOST_TEST_EQ(b0.size(), b1.size());
-        }
+        // VFALCO TODO algorithm tests
+        // prefix, suffix, sans_prefix, sans_suffix
     }
 
     void

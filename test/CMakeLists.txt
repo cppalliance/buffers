@@ -16,10 +16,10 @@ set(PFILES
     CMakeLists.txt
     Jamfile
     test_helpers.hpp
-    algorithm.cpp
     any_dynamic_buffer.cpp
-    buffer_copy.cpp
-    buffer_size.cpp
+    asio.cpp
+    copy.cpp
+    size.cpp
     buffers.cpp
     circular_buffer.cpp
     const_buffer.cpp
@@ -27,13 +27,16 @@ set(PFILES
     const_buffer_span.cpp
     const_buffer_subspan.cpp
     flat_buffer.cpp
+    front.cpp
     make_buffer.cpp
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
     mutable_buffer_span.cpp
     mutable_buffer_subspan.cpp
+    prefix.cpp
     range.cpp
     string_buffer.cpp
+    suffix.cpp
     tag_invoke.cpp
     type_traits.cpp
     )
@@ -44,6 +47,7 @@ add_executable(boost_buffers_tests ${PFILES} ${EXTRAFILES})
 target_include_directories(boost_buffers_tests PRIVATE . ../../url/extra)
 target_link_libraries(
     boost_buffers_tests PRIVATE
+    Boost::asio
     boost_buffers
     )
 add_test(NAME boost_buffers_tests COMMAND boost_buffers_tests)

@@ -26,7 +26,7 @@ struct const_buffer_pair_test
         {
             const_buffer_pair cb;
             BOOST_TEST_EQ(
-                buffer_size(cb), 0);
+                size(cb), 0);
         }
 
         // const_buffer_pair(

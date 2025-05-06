@@ -7,11 +7,12 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_BUFFER_COPY_HPP
-#define BOOST_BUFFERS_BUFFER_COPY_HPP
+#ifndef BOOST_BUFFERS_COPY_HPP
+#define BOOST_BUFFERS_COPY_HPP
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/range.hpp>
+#include <boost/buffers/sans_prefix.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/assert.hpp>
 #include <cstring>
@@ -57,10 +58,8 @@ struct buffer_copy_impl
             it0 != end0 &&
             it1 != end1)
         {
-            const_buffer b0 =
-                const_buffer(*it0) + pos0;
-            mutable_buffer b1 =
-                mutable_buffer(*it1) + pos1;
+            auto b0 = sans_prefix(const_buffer(*it0), pos0);
+            auto b1 = sans_prefix(mutable_buffer(*it1), pos1);
             std::size_t const amount =
             [&]
             {
@@ -104,7 +103,7 @@ struct buffer_copy_impl
 
 /** Copy buffer contents
 */
-constexpr detail::buffer_copy_impl buffer_copy{};
+constexpr detail::buffer_copy_impl copy{};
 
 } // buffers
 } // boost

@@ -139,7 +139,7 @@ struct circular_buffer_test
                     bs.capacity(),
                     bs.max_size() - bs.size());
                 bs.consume(i - 1);
-                bs.commit(buffer_copy(
+                bs.commit(copy(
                     bs.prepare(j),
                     make_buffer(
                         pat.data(),
@@ -148,7 +148,7 @@ struct circular_buffer_test
             }
             else
             {
-                bs.commit(buffer_copy(
+                bs.commit(copy(
                     bs.prepare(j),
                     make_buffer(
                         pat.data(),
@@ -157,7 +157,7 @@ struct circular_buffer_test
                     bs.capacity(),
                     bs.max_size() - bs.size());
             }
-            bs.commit(buffer_copy(
+            bs.commit(copy(
                 bs.prepare(pat.size() - j),
                 make_buffer(
                     pat.data() + j,

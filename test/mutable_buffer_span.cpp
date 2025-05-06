@@ -30,7 +30,7 @@ struct mutable_buffer_span_test
         // mutable_buffer_span()
         {
             mutable_buffer_span bs;
-            BOOST_TEST_EQ(buffer_size(bs), 0);
+            BOOST_TEST_EQ(size(bs), 0);
         }
 
         // mutable_buffer_span(

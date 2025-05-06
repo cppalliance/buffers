@@ -12,6 +12,8 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/tag_invoke.hpp>
+#include <boost/core/span.hpp>
 
 namespace boost {
 namespace buffers {
@@ -84,44 +86,6 @@ public:
     size() const noexcept
     {
         return n_;
-    }
-
-    /** Remove a prefix from the buffer.
-    */
-    const_buffer&
-    operator+=(std::size_t n) noexcept
-    {
-        if(n >= n_)
-        {
-            p_ = p_ + n_;
-            n_ = 0;
-            return *this;
-        }
-        p_ = p_ + n;
-        n_ -= n;
-        return *this;
-    }
-
-    /** Return the buffer with a prefix removed.
-    */
-    friend
-    const_buffer
-    operator+(
-        const_buffer b,
-        std::size_t n) noexcept
-    {
-        return b += n;
-    }
-
-    /** Return the buffer with a prefix removed.
-    */
-    friend
-    const_buffer
-    operator+(
-        std::size_t n,
-        const_buffer b) noexcept
-    {
-        return b += n;
     }
 
     friend

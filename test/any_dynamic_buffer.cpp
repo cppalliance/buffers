@@ -44,7 +44,7 @@ struct any_dynamic_buffer_test
                 db.prepare(i);
                 db.commit(i);
                 db.consume(i - 1);
-                db.commit(buffer_copy(
+                db.commit(copy(
                     db.prepare(j),
                     make_buffer(
                         pat.data(),
@@ -53,13 +53,13 @@ struct any_dynamic_buffer_test
             }
             else
             {
-                db.commit(buffer_copy(
+                db.commit(copy(
                     db.prepare(j),
                     make_buffer(
                         pat.data(),
                         pat.size())));
             }
-            db.commit(buffer_copy(
+            db.commit(copy(
                 db.prepare(pat.size() - j),
                 make_buffer(
                     pat.data() + j,

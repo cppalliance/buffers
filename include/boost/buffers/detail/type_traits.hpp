@@ -18,7 +18,7 @@ namespace boost {
 namespace buffers {
 namespace detail {
 
-// is bidirectional iterator
+// Alias for true_type if T is a BidirectionalIterator
 template<class T, class = void>
 struct is_bidirectional_iterator : std::false_type
 {

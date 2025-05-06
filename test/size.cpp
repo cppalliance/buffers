@@ -8,7 +8,7 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers/buffer_size.hpp>
+#include <boost/buffers/size.hpp>
 #include <boost/buffers/const_buffer_span.hpp>
 
 #include "test_suite.hpp"
@@ -33,7 +33,7 @@ struct buffer_size_test
             };
             const_buffer_span s(cb, 3);
             BOOST_TEST_EQ(
-                buffer_size(s), i + j + k);
+                size(s), i + j + k);
         }
     }
 
@@ -46,7 +46,7 @@ struct buffer_size_test
 
 TEST_SUITE(
     buffer_size_test,
-    "boost.buffers.buffer_size");
+    "boost.buffers.size");
 
 } // buffers
 } // boost

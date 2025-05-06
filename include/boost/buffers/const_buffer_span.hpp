@@ -13,6 +13,7 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/const_buffer_subspan.hpp>
+#include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 
 namespace boost {

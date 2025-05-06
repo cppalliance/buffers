@@ -8,6 +8,7 @@
 //
 
 #include <boost/buffers/const_buffer_pair.hpp>
+#include <boost/buffers/sans_prefix.hpp>
 
 namespace boost {
 namespace buffers {
@@ -39,15 +40,16 @@ suffix_impl(
     auto it0 = end();
     --it0;
     if(n <= it0->size())
-        return { *it0 + (
-                it0->size() - n),
+        return {
+            sans_prefix(*it0, it0->size() - n),
             const_buffer{} };
     n -= it0->size();
     auto it1 = it0;
     --it1;
     if(n < it1->size())
-        return { *it1 + (
-            it1->size() - n), *it0 };
+        return {
+            sans_prefix(*it1, it1->size() - n),
+            *it0 };
     return *this;
 }
 
