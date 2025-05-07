@@ -23,15 +23,20 @@ else()
 
     assert
     config
+    core
     static_assert
-    system
     throw_exception
+    url
 
     # Secondary dependencies
 
+    align
+    mp11
+    optional
+    system
+    type_traits
     variant2
     winapi
-    mp11
     predef
   )
 

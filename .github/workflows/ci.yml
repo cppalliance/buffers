@@ -155,10 +155,10 @@ jobs:
             version: "*"
             cxx: "clang++"
             cc: "clang"
-            runs-on: "macos-14"
+            runs-on: "macos-15"
             b2-toolset: "clang"
             is-latest: true
-            name: "Apple-Clang (macOS 14)"
+            name: "Apple-Clang (macOS 15)"
             build-type: "Release"
             build-cmake: true
 
@@ -166,10 +166,10 @@ jobs:
             version: "*"
             cxx: "clang++"
             cc: "clang"
-            runs-on: "macos-14"
+            runs-on: "macos-15"
             b2-toolset: "clang"
             is-latest: true
-            name: "Apple-Clang (macOS 14, ubsan)"
+            name: "Apple-Clang (macOS 15, ubsan)"
             build-type: "RelWithDebInfo"
             ubsan: true
 
@@ -177,12 +177,21 @@ jobs:
             version: "*"
             cxx: "clang++"
             cc: "clang"
-            runs-on: "macos-14"
+            runs-on: "macos-15"
             b2-toolset: "clang"
             is-latest: true
-            name: "Apple-Clang (macOS 14, asan)"
+            name: "Apple-Clang (macOS 15, asan)"
             build-type: "RelWithDebInfo"
             asan: true
+
+          - compiler: "apple-clang"
+            version: "*"
+            cxx: "clang++"
+            cc: "clang"
+            runs-on: "macos-14"
+            b2-toolset: "clang"
+            name: "Apple-Clang (macOS 14)"
+            build-type: "Release"
 
           - compiler: "apple-clang"
             version: "*"
@@ -191,15 +200,6 @@ jobs:
             runs-on: "macos-13"
             b2-toolset: "clang"
             name: "Apple-Clang (macOS 13)"
-            build-type: "Release"
-
-          - compiler: "apple-clang"
-            version: "*"
-            cxx: "clang++"
-            cc: "clang"
-            runs-on: "macos-12"
-            b2-toolset: "clang"
-            name: "Apple-Clang (macOS 12)"
             build-type: "Release"
 
           # Linux compilers
@@ -333,7 +333,7 @@ jobs:
             cxx: "g++-13"
             cc: "gcc-13"
             runs-on: "ubuntu-latest"
-            container: "ubuntu:23.04"
+            container: "ubuntu:24.04"
             b2-toolset: "gcc"
             name: "GCC 13: C++17-20"
             build-type: "Release"
@@ -345,7 +345,7 @@ jobs:
             cxx: "g++-13"
             cc: "gcc-13"
             runs-on: "ubuntu-latest"
-            container: "ubuntu:23.04"
+            container: "ubuntu:24.04"
             b2-toolset: "gcc"
             is-latest: true
             name: "GCC 13: C++17-20 (coverage)"
@@ -353,7 +353,7 @@ jobs:
             build-type: "Debug"
             cxxflags: "--coverage -fprofile-arcs -ftest-coverage"
             ccflags: "--coverage -fprofile-arcs -ftest-coverage"
-            install: "lcov wget unzip"
+            install: "lcov zlib1g-dev wget unzip"
 
           - compiler: "gcc"
             version: "12"
@@ -565,7 +565,7 @@ jobs:
             cxx: "clang++-17"
             cc: "clang-17"
             runs-on: "ubuntu-latest"
-            container: "ubuntu:23.10"
+            container: "ubuntu:24.04"
             b2-toolset: "clang"
             name: "Clang 17: C++17-20"
             build-type: "Release"
@@ -577,7 +577,7 @@ jobs:
             cxx: "clang++-16"
             cc: "clang-16"
             runs-on: "ubuntu-latest"
-            container: "ubuntu:23.04"
+            container: "ubuntu:24.04"
             b2-toolset: "clang"
             name: "Clang 16: C++17-20"
             build-type: "Release"
@@ -741,21 +741,32 @@ jobs:
 
     name: ${{ matrix.name }}
     runs-on: ${{ fromJSON(needs.runner-selection.outputs.labelmatrix)[matrix.runs-on] }}
-    container: ${{ matrix.container }}
+    container:
+      image: ${{ matrix.container }}
+      options: --privileged
+      volumes:
+        - /node20217:/node20217:rw,rshared
+        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
+
     timeout-minutes: 120
 
     steps:
-      - name: Enable Node 16
+      - name: install nodejs20glibc2.17
+        if: ${{ startsWith( matrix.container, 'ubuntu:1' ) }}
         run: |
-          echo "ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true" >> $GITHUB_ENV
+          apt-get update
+          apt-get -yqq install xz-utils curl
+          curl -LO https://archives.boost.io/misc/node/node-v20.9.0-linux-x64-glibc-217.tar.xz
+          tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217
+          ldd /__e/node20/bin/node
 
       - name: Clone Boost.Buffers
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: buffers-root
 
       - name: Setup C++
-        uses: alandefreitas/cpp-actions/setup-cpp@v1.8.0
+        uses: alandefreitas/cpp-actions/setup-cpp@v1.8.8
         id: setup-cpp
         with:
           compiler: ${{ matrix.compiler }}
@@ -764,7 +775,7 @@ jobs:
           trace-commands: true
 
       - name: Install packages
-        uses: alandefreitas/cpp-actions/package-install@v1.8.0
+        uses: alandefreitas/cpp-actions/package-install@v1.8.8
         id: package-install
         with:
           apt-get: >-
@@ -772,14 +783,15 @@ jobs:
             build-essential
 
       - name: Clone Boost
-        uses: alandefreitas/cpp-actions/boost-clone@v1.8.0
+        uses: alandefreitas/cpp-actions/boost-clone@v1.8.8
         id: boost-clone
         with:
           branch: ${{ (github.ref_name == 'master' && github.ref_name) || 'develop' }}
           boost-dir: boost-source
+          cache: false
+          modules-exclude-paths: ''
           scan-modules-dir: buffers-root
           scan-modules-ignore: buffers
-          trace-commands: true
 
       - name: Patch Boost
         id: patch
@@ -814,7 +826,7 @@ jobs:
           cp -r "$workspace_root"/buffers-root "libs/$module"
 
       - name: Boost B2 Workflow
-        uses: alandefreitas/cpp-actions/b2-workflow@v1.7.0
+        uses: alandefreitas/cpp-actions/b2-workflow@v1.8.8
         if: ${{ !matrix.coverage && !matrix.time-trace }}
         with:
           source-dir: boost-root
@@ -832,7 +844,7 @@ jobs:
           stop-on-error: true
 
       - name: Boost CMake Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.8
         if: ${{ matrix.coverage || matrix.time-trace || matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root
@@ -840,6 +852,7 @@ jobs:
           generator: ${{ matrix.generator }}
           generator-toolset: ${{ matrix.generator-toolset }}
           build-type: ${{ matrix.build-type }}
+          build-target: tests
           run-tests: true
           install-prefix: .local
           cxxstd: ${{ matrix.latest-cxxstd }}
@@ -848,15 +861,15 @@ jobs:
           cxx: ${{ steps.setup-cpp.outputs.cxx || matrix.cxx }}
           cxxflags: ${{ matrix.cxxflags }}
           shared: ${{ matrix.shared }}
-          cmake-version: '>=3.15'
+          cmake-version: '>=3.20'
           extra-args: |
             -D Boost_VERBOSE=ON
             -D BOOST_INCLUDE_LIBRARIES="${{ steps.patch.outputs.module }}"
-            -D BOOST_BUFFERS_BUILD_TESTS=ON
           export-compile-commands: ${{ matrix.time-trace }}
           package: false
           package-artifact: false
           ref-source-dir: boost-root/libs/buffers
+          toolchain: ${{ (startsWith(matrix.runs-on, 'windows') && steps.patch-user-config.outputs.toolchain) || '' }}
 
       - name: Set Path
         if: startsWith(matrix.runs-on, 'windows') && matrix.shared
@@ -868,7 +881,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/.local/lib:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
 
       - name: Find Package Integration Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.8
         if: ${{ matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root/libs/${{ steps.patch.outputs.module }}/test/cmake_test
@@ -891,7 +904,7 @@ jobs:
           trace-commands: true
 
       - name: Subdirectory Integration Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.8
         if: ${{ matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root/libs/${{ steps.patch.outputs.module }}/test/cmake_test
@@ -911,15 +924,16 @@ jobs:
           ref-source-dir: boost-root/libs/buffers/test/cmake_test
 
       - name: Root Project CMake Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.8.8
         if: ${{ matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root/libs/${{ steps.patch.outputs.module }}
           build-dir: __build_root_test__
+          build-target: tests
+          run-tests: true
           generator: ${{ matrix.generator }}
           generator-toolset: ${{ matrix.generator-toolset }}
           build-type: ${{ matrix.build-type }}
-          run-tests: false
           install: false
           cxxstd: ${{ matrix.latest-cxxstd }}
           cc: ${{ steps.setup-cpp.outputs.cc || matrix.cc }}
@@ -927,14 +941,14 @@ jobs:
           cxx: ${{ steps.setup-cpp.outputs.cxx || matrix.cxx }}
           cxxflags: ${{ matrix.cxxflags }}
           shared: ${{ matrix.shared }}
-          extra-args: -D Boost_VERBOSE=ON -D BUILD_TESTING=ON -D BOOST_SRC_DIR="../boost-root"
-          cmake-version: '>=3.15'
+          cmake-version: '>=3.20'
           package: false
           package-artifact: false
           ref-source-dir: boost-root
+          toolchain: ${{ (startsWith(matrix.runs-on, 'windows') && steps.patch-user-config.outputs.toolchain) || '' }}
 
       - name: FlameGraph
-        uses: alandefreitas/cpp-actions/flamegraph@v1.8.0
+        uses: alandefreitas/cpp-actions/flamegraph@v1.8.8
         if: matrix.time-trace
         with:
           source-dir: boost-root/libs/buffers
@@ -981,13 +995,13 @@ jobs:
 
     steps:
       - name: Clone Boost.Buffers
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Avoid the common API rate limit exceeded error in boostorg by including 100 latest commits in any case
           fetch-depth: 100
 
       - name: Changelog
-        uses: alandefreitas/cpp-actions/create-changelog@v1.8.0
+        uses: alandefreitas/cpp-actions/create-changelog@v1.8.8
         with:
           thank-non-regular: ${{ startsWith(github.ref, 'refs/tags/') }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -995,31 +1009,103 @@ jobs:
           tag-pattern: 'boost-.*\..*\..*'
 
   antora:
-    name: Antora Docs
     needs: [ runner-selection ]
-    runs-on: ${{ fromJSON(needs.runner-selection.outputs.labelmatrix)['ubuntu-latest'] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - { name: Windows, os: windows-latest }
+          - { name: Ubuntu, os: ubuntu-latest }
+          - { name: MacOS, os: macos-latest }
+    name: Antora Docs (${{ matrix.name }})
+    runs-on: ${{ fromJSON(needs.runner-selection.outputs.labelmatrix)[matrix.os] }}
+    defaults:
+      run:
+        shell: bash
     steps:
+      - name: Install packages
+        uses: alandefreitas/cpp-actions/package-install@v1.8.8
+        with:
+          apt-get: git cmake
+
       - name: Clone Boost.Buffers
         uses: actions/checkout@v3
+        with:
+          path: buffers-root
 
-      - uses: actions/setup-node@v3
+      - name: Clone Boost
+        uses: alandefreitas/cpp-actions/boost-clone@v1.8.8
+        id: boost-clone
+        with:
+          branch: ${{ (github.ref_name == 'master' && github.ref_name) || 'develop' }}
+          boost-dir: boost-source
+          cache: false
+          modules-exclude-paths: ''
+          scan-modules-dir: buffers-root
+          scan-modules-ignore: buffers
+
+      - name: Patch Boost
+        id: patch
+        shell: bash
+        run: |
+          set -xe
+          pwd
+          ls
+          ls -lah boost-source
+
+          # Identify boost module being tested
+          module=${GITHUB_REPOSITORY#*/}
+          echo "module=$module" >> $GITHUB_OUTPUT
+
+          # Identify GitHub workspace root
+          workspace_root=$(echo "$GITHUB_WORKSPACE" | sed 's/\\/\//g')
+          echo -E "workspace_root=$workspace_root" >> $GITHUB_OUTPUT
+
+          # Remove module from boost-source
+          rm -r "boost-source/libs/$module" || true
+
+          # Copy cached boost-source to an isolated boost-root
+          cp -r boost-source boost-root
+
+          # Set boost-root output
+          cd boost-root
+          boost_root="$(pwd)"
+          boost_root=$(echo "$boost_root" | sed 's/\\/\//g')
+          echo -E "boost_root=$boost_root" >> $GITHUB_OUTPUT
+
+          # Patch boost-root with workspace module
+          cp -r "$workspace_root"/buffers-root "libs/$module"
+
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Setup C++
-        uses: alandefreitas/cpp-actions/setup-cpp@v1.8.2
-        id: setup-cpp
-        with:
-          compiler: clang
-          version: 17
+      - name: Setup Ninja
+        if: runner.os == 'Windows'
+        uses: seanmiddleditch/gha-setup-ninja@v5
 
       - name: Build Antora Docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          git config --global --add safe.directory "$(pwd)"
+          
+          BOOST_SRC_DIR="$(pwd)/boost-root"
+          export BOOST_SRC_DIR
+          cd boost-root/libs/buffers
+          
           cd doc
           bash ./build_antora.sh
+          
+          # Antora returns zero even if it fails, so we check if the site directory exists
+          if [ ! -d "build/site" ]; then
+              echo "Antora build failed"
+              exit 1
+          fi
 
       - name: Create Antora Docs Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: antora-docs
+          name: antora-docs-${{ matrix.name }}
           path: doc/build/site

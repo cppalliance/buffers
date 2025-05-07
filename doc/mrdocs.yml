@@ -1,19 +1,18 @@
 # Input
-input:
-  # Directories that contain documented source files
-  include:
-    - ../include
-  # Patterns to filter out the source-files in the directories
-  file-patterns:
-    - '*.hpp'
 source-root: ..
+# Directories that contain documented source files
+input:
+  - ../include
+# Patterns to filter out the source-files in the directories
+file-patterns:
+  - '*.hpp'
 
 # Filters
-filters:
-  symbols:
-    exclude:
-      - 'boost::buffers::detail'
-      - 'boost::buffers::*::detail'
+include-symbols:
+  - 'boost::buffers::**'
+implementation-defined:
+  - 'boost::buffers::detail'
+  - 'boost::buffers::*::detail'
 inaccessible-members: never
 inaccessible-bases: never
 
@@ -24,5 +23,6 @@ base-url: https://www.github.com/cppalliance/buffers/blob/develop/include/
 # Style
 verbose: true
 multipage: true
+use-system-libc: true
 
-cmake: '-D BUILD_TESTING=ON'
+cmake: '-DCMAKE_CXX_STANDARD=20 -DBOOST_BUFFERS_BUILD_TESTS=OFF -DBOOST_BUFFERS_BUILD_EXAMPLES=OFF'
