@@ -15,6 +15,7 @@
 #include <boost/buffers/make_buffer.hpp>
 #include <boost/buffers/prefix.hpp>
 #include <boost/buffers/range.hpp>
+#include <boost/core/detail/string_view.hpp>
 #include <string>
 #include "test_suite.hpp"
 
@@ -42,6 +43,7 @@ test_to_string(Buffers const& bs)
     return s;
 }
 
+// Test API and behavior of a BufferSequence
 template<class T>
 void
 test_buffer_sequence(T&& t)

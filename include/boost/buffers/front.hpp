@@ -11,14 +11,17 @@
 #define BOOST_BUFFERS_FRONT_HPP
 
 #include <boost/buffers/detail/config.hpp>
+#include <boost/buffers/const_buffer.hpp>
+#include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/type_traits.hpp>
+#include <type_traits>
 
 namespace boost {
 namespace buffers {
 
-namespace detail {
-
-struct front_impl
+/** Return the first buffer in a sequence.
+*/
+constexpr struct
 {
     template<
         class MutableBufferSequence
@@ -56,13 +59,7 @@ struct front_impl
             return *it;
         return {};
     }
-};
-
-} // detail
-
-/** Return the first buffer in a sequence.
-*/
-constexpr detail::front_impl front{};
+} const front{};
 
 } // buffers
 } // boost

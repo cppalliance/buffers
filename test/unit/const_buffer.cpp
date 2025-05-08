@@ -22,10 +22,11 @@ struct const_buffer_test
     {
         // const_buffer()
         BOOST_TEST_EQ(const_buffer().size(), 0);
+        BOOST_TEST_EQ(const_buffer().data(), nullptr);
 
         // const_buffer(void const*, size_t)
         {
-            auto p = "12345";
+            char const* p = "12345";
             const_buffer b( p, 5 );
             BOOST_TEST_EQ(b.data(), p);
             BOOST_TEST_EQ(b.size(), 5);
@@ -33,7 +34,7 @@ struct const_buffer_test
 
         // const_buffer(const_buffer)
         {
-            auto p = "12345";
+            char const* p = "12345";
             const_buffer b0( p, 5 );
             const_buffer b(b0);
             BOOST_TEST_EQ(b.data(), p);
@@ -51,15 +52,12 @@ struct const_buffer_test
 
         // operator=(const_buffer)
         {
-            auto p = "12345";
+            char const* p = "12345";
             const_buffer b;
             b = const_buffer(p, 5);
             BOOST_TEST_EQ(b.data(), p);
             BOOST_TEST_EQ(b.size(), 5);
         }
-
-        // VFALCO TODO test algorithms:
-        // prefix, suffix, sans_prefix, sans_suffix
     }
 
     void

@@ -17,6 +17,8 @@
 namespace boost {
 namespace buffers {
 
+/** Return a suffix of the buffer sequence.
+*/
 constexpr struct
 {
     template<class T>
@@ -25,11 +27,19 @@ constexpr struct
         std::size_t n) const ->
             suffix_type<T>
     {
-        auto const n0 = size(bs);
-        if(n < n0)
-            return suffix(bs, n0 - n);
-        return suffix(bs, 0);
+        return invoke(bs, n, size(bs));
     }
+
+private:
+    template<class T>
+    constexpr auto invoke(
+        T const& bs,
+        std::size_t n,
+        std::size_t n0) const ->
+            suffix_type<T>
+    {
+        return suffix(bs, (n < n0) ? n0 - n : 0);
+    }  
 } const sans_prefix{};
 
 } // buffers

@@ -11,11 +11,14 @@
 #include <boost/buffers/prefix.hpp>
 
 #include <boost/core/span.hpp>
+#include <boost/core/detail/string_view.hpp>
 
 #include "test_suite.hpp"
 
 namespace boost {
 namespace buffers {
+
+boost::core::string_view sv("0123456789");
 
 struct prefix_test
 {

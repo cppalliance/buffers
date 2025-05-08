@@ -42,9 +42,8 @@ tag_invoke(
             Span<T, Extent>
         >::type
 {
-    if(n < bs.size())
-        return bs.subspan(bs.size() - n);
-    return bs;
+    return n < bs.size() ?
+        bs.subspan(bs.size() - n) : bs;
 }
 
 /** Return the last n bytes of a buffer sequence

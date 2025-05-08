@@ -42,9 +42,7 @@ tag_invoke(
             Span<T, Extent>
         >::type
 {
-    if(n <= bs.size())
-        return bs.subspan(0, n);
-    return bs;
+    return n <= bs.size() ? bs.subspan(0, n) : bs;
 }
 
 /** Return the first n bytes of a buffer sequence

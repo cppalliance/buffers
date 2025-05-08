@@ -13,21 +13,20 @@ set(EXTRAFILES
     )
 
 set(PFILES
+    test_helpers.hpp
     CMakeLists.txt
     Jamfile
-    test_helpers.hpp
     any_dynamic_buffer.cpp
     asio.cpp
-    copy.cpp
-    size.cpp
     buffers.cpp
     circular_buffer.cpp
     const_buffer.cpp
     const_buffer_pair.cpp
     const_buffer_span.cpp
     const_buffer_subspan.cpp
+    copy.cpp
     flat_buffer.cpp
-    # front.cpp
+    front.cpp
     make_buffer.cpp
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
@@ -35,6 +34,9 @@ set(PFILES
     mutable_buffer_subspan.cpp
     prefix.cpp
     range.cpp
+    sans_prefix.cpp
+    sans_suffix.cpp
+    size.cpp
     string_buffer.cpp
     suffix.cpp
     tag_invoke.cpp

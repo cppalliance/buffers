@@ -10,6 +10,8 @@
 // Test that header file is self-contained.
 #include <boost/buffers/front.hpp>
 
+#if 0
+
 #include <boost/buffers/copy.hpp>
 #include <boost/buffers/size.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
@@ -160,3 +162,5 @@ TEST_SUITE(
 
 } // buffers
 } // boost
+
+#endif

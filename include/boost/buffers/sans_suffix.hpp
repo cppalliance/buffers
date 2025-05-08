@@ -12,40 +12,35 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/size.hpp>
-#include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
-#include <boost/buffers/range.hpp>
-#include <boost/buffers/tag_invoke.hpp>
-#include <boost/buffers/type_traits.hpp>
-
 #include <boost/buffers/prefix.hpp>
-#include <boost/buffers/suffix.hpp>
 
 namespace boost {
 namespace buffers {
 
-namespace detail {
-
-struct sans_suffix_impl
-{
-    template<class BufferSequence>
-    prefix_type<BufferSequence>
-    operator()(
-        BufferSequence const& b,
-        std::size_t n) const
-    {
-        auto const n0 = size(b);
-        if(n < n0)
-            return prefix(b, n0 - n);
-        return prefix(b, 0);
-    }
-};
-
-} // detail
-
 /** Return a prefix of the buffer sequence.
 */
-constexpr detail::sans_suffix_impl sans_suffix{};
+constexpr struct
+{
+    template<class T>
+    constexpr auto operator()(
+        T const& bs,
+        std::size_t n) const ->
+            prefix_type<T>
+    {
+        return invoke(bs, n, size(bs));
+    }
+
+private:
+    template<class T>
+    constexpr auto invoke(
+        T const& bs,
+        std::size_t n,
+        std::size_t n0) const ->
+            prefix_type<T>
+    {
+        return prefix(bs, (n < n0) ? n0 - n : 0);
+    }
+} const sans_suffix{};
 
 } // buffers
 } // boost
