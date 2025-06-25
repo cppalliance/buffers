@@ -62,7 +62,6 @@ public:
     /** Constructor.
     */
     inline
-    explicit
     const_buffer_subspan(
         const_buffer_span const& s) noexcept;
 

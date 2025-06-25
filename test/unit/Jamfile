@@ -14,9 +14,10 @@ project
       $(c11-requires)
       <library>/boost/buffers//boost_buffers
       <library>/boost/asio//boost_asio
-      <source>../../../url/extra/test_main.cpp
+      <source>../../../url/extra/test_suite/test_main.cpp
+      <source>../../../url/extra/test_suite/test_suite.cpp
       <include>.
-      <include>../../../url/extra
+      <include>../../../url/extra/test_suite
     ;
 
 local SOURCES =
