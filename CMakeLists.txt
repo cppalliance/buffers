@@ -109,7 +109,7 @@ if (BOOST_BUFFERS_IS_ROOT)
         set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${BOOST_SRC_DIR}/tools/cmake/include")
     else ()
         # From Boost Package
-        find_package(Boost REQUIRED COMPONENTS buffers filesystem url)
+        find_package(Boost REQUIRED COMPONENTS filesystem url)
         foreach (BOOST_INCLUDE_LIBRARY ${BOOST_INCLUDE_LIBRARIES})
             if (NOT TARGET Boost::${BOOST_INCLUDE_LIBRARY})
                 add_library(Boost::${BOOST_INCLUDE_LIBRARY} ALIAS Boost::headers)
