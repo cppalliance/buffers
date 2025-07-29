@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/CPPAlliance/buffers
+// Official repository: https://github.com/cppalliance/buffers
 //
 
 #ifndef BOOST_BUFFERS_TEST_HELPERS_HPP
@@ -17,6 +17,13 @@
 #include <boost/buffers/range.hpp>
 #include <boost/core/detail/string_view.hpp>
 #include <string>
+
+// Trick boostdep into requiring URL
+// since we need it for the unit tests
+#ifdef BOOST_RUNTIME_SERVICES_BOOSTDEP
+#include <boost/url/url.hpp>
+#endif
+
 #include "test_suite.hpp"
 
 namespace boost {

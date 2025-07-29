@@ -8,7 +8,7 @@
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-# Official repository: https://github.com/CPPAlliance/buffers/
+# Official repository: https://github.com/cppalliance/buffers/
 #
 
 name: CI
@@ -1014,7 +1014,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - { name: Windows, os: windows-latest }
+          - { name: Windows, os: windows-latest }
           - { name: Ubuntu, os: ubuntu-latest }
           - { name: MacOS, os: macos-latest }
     name: Antora Docs (${{ matrix.name }})
