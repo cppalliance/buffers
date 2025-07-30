@@ -61,11 +61,23 @@ jobs:
           #
 
           - compiler: "msvc"
+            version: "14.42"
+            cxxstd: "17,20"
+            latest-cxxstd: "20"
+            runs-on: "windows-2022"
+            b2-toolset: "msvc-14.4"
+            generator: "Visual Studio 17 2022"
+            is-latest: true
+            name: "MSVC 14.42: C++17-20"
+            build-type: "Release"
+            build-cmake: true
+
+          - compiler: "msvc"
             version: "14.34"
             cxxstd: "17,20"
             latest-cxxstd: "20"
             runs-on: "windows-2022"
-            b2-toolset: "msvc"
+            b2-toolset: "msvc-14.3"
             generator: "Visual Studio 17 2022"
             is-latest: true
             name: "MSVC 14.34: C++17-20"
@@ -77,7 +89,7 @@ jobs:
             cxxstd: "17,20"
             latest-cxxstd: "20"
             runs-on: "windows-2022"
-            b2-toolset: "msvc"
+            b2-toolset: "msvc-14.3"
             generator: "Visual Studio 17 2022"
             is-latest: true
             name: "MSVC 14.34: C++17-20 (x86)"
@@ -89,24 +101,13 @@ jobs:
             cxxstd: "17,20"
             latest-cxxstd: "20"
             runs-on: "windows-2022"
-            b2-toolset: "msvc"
+            b2-toolset: "msvc-14.3"
             generator: "Visual Studio 17 2022"
             is-latest: true
             name: "MSVC 14.34: C++17-20 (shared)"
             shared: true
             build-type: "Release"
             build-cmake: true
-
-          - compiler: "msvc"
-            version: "14.29"
-            cxxstd: "14,17"
-            latest-cxxstd: "17"
-            runs-on: "windows-2019"
-            b2-toolset: "msvc"
-            generator: "Visual Studio 16 2019"
-            is-earliest: true
-            name: "MSVC 14.29: C++14-17"
-            build-type: "Release"
 
           - compiler: "clang-cl"
             version: "*"
@@ -1016,7 +1017,7 @@ jobs:
         include:
           - { name: Windows, os: windows-latest }
           - { name: Ubuntu, os: ubuntu-latest }
-          - { name: MacOS, os: macos-latest }
+          - { name: MacOS, os: macos-15 }
     name: Antora Docs (${{ matrix.name }})
     runs-on: ${{ fromJSON(needs.runner-selection.outputs.labelmatrix)[matrix.os] }}
     defaults:

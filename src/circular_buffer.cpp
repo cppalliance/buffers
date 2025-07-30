@@ -85,10 +85,20 @@ consume(
     }
     else
     {
-        // make prepare return a
-        // bigger single buffer
-        in_pos_ = 0;
-        in_len_ = 0;
+        // preserve in_pos_ if there is
+        // a prepared buffer
+        if(out_size_ != 0)
+        {
+            in_pos_ = (in_pos_ + in_len_) % cap_;
+            in_len_ = 0;
+        }
+        else
+        {
+            // make prepare return a
+            // bigger single buffer
+            in_pos_ = 0;
+            in_len_ = 0;
+        }
     }
 }
 

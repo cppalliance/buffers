@@ -172,10 +172,37 @@ struct circular_buffer_test
     }
 
     void
+    testInterleavedReadWrite()
+    {
+        std::string pat = test_pattern();
+
+        for(std::size_t i = 0; i <= pat.size(); ++i)
+        {
+            circular_buffer cb(make_buffer(
+                &pat[0], pat.size()));
+            cb.prepare(i);
+            cb.commit(i);
+            BOOST_TEST_EQ(
+                test_to_string(cb.data()),
+                pat.substr(0, i));
+            // commit after consume
+            auto n = pat.size() - i;
+            cb.prepare(n);
+            cb.consume(i);
+            BOOST_TEST_EQ(cb.size(), 0);
+            cb.commit(n);
+            BOOST_TEST_EQ(
+                test_to_string(cb.data()),
+                pat.substr(i, n));
+        }
+    }
+
+    void
     run()
     {
         testMembers();
         testBuffer();
+        testInterleavedReadWrite();
     }
 };
 
