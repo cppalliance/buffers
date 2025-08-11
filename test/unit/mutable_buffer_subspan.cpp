@@ -175,6 +175,21 @@ struct mutable_buffer_subspan_test
                 }
             }
         }
+
+        // empty buffers at front and back
+        {
+            mutable_buffer const mb[3] = {
+                { &pat[0], 0 },
+                { &pat[0], 1 },
+                { &pat[0], 0 }};
+            mutable_buffer_subspan ms(mb, 3);
+            BOOST_TEST_EQ(
+                size(suffix(ms, 1)),
+                1);
+            BOOST_TEST_EQ(
+                size(prefix(ms, 1)),
+                1);
+        }
     }
 
     void

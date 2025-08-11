@@ -117,7 +117,7 @@ mutable_buffer_subspan(
         p1_ >= p0_);
     BOOST_ASSERT(
         n_ == 0 ||
-        p0 < p[0].size());
+        p0 <= p[0].size());
     BOOST_ASSERT(
         n_ == 0 ||
         p1 <= p[n_ - 1].size());
