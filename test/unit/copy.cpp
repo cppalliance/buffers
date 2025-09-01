@@ -13,7 +13,7 @@
 #include <boost/buffers/const_buffer_pair.hpp>
 #include <boost/buffers/const_buffer_span.hpp>
 #include <boost/buffers/mutable_buffer_span.hpp>
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {

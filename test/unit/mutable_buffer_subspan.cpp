@@ -13,7 +13,7 @@
 #include <boost/buffers/mutable_buffer_span.hpp>
 #include <boost/buffers/sans_prefix.hpp>
 #include <boost/buffers/sans_suffix.hpp>
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -93,7 +93,7 @@ struct mutable_buffer_subspan_test
             mutable_buffer mb = {
                 &pat[0], pat.size() };
             mutable_buffer_subspan s(&mb, 1);
-            test_buffer_sequence(s);
+            test::check_sequence(s, pat);
         }
 
         // length 2
@@ -102,7 +102,7 @@ struct mutable_buffer_subspan_test
                 { &pat[0], 7 },
                 { &pat[7], 8 } };
             mutable_buffer_subspan s(mb, 2);
-            test_buffer_sequence(s);
+            test::check_sequence(s, pat);
         }
 
         // length 3
@@ -112,7 +112,7 @@ struct mutable_buffer_subspan_test
                 { &pat[3], 5 },
                 { &pat[8], 7 } };
             mutable_buffer_subspan s(mb, 3);
-            test_buffer_sequence(s);
+            test::check_sequence(s, pat);
         }
     }
 

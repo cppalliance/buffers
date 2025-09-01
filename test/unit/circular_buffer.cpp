@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/circular_buffer.hpp>
 
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -58,7 +58,7 @@ struct circular_buffer_test
                 cb.capacity(), pat.size() - 6);
             BOOST_TEST_EQ(cb.max_size(), pat.size());
             BOOST_TEST_EQ(
-                test_to_string(cb.data()),
+                test::make_string(cb.data()),
                 pat.substr(0, 6));
         }
         {
@@ -108,7 +108,7 @@ struct circular_buffer_test
             cb.prepare(pat.size());
             cb.commit(n);
             BOOST_TEST_EQ(
-                test_to_string(cb.data()),
+                test::make_string(cb.data()),
                 pat.substr(0, n));
         }
     }
@@ -162,11 +162,11 @@ struct circular_buffer_test
                 make_buffer(
                     pat.data() + j,
                     pat.size() - j)));
-            BOOST_TEST_EQ(test_to_string(
+            BOOST_TEST_EQ(test::make_string(
                 bs.data()), pat);
-            test_buffer_sequence(bs.data());
+            test::check_sequence(bs.data(), pat);
             bs.consume(k);
-            BOOST_TEST_EQ(test_to_string(
+            BOOST_TEST_EQ(test::make_string(
                 bs.data()), pat.substr(k));
         }
     }
@@ -183,7 +183,7 @@ struct circular_buffer_test
             cb.prepare(i);
             cb.commit(i);
             BOOST_TEST_EQ(
-                test_to_string(cb.data()),
+                test::make_string(cb.data()),
                 pat.substr(0, i));
             // commit after consume
             auto n = pat.size() - i;
@@ -192,7 +192,7 @@ struct circular_buffer_test
             BOOST_TEST_EQ(cb.size(), 0);
             cb.commit(n);
             BOOST_TEST_EQ(
-                test_to_string(cb.data()),
+                test::make_string(cb.data()),
                 pat.substr(i, n));
         }
     }

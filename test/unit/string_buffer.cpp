@@ -11,7 +11,7 @@
 #include <boost/buffers/string_buffer.hpp>
 
 #include <boost/static_assert.hpp>
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -92,7 +92,7 @@ struct string_buffer_test
             s = "1234";
             string_buffer b(&s);
             BOOST_TEST_EQ(
-                test_to_string(b.data()),
+                test::make_string(b.data()),
                 "1234");
         }
 

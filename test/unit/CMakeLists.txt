@@ -14,7 +14,7 @@ set(EXTRAFILES
     )
 
 set(PFILES
-    test_helpers.hpp
+    test_buffers.hpp
     CMakeLists.txt
     Jamfile
     any_dynamic_buffer.cpp
@@ -38,6 +38,7 @@ set(PFILES
     sans_prefix.cpp
     sans_suffix.cpp
     size.cpp
+    slice.cpp
     string_buffer.cpp
     suffix.cpp
     tag_invoke.cpp

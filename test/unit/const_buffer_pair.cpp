@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/const_buffer_pair.hpp>
 
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -44,10 +44,10 @@ struct const_buffer_pair_test
                         pat.size() - i });
                 const_buffer_pair cb1(cb0);
                 BOOST_TEST_EQ(
-                    test_to_string(cb0), pat);
+                    test::make_string(cb0), pat);
                 BOOST_TEST_EQ(
-                    test_to_string(cb0),
-                    test_to_string(cb1));
+                    test::make_string(cb0),
+                    test::make_string(cb1));
                 BOOST_TEST_EQ(
                     cb0[0].data(), cb1[0].data());
                 BOOST_TEST_EQ(
@@ -74,10 +74,10 @@ struct const_buffer_pair_test
                         s.size() - i });
                 const_buffer_pair cb(b);
                 BOOST_TEST_EQ(
-                    test_to_string(cb), pat);
+                    test::make_string(cb), pat);
                 BOOST_TEST_EQ(
-                    test_to_string(cb),
-                    test_to_string(b));
+                    test::make_string(cb),
+                    test::make_string(b));
             }
         }
 
@@ -93,10 +93,10 @@ struct const_buffer_pair_test
                 const_buffer_pair cb1;
                 cb1 = cb0;
                 BOOST_TEST_EQ(
-                    test_to_string(cb0), pat);
+                    test::make_string(cb0), pat);
                 BOOST_TEST_EQ(
-                    test_to_string(cb0),
-                    test_to_string(cb1));
+                    test::make_string(cb0),
+                    test::make_string(cb1));
             }
         }
 
@@ -113,10 +113,10 @@ struct const_buffer_pair_test
                 const_buffer_pair cb;
                 cb = b;
                 BOOST_TEST_EQ(
-                    test_to_string(cb), pat);
+                    test::make_string(cb), pat);
                 BOOST_TEST_EQ(
-                    test_to_string(cb),
-                    test_to_string(b));
+                    test::make_string(cb),
+                    test::make_string(b));
             }
         }
     }
@@ -132,7 +132,7 @@ struct const_buffer_pair_test
                 { &pat[0], i },
                 { &pat[i],
                     pat.size() - i });
-            test_buffer_sequence(cb);
+            test::check_sequence(cb, pat);
         }
     }
 

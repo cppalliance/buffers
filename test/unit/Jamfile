@@ -21,7 +21,7 @@ project
     ;
 
 local SOURCES =
-    test_helpers.hpp
+    test_buffers.hpp
     any_dynamic_buffer.cpp
     asio.cpp
     buffers.cpp
@@ -43,6 +43,7 @@ local SOURCES =
     sans_prefix.cpp
     sans_suffix.cpp
     size.cpp
+    slice.cpp
     string_buffer.cpp
     suffix.cpp
     tag_invoke.cpp

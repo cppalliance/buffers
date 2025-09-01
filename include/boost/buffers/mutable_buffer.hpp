@@ -117,7 +117,46 @@ public:
         if(n < n0)
             return { b.p_ + (n0 - n), n };
         return b;
-    }};
+    }
+
+    friend
+    void
+    tag_invoke(
+        slice_tag const&,
+        mutable_buffer& b,
+        slice_how how,
+        std::size_t n) noexcept
+    {
+        switch(how)
+        {
+        case slice_how::trim_front:
+            if( n > b.n_)
+                n = b.n_;
+            b.p_ += n;
+            b.n_ -= n;
+            return;
+
+        case slice_how::trim_back:
+            if( n > b.n_)
+                n = b.n_;
+            b.n_ -= n;
+            return;
+
+        case slice_how::keep_front:
+            if(n < b.n_)
+                b.n_ = n;
+            return;
+
+        case slice_how::keep_back:
+            if(n < b.n_)
+            {
+                b.p_ += b.n_ - n;
+                b.n_ = n;
+            }
+            return;
+        }
+    }
+};
 
 } // buffers
 } // boost

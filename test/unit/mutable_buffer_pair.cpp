@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/mutable_buffer_pair.hpp>
 
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -44,10 +44,10 @@ struct mutable_buffer_pair_test
                         pat.size() - i });
                 mutable_buffer_pair mb1(mb0);
                 BOOST_TEST_EQ(
-                    test_to_string(mb0), pat);
+                    test::make_string(mb0), pat);
                 BOOST_TEST_EQ(
-                    test_to_string(mb0),
-                    test_to_string(mb1));
+                    test::make_string(mb0),
+                    test::make_string(mb1));
                 BOOST_TEST_EQ(
                     mb0[0].data(), mb1[0].data());
                 BOOST_TEST_EQ(
@@ -73,10 +73,10 @@ struct mutable_buffer_pair_test
                 mutable_buffer_pair mb1;
                 mb1 = mb0;
                 BOOST_TEST_EQ(
-                    test_to_string(mb0), pat);
+                    test::make_string(mb0), pat);
                 BOOST_TEST_EQ(
-                    test_to_string(mb0),
-                    test_to_string(mb1));
+                    test::make_string(mb0),
+                    test::make_string(mb1));
             }
         }
 
@@ -93,10 +93,10 @@ struct mutable_buffer_pair_test
                 mutable_buffer_pair mb;
                 mb = b;
                 BOOST_TEST_EQ(
-                    test_to_string(mb), pat);
+                    test::make_string(mb), pat);
                 BOOST_TEST_EQ(
-                    test_to_string(mb),
-                    test_to_string(b));
+                    test::make_string(mb),
+                    test::make_string(b));
             }
         }
     }
@@ -112,7 +112,7 @@ struct mutable_buffer_pair_test
                 { &pat[0], i },
                 { &pat[i],
                     pat.size() - i });
-            test_buffer_sequence(cb);
+            test::check_sequence(cb, pat);
         }
     }
 

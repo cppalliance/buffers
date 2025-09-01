@@ -114,6 +114,17 @@ public:
         return b.suffix_impl(n);
     }
 
+    friend
+    void
+    tag_invoke(
+        slice_tag const&,
+        const_buffer_pair& b,
+        slice_how how,
+        std::size_t n) noexcept
+    {
+        b.slice_impl(how, n);
+    }
+
 private:
     BOOST_BUFFERS_DECL
     const_buffer_pair
@@ -124,6 +135,12 @@ private:
     const_buffer_pair
     suffix_impl(
         std::size_t n) const noexcept;
+
+    BOOST_BUFFERS_DECL
+    void
+    slice_impl(
+        slice_how,
+        std::size_t n) noexcept;
 
     const_buffer b_[2];
 };

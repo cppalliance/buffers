@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/mutable_buffer.hpp>
 
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -65,9 +65,9 @@ struct mutable_buffer_test
     void
     testBuffer()
     {
-        std::string s = test_pattern();
-        mutable_buffer cb(&s[0], s.size());
-        test_buffer_sequence(cb);
+        std::string pat = test_pattern();
+        mutable_buffer cb(&pat[0], pat.size());
+        test::check_sequence(cb, pat);
     }
 
     void

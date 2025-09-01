@@ -12,7 +12,7 @@
 
 #include <boost/buffers/type_traits.hpp>
 #include <boost/static_assert.hpp>
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -134,7 +134,7 @@ struct flat_buffer_test
                 fb.prepare(s.size());
                 fb.commit(i);
                 BOOST_TEST_EQ(
-                    test_to_string(fb.data()),
+                    test::make_string(fb.data()),
                     pat.substr(0, i));
             }
         }
@@ -144,7 +144,7 @@ struct flat_buffer_test
             std::string s = pat;
             flat_buffer fb(&s[0], s.size(), s.size());
             BOOST_TEST_EQ(
-                test_to_string(fb.data()), pat);
+                test::make_string(fb.data()), pat);
 
             auto const cap = fb.capacity();
 
@@ -191,10 +191,10 @@ struct flat_buffer_test
             fb.commit(copy(
                 fb.prepare(pat.size() - i),
                 make_buffer(&pat[i], pat.size() - i)));
-            BOOST_TEST_EQ(test_to_string(
+            BOOST_TEST_EQ(test::make_string(
                 fb.data()), pat);
             fb.consume(i);
-            BOOST_TEST_EQ(test_to_string(
+            BOOST_TEST_EQ(test::make_string(
                 fb.data()), pat.substr(i));
         }
     }

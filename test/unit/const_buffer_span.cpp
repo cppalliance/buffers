@@ -11,7 +11,7 @@
 #include <boost/buffers/const_buffer_span.hpp>
 
 #include <boost/buffers/const_buffer_pair.hpp>
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -38,7 +38,7 @@ struct const_buffer_span_test
         //  std::size_t n)
         {
             const_buffer_span cbs(cb, 3);
-            test_buffer_sequence(cbs);
+            test::check_sequence(cbs, pat);
         }
 
         // const_buffer_span(
@@ -55,7 +55,7 @@ struct const_buffer_span_test
         {
             const_buffer_span cbs0(cb, 3);
             const_buffer_span cbs1(cbs0);
-            test_buffer_sequence(cbs1);
+            test::check_sequence(cbs1, pat);
         }
 
         // operator=(
@@ -64,7 +64,7 @@ struct const_buffer_span_test
             const_buffer_span cbs0(cb, 3);
             const_buffer_span cbs1;
             cbs1 = cbs0;
-            test_buffer_sequence(cbs1);
+            test::check_sequence(cbs1, pat);
         }
     }
 

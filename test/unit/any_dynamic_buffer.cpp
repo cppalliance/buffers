@@ -12,7 +12,7 @@
 
 #include <boost/buffers/circular_buffer.hpp>
 #include <boost/static_assert.hpp>
-#include "test_helpers.hpp"
+#include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
@@ -64,11 +64,11 @@ struct any_dynamic_buffer_test
                 make_buffer(
                     pat.data() + j,
                     pat.size() - j)));
-            BOOST_TEST_EQ(test_to_string(
+            BOOST_TEST_EQ(test::make_string(
                 db.data()), pat);
-            test_buffer_sequence(db.data());
+            test::check_sequence(db.data(), pat);
             db.consume(k);
-            BOOST_TEST_EQ(test_to_string(
+            BOOST_TEST_EQ(test::make_string(
                 db.data()), pat.substr(k));
         }
     }
