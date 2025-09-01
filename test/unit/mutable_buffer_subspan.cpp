@@ -121,11 +121,11 @@ struct mutable_buffer_subspan_test
     {
         std::string tmp;
         std::string pat = test_pattern();
-        mutable_buffer const mb[3] = {
+        mutable_buffer const cmb[3] = {
             { &pat[0], 3 },
             { &pat[3], 5 },
             { &pat[8], 7 } };
-        mutable_buffer_span const cs0(mb, 3);
+        mutable_buffer_span const cs0(cmb, 3);
 
         for(std::size_t i = 0; i <= pat.size(); ++i )
         {
