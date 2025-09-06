@@ -350,13 +350,15 @@ class slice_of<BufferSequence>::
     }
 
 public:
-    using value_type = typename
-        slice_of::value_type;
+    using value_type = typename slice_of::value_type;
     using reference = value_type;
     using pointer = void;
     using difference_type = std::ptrdiff_t;
     using iterator_category =
         std::bidirectional_iterator_tag;
+#if defined(__cpp_concepts) || defined(__cpp_lib_concepts)
+    using iterator_concept = std::bidirectional_iterator_tag; // (since C++20)
+#endif
 
     const_iterator() = default;
 

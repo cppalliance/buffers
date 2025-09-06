@@ -60,7 +60,8 @@ constexpr struct
         ! std::is_convertible<T const*, const_buffer const*>::value &&
         ! std::is_convertible<T const*, mutable_buffer const*>::value &&
         ! std::is_convertible<T, const_buffer>::value &&
-        ! std::is_convertible<T, mutable_buffer>::value,
+        ! std::is_convertible<T, mutable_buffer>::value &&
+        detail::is_bidirectional_iterator<decltype(t.begin())>::value,
         decltype(t.begin())>::type
     {
         return t.begin();
@@ -72,12 +73,15 @@ constexpr struct
         ! std::is_convertible<T const*, const_buffer const*>::value &&
         ! std::is_convertible<T const*, mutable_buffer const*>::value &&
         ! std::is_convertible<T, const_buffer>::value &&
-        ! std::is_convertible<T, mutable_buffer>::value,
+        ! std::is_convertible<T, mutable_buffer>::value &&
+        detail::is_bidirectional_iterator<decltype(t.begin())>::value,
         decltype(t.begin())>::type
     {
         return t.begin();
     }
 } begin {};
+
+//------------------------------------------------------------------------------
 
 /** Return an iterator to the end of the buffer sequence.
 */
