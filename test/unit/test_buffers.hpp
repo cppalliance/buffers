@@ -13,7 +13,6 @@
 #include <boost/buffers/copy.hpp>
 #include <boost/buffers/size.hpp>
 #include <boost/buffers/make_buffer.hpp>
-#include <boost/buffers/prefix.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/slice.hpp>
 #include <boost/core/detail/string_view.hpp>
@@ -313,31 +312,6 @@ check_slice(
     grind_back(bs, pat);
 }
 
-template<class T>
-void
-check_prefix_and_suffix(
-    T const& t,
-    core::string_view pat)
-{
-    // prefix
-    for(std::size_t i = 0;
-        i <= pat.size(); ++i)
-        BOOST_TEST_EQ(
-            test::make_string(prefix(t, i)),
-            pat.substr(0, i));
-    BOOST_TEST_EQ(test::make_string(prefix(
-        t, std::size_t(-1))), pat);
-
-    // suffix
-    for(std::size_t i = 0;
-        i <= pat.size(); ++i)
-        BOOST_TEST_EQ(
-            test::make_string(suffix(t, i)),
-            pat.substr(pat.size() - i, i));
-    BOOST_TEST_EQ(test::make_string(suffix(
-        t, std::size_t(-1))), pat);
-}
-
 // Test API and behavior of a BufferSequence
 template<class T>
 void
@@ -349,7 +323,6 @@ check_sequence(
 
     check_iterators(t, pat);
     check_slice(t, pat);
-    //check_prefix_and_suffix(t, pat);
 }
 
 } // test

@@ -76,26 +76,6 @@ public:
     }
 
     friend
-    mutable_buffer_pair
-    tag_invoke(
-        prefix_tag const&,
-        mutable_buffer_pair const& b,
-        std::size_t n) noexcept
-    {
-        return b.prefix_impl(n);
-    }
-
-    friend
-    mutable_buffer_pair
-    tag_invoke(
-        suffix_tag const&,
-        mutable_buffer_pair const& b,
-        std::size_t n) noexcept
-    {
-        return b.suffix_impl(n);
-    }
-
-    friend
     void
     tag_invoke(
         slice_tag const&,
@@ -107,16 +87,6 @@ public:
     }
 
 private:
-    BOOST_BUFFERS_DECL
-    mutable_buffer_pair
-    prefix_impl(
-        std::size_t n) const noexcept;
-
-    BOOST_BUFFERS_DECL
-    mutable_buffer_pair
-    suffix_impl(
-        std::size_t n) const noexcept;
-
     BOOST_BUFFERS_DECL
     void
     slice_impl(

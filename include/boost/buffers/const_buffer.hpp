@@ -90,31 +90,6 @@ public:
     }
 
     friend
-    const_buffer
-    tag_invoke(
-        prefix_tag const&,
-        const_buffer const& b,
-        std::size_t n) noexcept
-    {
-        if(n < b.size())
-            return { b.data(), n };
-        return b;
-    }
-
-    friend
-    const_buffer
-    tag_invoke(
-        suffix_tag const&,
-        const_buffer const& b,
-        std::size_t n) noexcept
-    {
-        auto const n0 = b.size();
-        if(n < n0)
-            return { b.p_ + (n0 - n), n };
-        return b;
-    }
-
-    friend
     void
     tag_invoke(
         slice_tag const&,

@@ -57,9 +57,6 @@ struct mutable_buffer_test
             BOOST_TEST_EQ(b.data(), p);
             BOOST_TEST_EQ(b.size(), 5);
         }
-
-        // VFALCO TODO algorithm tests
-        // prefix, suffix, sans_prefix, sans_suffix
     }
 
     void

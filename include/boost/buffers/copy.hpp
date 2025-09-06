@@ -12,7 +12,7 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/range.hpp>
-#include <boost/buffers/sans_prefix.hpp>
+#include <boost/buffers/slice.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/assert.hpp>
 #include <cstring>
@@ -58,8 +58,10 @@ struct buffer_copy_impl
             it0 != end0 &&
             it1 != end1)
         {
-            auto b0 = sans_prefix(const_buffer(*it0), pos0);
-            auto b1 = sans_prefix(mutable_buffer(*it1), pos1);
+            auto b0 = const_buffer(*it0);
+            auto b1 = mutable_buffer(*it1);
+            trim_front(b0, pos0);
+            trim_front(b1, pos1);
             std::size_t const amount =
             [&]
             {

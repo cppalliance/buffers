@@ -21,14 +21,6 @@ namespace buffers {
 */
 struct size_tag {};
 
-/** prefix tag for tag_invoke.
-*/
-struct prefix_tag {};
-
-/** suffix tag for tag-invoke.
-*/
-struct suffix_tag {};
-
 enum class slice_how
 {
     trim_front,

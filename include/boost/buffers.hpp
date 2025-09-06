@@ -22,13 +22,9 @@
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
 #include <boost/buffers/mutable_buffer_span.hpp>
-#include <boost/buffers/prefix.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/string_buffer.hpp>
-#include <boost/buffers/sans_prefix.hpp>
-#include <boost/buffers/sans_suffix.hpp>
 #include <boost/buffers/slice.hpp>
-#include <boost/buffers/suffix.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 

@@ -31,14 +31,10 @@ set(PFILES
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
     mutable_buffer_span.cpp
-    prefix.cpp
     range.cpp
-    sans_prefix.cpp
-    sans_suffix.cpp
     size.cpp
     slice.cpp
     string_buffer.cpp
-    suffix.cpp
     tag_invoke.cpp
     type_traits.cpp
     )
