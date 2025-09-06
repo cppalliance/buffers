@@ -9,7 +9,7 @@
 
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
-
+#include <boost/core/span.hpp>
 #include <boost/asio/buffer.hpp>
 #include <boost/static_assert.hpp>
 
@@ -20,7 +20,26 @@
 namespace boost {
 namespace buffers {
 
-// asio buffers constructing from ours
+// These tests check to make sure the Asio buffer
+// sequences and our buffer sequences are interoperable
+
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<asio::const_buffer>>::value);
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<asio::mutable_buffer>>::value);
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<asio::const_buffer const>>::value);
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<asio::mutable_buffer const>>::value);
+BOOST_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<asio::const_buffer>>::value);
+BOOST_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<asio::mutable_buffer>>::value);
+BOOST_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<asio::const_buffer const>>::value);
+BOOST_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<asio::mutable_buffer const>>::value);
+
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<const_buffer>>::value);
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<mutable_buffer>>::value);
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<const_buffer const>>::value);
+BOOST_STATIC_ASSERT(asio::is_const_buffer_sequence<span<mutable_buffer const>>::value);
+BOOST_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<const_buffer>>::value);
+BOOST_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<mutable_buffer>>::value);
+BOOST_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<const_buffer const>>::value);
+BOOST_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<mutable_buffer const>>::value);
 
 #if 0
 BOOST_STATIC_ASSERT(

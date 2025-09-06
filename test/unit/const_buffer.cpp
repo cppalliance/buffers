@@ -9,8 +9,16 @@
 
 // Test that header file is self-contained.
 #include <boost/buffers/const_buffer.hpp>
+#include <boost/core/span.hpp>
 
 #include "test_buffers.hpp"
+
+/*
+#if defined(__cpp_lib_span) && (__cpp_lib_span >= 202002L)
+#define HAVE_SPAN 1
+#include <span>
+#endif
+*/
 
 namespace boost {
 namespace buffers {
@@ -66,6 +74,35 @@ struct const_buffer_test
         auto const& pat = test_pattern();
         const_buffer cb(&pat[0], pat.size());
         test::check_sequence(cb, pat);
+    }
+
+    void
+    testSpan()
+    {
+        {
+            BOOST_STATIC_ASSERT(is_const_buffer_sequence<
+                span<const_buffer const>>::value);
+            const_buffer b[3] = {
+                const_buffer("123", 3),
+                const_buffer("456", 3),
+                const_buffer("789", 3)
+            };
+            span<const_buffer const> bs(&b[0], 3);
+            test::check_sequence(bs, "123456789");
+        }
+    #if HAVE_SPAN
+        {
+            BOOST_STATIC_ASSERT(is_const_buffer_sequence<
+                std::span<const_buffer const>>::value);
+            const_buffer b[3] = {
+                const_buffer("123", 3),
+                const_buffer("456", 3),
+                const_buffer("789", 3)
+            };
+            std::span<const_buffer const> bs(&b[0], 3);
+            test::check_sequence(bs, "123456789");
+        }
+    #endif
     }
 
     void
