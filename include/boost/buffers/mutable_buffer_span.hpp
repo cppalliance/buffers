@@ -12,7 +12,6 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
-#include <boost/buffers/mutable_buffer_subspan.hpp>
 #include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 
@@ -104,40 +103,9 @@ public:
     {
         return p_ + n_;
     }
-
-    friend
-    mutable_buffer_subspan
-    tag_invoke(
-        prefix_tag const&,
-        mutable_buffer_span const& s,
-        std::size_t n) noexcept
-    {
-        return s.prefix_impl(n);
-    }
-
-    friend
-    mutable_buffer_subspan
-    tag_invoke(
-        suffix_tag const&,
-        mutable_buffer_span const& s,
-        std::size_t n) noexcept
-    {
-        return s.suffix_impl(n);
-    }
-
-private:
-    inline
-    mutable_buffer_subspan
-    prefix_impl(std::size_t n) const noexcept;
-
-    inline
-    mutable_buffer_subspan
-    suffix_impl(std::size_t n) const noexcept;
 };
 
 } // buffers
 } // boost
-
-#include <boost/buffers/impl/mutable_buffer_span.hpp>
 
 #endif

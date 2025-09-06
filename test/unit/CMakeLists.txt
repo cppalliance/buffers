@@ -24,7 +24,6 @@ set(PFILES
     const_buffer.cpp
     const_buffer_pair.cpp
     const_buffer_span.cpp
-    const_buffer_subspan.cpp
     copy.cpp
     flat_buffer.cpp
     front.cpp
@@ -32,7 +31,6 @@ set(PFILES
     mutable_buffer.cpp
     mutable_buffer_pair.cpp
     mutable_buffer_span.cpp
-    mutable_buffer_subspan.cpp
     prefix.cpp
     range.cpp
     sans_prefix.cpp

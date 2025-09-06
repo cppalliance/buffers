@@ -16,14 +16,12 @@
 #include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
 #include <boost/buffers/const_buffer_span.hpp>
-#include <boost/buffers/const_buffer_subspan.hpp>
 #include <boost/buffers/flat_buffer.hpp>
 #include <boost/buffers/front.hpp>
 #include <boost/buffers/make_buffer.hpp>
 #include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
 #include <boost/buffers/mutable_buffer_span.hpp>
-#include <boost/buffers/mutable_buffer_subspan.hpp>
 #include <boost/buffers/prefix.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/string_buffer.hpp>
