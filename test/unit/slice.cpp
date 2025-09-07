@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/slice.hpp>
 
-#include <boost/buffers/const_buffer_pair.hpp>
+#include <boost/buffers/buffer_pair.hpp>
 #include <boost/buffers/copy.hpp>
 #include <boost/buffers/make_buffer.hpp>
 #include <boost/core/detail/string_view.hpp>

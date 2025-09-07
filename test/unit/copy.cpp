@@ -10,7 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/copy.hpp>
 
-#include <boost/buffers/const_buffer_pair.hpp>
+#include <boost/buffers/buffer_pair.hpp>
 #include <boost/core/span.hpp>
 #include "test_buffers.hpp"
 

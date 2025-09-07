@@ -11,8 +11,7 @@
 #define BOOST_BUFFERS_CIRCULAR_BUFFER_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/const_buffer_pair.hpp>
-#include <boost/buffers/mutable_buffer_pair.hpp>
+#include <boost/buffers/buffer_pair.hpp>
 #include <boost/buffers/detail/except.hpp>
 
 namespace boost {

@@ -8,17 +8,17 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers/const_buffer_pair.hpp>
+#include <boost/buffers/buffer_pair.hpp>
 
 #include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
 
-struct const_buffer_pair_test
+struct buffer_pair_test
 {
     void
-    testMembers()
+    testConstPair()
     {
         auto const& pat = test_pattern();
 
@@ -119,34 +119,125 @@ struct const_buffer_pair_test
                     test::make_string(b));
             }
         }
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                const_buffer_pair cb(
+                    { &pat[0], i },
+                    { &pat[i],
+                        pat.size() - i });
+                test::check_sequence(cb, pat);
+            }
+        }
     }
 
     void
-    testBuffer()
+    testMutablePair()
     {
-        auto const& pat = test_pattern();
-        for(std::size_t i = 0;
-            i <= pat.size(); ++i)
+        std::string pat = test_pattern();
+
+        // mutable_buffer_pair()
         {
-            const_buffer_pair cb(
-                { &pat[0], i },
-                { &pat[i],
-                    pat.size() - i });
-            test::check_sequence(cb, pat);
+            mutable_buffer_pair mb;
+            BOOST_TEST_EQ(size(mb), 0);
+        }
+
+        // mutable_buffer_pair(
+        //  mutable_buffer_pair const&),
+        // mutable_buffer_pair(
+        //  mutable_buffer const&)
+        //  mutable_buffer const&)
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                mutable_buffer_pair mb0(
+                    { &pat[0], i },
+                    { &pat[i],
+                        pat.size() - i });
+                mutable_buffer_pair mb1(mb0);
+                BOOST_TEST_EQ(
+                    test::make_string(mb0), pat);
+                BOOST_TEST_EQ(
+                    test::make_string(mb0),
+                    test::make_string(mb1));
+                BOOST_TEST_EQ(
+                    mb0[0].data(), mb1[0].data());
+                BOOST_TEST_EQ(
+                    mb0[1].size(), mb1[1].size());
+                auto const& cmb0 = mb0;
+                auto const& cmb1 = mb1;
+                BOOST_TEST_EQ(
+                    cmb0[0].data(), cmb1[0].data());
+                BOOST_TEST_EQ(
+                    cmb0[1].size(), cmb1[1].size());
+            }
+        }
+
+        // operator=(mutable_buffer_pair const&)
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                mutable_buffer_pair mb0(
+                    { &pat[0], i },
+                    { &pat[i],
+                        pat.size() - i });
+                mutable_buffer_pair mb1;
+                mb1 = mb0;
+                BOOST_TEST_EQ(
+                    test::make_string(mb0), pat);
+                BOOST_TEST_EQ(
+                    test::make_string(mb0),
+                    test::make_string(mb1));
+            }
+        }
+
+        // operator=(mutable_buffer_pair const&)
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                auto s = pat;
+                mutable_buffer_pair b(
+                    { &s[0], i },
+                    { &s[i],
+                        s.size() - i });
+                mutable_buffer_pair mb;
+                mb = b;
+                BOOST_TEST_EQ(
+                    test::make_string(mb), pat);
+                BOOST_TEST_EQ(
+                    test::make_string(mb),
+                    test::make_string(b));
+            }
+        }
+
+        {
+            for(std::size_t i = 0;
+                i <= pat.size(); ++i)
+            {
+                mutable_buffer_pair cb(
+                    { &pat[0], i },
+                    { &pat[i],
+                        pat.size() - i });
+                test::check_sequence(cb, pat);
+            }
         }
     }
 
     void
     run()
     {
-        testMembers();
-        testBuffer();
+        testConstPair();
+        testMutablePair();
     }
 };
 
 TEST_SUITE(
-    const_buffer_pair_test,
-    "boost.buffers.const_buffer_pair");
+    buffer_pair_test,
+    "boost.buffers.buffer_pair");
 
 } // buffers
 } // boost

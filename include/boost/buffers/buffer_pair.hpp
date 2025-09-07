@@ -7,16 +7,96 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#ifndef BOOST_BUFFERS_CONST_BUFFER_PAIR_HPP
-#define BOOST_BUFFERS_CONST_BUFFER_PAIR_HPP
+#ifndef BOOST_BUFFERS_BUFFER_PAIR_HPP
+#define BOOST_BUFFERS_BUFFER_PAIR_HPP
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
-#include <boost/buffers/mutable_buffer_pair.hpp>
 #include <boost/assert.hpp>
 
 namespace boost {
 namespace buffers {
+
+/** A mutable buffer pair
+*/
+class mutable_buffer_pair
+{
+public:
+    using value_type = mutable_buffer;
+
+    using const_iterator = value_type const*;
+
+    /** Constructor.
+    */
+    mutable_buffer_pair() = default;
+
+    /** Constructor.
+    */
+    mutable_buffer_pair(
+        mutable_buffer_pair const&) = default;
+
+    /** Constructor.
+    */
+    mutable_buffer_pair(
+        mutable_buffer const& b0,
+        mutable_buffer const& b1) noexcept
+        : b_{ b0, b1 }
+    {
+    }
+
+    /** Assignment.
+    */
+    mutable_buffer_pair& operator=(
+        mutable_buffer_pair const&) = default;
+
+    mutable_buffer const&
+    operator[](unsigned i) const noexcept
+    {
+        BOOST_ASSERT(i < 2);
+        return b_[i];
+    }
+
+    mutable_buffer&
+    operator[](unsigned i) noexcept
+    {
+        BOOST_ASSERT(i < 2);
+        return b_[i];
+    }
+
+    const_iterator
+    begin() const noexcept
+    {
+        return b_;
+    }
+
+    const_iterator
+    end() const noexcept
+    {
+        return b_ + 2;
+    }
+
+    friend
+    void
+    tag_invoke(
+        slice_tag const&,
+        mutable_buffer_pair& b,
+        slice_how how,
+        std::size_t n) noexcept
+    {
+        b.slice_impl(how, n);
+    }
+
+private:
+    BOOST_BUFFERS_DECL
+    void
+    slice_impl(
+        slice_how,
+        std::size_t n) noexcept;
+
+    mutable_buffer b_[2];
+};
+
+//------------------------------------------------
 
 /** A constant buffer pair
 */

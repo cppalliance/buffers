@@ -13,11 +13,10 @@
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/copy.hpp>
 #include <boost/buffers/circular_buffer.hpp>
-#include <boost/buffers/const_buffer_pair.hpp>
+#include <boost/buffers/buffer_pair.hpp>
 #include <boost/buffers/flat_buffer.hpp>
 #include <boost/buffers/front.hpp>
 #include <boost/buffers/make_buffer.hpp>
-#include <boost/buffers/mutable_buffer_pair.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/string_buffer.hpp>
 #include <boost/buffers/slice.hpp>
