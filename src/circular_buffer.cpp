@@ -8,17 +8,12 @@
 //
 
 #include <boost/buffers/circular_buffer.hpp>
-#include <boost/buffers/type_traits.hpp>
 #include <boost/buffers/detail/except.hpp>
 #include <boost/assert.hpp>
 #include <boost/static_assert.hpp>
 
 namespace boost {
 namespace buffers {
-
-BOOST_STATIC_ASSERT(
-    is_dynamic_buffer<
-        circular_buffer>::value);
 
 auto
 circular_buffer::

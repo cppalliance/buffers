@@ -10,17 +10,18 @@
 // Test that header file is self-contained.
 #include <boost/buffers/string_buffer.hpp>
 
+#include <boost/buffers/dynamic_buffer.hpp>
 #include <boost/static_assert.hpp>
+
 #include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
 
+BOOST_STATIC_ASSERT(is_dynamic_buffer<string_buffer>::value);
+
 struct string_buffer_test
 {
-    BOOST_STATIC_ASSERT(
-        is_dynamic_buffer<string_buffer>::value);
-
     void
     testMembers()
     {

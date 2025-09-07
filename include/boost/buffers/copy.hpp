@@ -12,9 +12,6 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
-#include <boost/buffers/slice.hpp>
-#include <boost/buffers/type_traits.hpp>
-#include <boost/assert.hpp>
 #include <cstring>
 #include <utility>
 
@@ -26,12 +23,12 @@ namespace buffers {
 constexpr struct
 {
     template<
-        class MutableBuffers,
-        class ConstBuffers>
+        class MutableBufferSequence,
+        class ConstBufferSequence>
     std::size_t
     operator()(
-        MutableBuffers const& to,
-        ConstBuffers const& from,
+        MutableBufferSequence const& to,
+        ConstBufferSequence const& from,
         std::size_t at_most =
             std::size_t(-1)) const noexcept
     {
@@ -40,11 +37,11 @@ constexpr struct
         // do not meet the requirements.
         static_assert(
             is_mutable_buffer_sequence<
-                MutableBuffers>::value,
+                MutableBufferSequence>::value,
             "Type requirements not met");
         static_assert(
             is_const_buffer_sequence<
-                ConstBuffers>::value,
+                ConstBufferSequence>::value,
             "Type requirements not met");
 
         std::size_t total = 0;

@@ -10,6 +10,7 @@
 #ifndef BOOST_BUFFERS_FLAT_BUFFER_HPP
 #define BOOST_BUFFERS_FLAT_BUFFER_HPP
 
+#include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/detail/except.hpp>
 #include <boost/assert.hpp>

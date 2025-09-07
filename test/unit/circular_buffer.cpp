@@ -10,10 +10,14 @@
 // Test that header file is self-contained.
 #include <boost/buffers/circular_buffer.hpp>
 
+#include <boost/buffers/dynamic_buffer.hpp>
+
 #include "test_buffers.hpp"
 
 namespace boost {
 namespace buffers {
+
+BOOST_STATIC_ASSERT(is_dynamic_buffer<circular_buffer>::value);
 
 struct circular_buffer_test
 {

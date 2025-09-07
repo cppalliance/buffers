@@ -8,7 +8,7 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers/any_dynamic_buffer.hpp>
+#include <boost/buffers/dynamic_buffer.hpp>
 
 #include <boost/buffers/circular_buffer.hpp>
 #include <boost/static_assert.hpp>

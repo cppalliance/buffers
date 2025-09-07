@@ -17,21 +17,19 @@ set(PFILES
     test_buffers.hpp
     CMakeLists.txt
     Jamfile
-    any_dynamic_buffer.cpp
     asio.cpp
     buffer.cpp
     buffer_pair.cpp
     buffers.cpp
     circular_buffer.cpp
     copy.cpp
+    dynamic_buffer.cpp
     flat_buffer.cpp
     front.cpp
     make_buffer.cpp
     range.cpp
     slice.cpp
     string_buffer.cpp
-    tag_invoke.cpp
-    type_traits.cpp
     )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "" FILES ${PFILES})

@@ -13,7 +13,6 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/range.hpp>
-#include <boost/buffers/type_traits.hpp>
 #include <type_traits>
 
 namespace boost {
