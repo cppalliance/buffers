@@ -11,7 +11,6 @@
 #define BOOST_BUFFERS_TEST_BUFFERS_HPP
 
 #include <boost/buffers/copy.hpp>
-#include <boost/buffers/size.hpp>
 #include <boost/buffers/make_buffer.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/slice.hpp>

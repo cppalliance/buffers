@@ -10,22 +10,19 @@
 #ifndef BOOST_BUFFERS_HPP
 #define BOOST_BUFFERS_HPP
 
+#include <boost/buffers/buffer.hpp>
 #include <boost/buffers/copy.hpp>
-#include <boost/buffers/size.hpp>
 #include <boost/buffers/circular_buffer.hpp>
-#include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
 #include <boost/buffers/const_buffer_span.hpp>
 #include <boost/buffers/flat_buffer.hpp>
 #include <boost/buffers/front.hpp>
 #include <boost/buffers/make_buffer.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
 #include <boost/buffers/mutable_buffer_pair.hpp>
 #include <boost/buffers/mutable_buffer_span.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/string_buffer.hpp>
 #include <boost/buffers/slice.hpp>
-#include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 
 #endif

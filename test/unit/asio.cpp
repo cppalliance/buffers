@@ -7,8 +7,7 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-#include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <boost/core/span.hpp>
 #include <boost/asio/buffer.hpp>
 #include <boost/static_assert.hpp>

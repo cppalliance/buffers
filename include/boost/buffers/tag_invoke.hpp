@@ -11,44 +11,11 @@
 #define BOOST_BUFFERS_TAG_INVOKE_HPP
 
 #include <boost/buffers/detail/config.hpp>
-
-#include <type_traits> // VFALCO?
+#include <boost/buffers/buffer.hpp>
+#include <utility>
 
 namespace boost {
 namespace buffers {
-
-/** size tag for tag_invoke.
-*/
-struct size_tag {};
-
-enum class slice_how
-{
-    trim_front,
-    trim_back,
-    keep_front,
-    keep_back
-};
-
-/** slice tag for tag_invoke.
-*/
-struct slice_tag {};
-
-template<class T> class slice_of;
-
-namespace detail {
-
-template<class T, class = void>
-struct has_tag_invoke : std::false_type {};
-
-template<class T>
-struct has_tag_invoke<T, decltype(tag_invoke(
-    std::declval<slice_tag const&>(),
-    std::declval<T&>(),
-    std::declval<slice_how>(),
-    std::declval<std::size_t>()))>
-    : std::true_type {};
-
-} // detail
 
 } // buffers
 } // boost

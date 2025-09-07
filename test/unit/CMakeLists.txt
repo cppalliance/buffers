@@ -19,20 +19,18 @@ set(PFILES
     Jamfile
     any_dynamic_buffer.cpp
     asio.cpp
+    buffer.cpp
     buffers.cpp
     circular_buffer.cpp
-    const_buffer.cpp
     const_buffer_pair.cpp
     const_buffer_span.cpp
     copy.cpp
     flat_buffer.cpp
     front.cpp
     make_buffer.cpp
-    mutable_buffer.cpp
     mutable_buffer_pair.cpp
     mutable_buffer_span.cpp
     range.cpp
-    size.cpp
     slice.cpp
     string_buffer.cpp
     tag_invoke.cpp

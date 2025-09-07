@@ -11,7 +11,7 @@
 #define BOOST_BUFFERS_MUTABLE_BUFFER_PAIR_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <boost/assert.hpp>
 
 namespace boost {

@@ -129,10 +129,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 file(GLOB_RECURSE BOOST_BUFFERS_HEADERS CONFIGURE_DEPENDS include/boost/*.hpp include/boost/*.natvis)
 file(GLOB_RECURSE BOOST_BUFFERS_SOURCES CONFIGURE_DEPENDS src/*.cpp src/*.hpp)
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/boost PREFIX "" FILES ${BOOST_BUFFERS_HEADERS})
+source_group("" FILES "include/boost/buffers.hpp" "build/Jamfile")
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/boost/buffers PREFIX "include" FILES ${BOOST_BUFFERS_HEADERS})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${BOOST_BUFFERS_SOURCES})
 
-add_library(boost_buffers ${BOOST_BUFFERS_HEADERS} ${BOOST_BUFFERS_SOURCES})
+add_library(boost_buffers include/boost/buffers.hpp build/Jamfile ${BOOST_BUFFERS_HEADERS} ${BOOST_BUFFERS_SOURCES})
 add_library(Boost::buffers ALIAS boost_buffers)
 target_compile_features(boost_buffers PUBLIC cxx_constexpr)
 target_include_directories(boost_buffers PUBLIC "${PROJECT_SOURCE_DIR}/include")

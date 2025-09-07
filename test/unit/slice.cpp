@@ -13,7 +13,6 @@
 #include <boost/buffers/const_buffer_pair.hpp>
 #include <boost/buffers/copy.hpp>
 #include <boost/buffers/make_buffer.hpp>
-#include <boost/buffers/size.hpp>
 #include <boost/core/detail/string_view.hpp>
 #include <boost/static_assert.hpp>
 

@@ -13,7 +13,6 @@
 #if 0
 
 #include <boost/buffers/copy.hpp>
-#include <boost/buffers/size.hpp>
 #include <boost/buffers/const_buffer_pair.hpp>
 #include <boost/buffers/prefix.hpp>
 #include <boost/buffers/sans_prefix.hpp>

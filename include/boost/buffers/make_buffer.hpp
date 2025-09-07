@@ -11,8 +11,7 @@
 #define BOOST_BUFFERS_MAKE_BUFFER_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <cstdlib>
 #include <type_traits>
 

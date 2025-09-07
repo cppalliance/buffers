@@ -11,7 +11,7 @@
 #define BOOST_BUFFERS_COPY_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/range.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <boost/buffers/slice.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/assert.hpp>
@@ -20,9 +20,10 @@
 
 namespace boost {
 namespace buffers {
-namespace detail {
 
-struct buffer_copy_impl
+/** Copy buffer contents
+*/
+constexpr struct
 {
     template<
         class MutableBuffers,
@@ -60,8 +61,8 @@ struct buffer_copy_impl
         {
             auto b0 = const_buffer(*it0);
             auto b1 = mutable_buffer(*it1);
-            trim_front(b0, pos0);
-            trim_front(b1, pos1);
+            b0 += pos0;
+            b1 += pos1;
             std::size_t const amount =
             [&]
             {
@@ -99,13 +100,7 @@ struct buffer_copy_impl
         }
         return total;
     }
-};
-
-} // detail
-
-/** Copy buffer contents
-*/
-constexpr detail::buffer_copy_impl copy{};
+} copy {};
 
 } // buffers
 } // boost

@@ -10,9 +10,8 @@
 #ifndef BOOST_BUFFERS_FRONT_HPP
 #define BOOST_BUFFERS_FRONT_HPP
 
-#include <boost/buffers/const_buffer.hpp>
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <type_traits>

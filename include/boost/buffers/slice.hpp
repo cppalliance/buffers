@@ -11,10 +11,8 @@
 #define BOOST_BUFFERS_SLICE_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/const_buffer.hpp>
-#include <boost/buffers/mutable_buffer.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <boost/buffers/range.hpp>
-#include <boost/buffers/tag_invoke.hpp>
 #include <boost/buffers/type_traits.hpp>
 #include <boost/assert.hpp>
 #include <iterator>
@@ -22,6 +20,23 @@
 
 namespace boost {
 namespace buffers {
+
+template<class T> class slice_of;
+
+namespace detail {
+
+template<class T, class = void>
+struct has_tag_invoke : std::false_type {};
+
+template<class T>
+struct has_tag_invoke<T, decltype(tag_invoke(
+    std::declval<slice_tag const&>(),
+    std::declval<T&>(),
+    std::declval<slice_how>(),
+    std::declval<std::size_t>()))>
+    : std::true_type {};
+
+} // detail
 
 /** Alias for the type representing a slice of T
 */
