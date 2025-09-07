@@ -11,8 +11,7 @@
 #include <boost/buffers/copy.hpp>
 
 #include <boost/buffers/const_buffer_pair.hpp>
-#include <boost/buffers/const_buffer_span.hpp>
-#include <boost/buffers/mutable_buffer_span.hpp>
+#include <boost/core/span.hpp>
 #include "test_buffers.hpp"
 
 namespace boost {
@@ -80,8 +79,8 @@ struct buffer_copy_test
                     { &s[j],
                         pat.size() - j } };
                 auto n = copy(
-                    mutable_buffer_span(mb, 2),
-                    const_buffer_span(cb, 2));
+                    span<mutable_buffer const>(mb, 2),
+                    span<const_buffer const>(cb, 2));
                 BOOST_TEST_EQ(n, pat.size());
                 BOOST_TEST_EQ(s, pat);
             }
@@ -102,8 +101,8 @@ struct buffer_copy_test
                         { &s[j],
                             pat.size() - j } };
                     auto n = copy(
-                        mutable_buffer_span(mb, 2),
-                        const_buffer_span(cb, 2), k);
+                        span<mutable_buffer const>(mb, 2),
+                        span<const_buffer const>(cb, 2), k);
                     s.resize(n);
                     BOOST_TEST_EQ(s,
                         pat.substr(0, k));

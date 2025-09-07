@@ -11,10 +11,9 @@
 #define BOOST_BUFFERS_ANY_DYNAMIC_BUFFER_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/const_buffer_span.hpp>
-#include <boost/buffers/mutable_buffer_span.hpp>
-#include <boost/buffers/range.hpp>
+#include <boost/buffers/buffer.hpp>
 #include <boost/buffers/type_traits.hpp>
+#include <boost/core/span.hpp>
 #include <cstdlib>
 
 namespace boost {
@@ -25,11 +24,8 @@ namespace buffers {
 struct BOOST_SYMBOL_VISIBLE
     any_dynamic_buffer
 {
-    using const_buffers_type =
-        buffers::const_buffer_span;
-
-    using mutable_buffers_type =
-        buffers::mutable_buffer_span;
+    using const_buffers_type = span<const_buffer const>;
+    using mutable_buffers_type = span<mutable_buffer const>;
 
     virtual ~any_dynamic_buffer() = default;
     virtual std::size_t size() const = 0;
@@ -52,23 +48,24 @@ class any_dynamic_buffer_impl
     : public any_dynamic_buffer
 {
     DynamicBuffer b_;
-    buffers::const_buffer data_[N];
-    buffers::mutable_buffer out_[N];
+    const_buffer data_[N];
+    mutable_buffer out_[N];
     std::size_t data_len_ = 0;
     std::size_t out_len_ = 0;
 
-    template<class Buffers>
+    template<class ConstBufferSequence, class BufferType>
     static
     std::size_t
     unroll(
-        Buffers const& bs,
-        value_type<Buffers>* dest,
+        ConstBufferSequence const& bs,
+        BufferType* dest,
         std::size_t len)
     {
         std::size_t i = 0;
-        for(auto b : buffers::range(bs))
+        auto const end_ = end(bs);
+        for(auto it = begin(bs); it != end_; ++it)
         {
-            dest[i++] = b;
+            dest[i++] = *it;
             if(i == len)
                 break;
         }
@@ -80,8 +77,7 @@ public:
     explicit
     any_dynamic_buffer_impl(
         DynamicBuffer_&& b)
-        : b_(std::forward<
-            DynamicBuffer_>(b))
+        : b_(std::forward<DynamicBuffer_>(b))
     {
     }
 

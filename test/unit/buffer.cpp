@@ -195,7 +195,7 @@ struct buffer_test
                 { data + i, j },
                 { data + i + j, k }
             };
-            const_buffer_span s(cb, 3);
+            span<const_buffer const> s(cb, 3);
             BOOST_TEST_EQ(
                 size(s), i + j + k);
         }

@@ -23,13 +23,11 @@ set(PFILES
     buffers.cpp
     circular_buffer.cpp
     const_buffer_pair.cpp
-    const_buffer_span.cpp
     copy.cpp
     flat_buffer.cpp
     front.cpp
     make_buffer.cpp
     mutable_buffer_pair.cpp
-    mutable_buffer_span.cpp
     range.cpp
     slice.cpp
     string_buffer.cpp
