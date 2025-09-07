@@ -31,11 +31,8 @@ class flat_buffer
     std::size_t out_size_ = 0;
 
 public:
-    using const_buffers_type =
-        const_buffer;
-
-    using mutable_buffers_type =
-        mutable_buffer;
+    using const_buffers_type = const_buffer;
+    using mutable_buffers_type = mutable_buffer;
 
     /** Constructor.
     */

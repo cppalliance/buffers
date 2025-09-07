@@ -90,6 +90,7 @@ public:
         mutable_buffer const&) = default;
 
     // conversion to boost::asio::mutable_buffer
+    // VFALCO REMOVE
     template<
         class T
         , class = typename std::enable_if<
@@ -208,6 +209,7 @@ public:
         const_buffer const&) = default;
 
     // conversion to boost::asio::const_buffer
+    // VFALCO REMOVE
     template<
         class T
         , class = typename std::enable_if<
@@ -387,7 +389,8 @@ constexpr struct
         ! std::is_convertible<T const*, const_buffer const*>::value &&
         ! std::is_convertible<T const*, mutable_buffer const*>::value &&
         ! std::is_convertible<T, const_buffer>::value &&
-        ! std::is_convertible<T, mutable_buffer>::value,
+        ! std::is_convertible<T, mutable_buffer>::value &&
+        detail::is_bidirectional_iterator<decltype(t.end())>::value,
         decltype(t.end())>::type
     {
         return t.end();
@@ -399,7 +402,8 @@ constexpr struct
         ! std::is_convertible<T const*, const_buffer const*>::value &&
         ! std::is_convertible<T const*, mutable_buffer const*>::value &&
         ! std::is_convertible<T, const_buffer>::value &&
-        ! std::is_convertible<T, mutable_buffer>::value,
+        ! std::is_convertible<T, mutable_buffer>::value &&
+        detail::is_bidirectional_iterator<decltype(t.end())>::value,
         decltype(t.end())>::type
     {
         return t.end();
@@ -407,6 +411,61 @@ constexpr struct
 } end {};
 
 // https://www.boost.org/doc/libs/1_65_0/doc/html/boost_asio/reference/ConstBufferSequence.html
+
+//------------------------------------------------
+
+namespace detail {
+
+// determine if T is a bidirectional range
+// whose value type is convertible to B
+
+template<class T, class B, class = void>
+struct is_buffer_sequence
+    : std::false_type
+{
+};
+
+template<>
+struct is_buffer_sequence<
+        mutable_buffer, mutable_buffer>
+    : std::true_type
+{
+};
+
+template<>
+struct is_buffer_sequence<
+        mutable_buffer, const_buffer>
+    : std::true_type
+{
+};
+
+template<>
+struct is_buffer_sequence<
+        const_buffer, mutable_buffer>
+    : std::false_type
+{
+};
+
+template<>
+struct is_buffer_sequence<
+        const_buffer, const_buffer>
+    : std::true_type
+{
+};
+
+template<class T, class B>
+struct is_buffer_sequence<T, B, void_t<typename std::enable_if<
+    std::is_convertible<decltype(*begin(std::declval<T&>())), B>::value &&
+    std::is_convertible<decltype(*end(std::declval<T&>())), B>::value &&
+    detail::is_bidirectional_iterator<decltype(begin(std::declval<T&>()))>::value &&
+    detail::is_bidirectional_iterator<decltype(end(std::declval<T&>()))>::value &&
+    std::is_same<decltype(begin(std::declval<T&>())), decltype(end(std::declval<T&>()))>::value
+    >::type > >
+    : std::true_type
+{
+};
+
+} // detail
 
 //------------------------------------------------
 
@@ -454,40 +513,8 @@ struct is_const_buffer_sequence<
 };
 
 template<class T>
-struct is_const_buffer_sequence<T, void_t<
-    typename std::enable_if<
-        (std::is_same<const_buffer, typename 
-            T::value_type>::value
-        || std::is_same<mutable_buffer, typename
-            T::value_type>::value
-            ) &&
-        detail::is_bidirectional_iterator<typename
-            T::const_iterator>::value &&
-        std::is_same<typename
-            T::const_iterator, decltype(
-            std::declval<T const&>().begin())
-                >::value &&
-        std::is_same<typename
-            T::const_iterator, decltype(
-            std::declval<T const&>().end())
-                >::value && (
-        std::is_same<const_buffer, typename
-            std::remove_const<typename
-                std::iterator_traits<
-                    typename T::const_iterator
-                        >::value_type>::type
-                >::value ||
-        std::is_same<mutable_buffer, typename
-            std::remove_const<typename
-                std::iterator_traits<
-                    typename T::const_iterator
-                        >::value_type>::type
-                >::value)
-        // VFALCO This causes problems when the
-        // trait is used to constrain ctors
-        // && std::is_move_constructible<T>::value
-            >::type
-    > > : std::true_type
+struct is_const_buffer_sequence<T>
+    : detail::is_buffer_sequence<T, const_buffer>
 {
 };
 
@@ -529,31 +556,8 @@ struct is_mutable_buffer_sequence<
 };
 
 template<class T>
-struct is_mutable_buffer_sequence<T, void_t<
-    typename std::enable_if<
-        std::is_same<mutable_buffer, typename
-            T::value_type>::value &&
-        detail::is_bidirectional_iterator<typename
-            T::const_iterator>::value &&
-        std::is_same<typename
-            T::const_iterator, decltype(
-            std::declval<T const&>().begin())
-                >::value &&
-        std::is_same<typename
-            T::const_iterator, decltype(
-            std::declval<T const&>().end())
-                >::value &&
-        std::is_same<mutable_buffer, typename
-            std::remove_const<typename
-                std::iterator_traits<
-                    typename T::const_iterator
-                        >::value_type>::type
-                >::value
-        // VFALCO This causes problems when the
-        // trait is used to constrain ctors
-        // && std::is_move_constructible<T>::value
-            >::type
-    >> : std::true_type
+struct is_mutable_buffer_sequence<T>
+    : detail::is_buffer_sequence<T, mutable_buffer>
 {
 };
 

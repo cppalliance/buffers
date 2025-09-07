@@ -25,8 +25,7 @@ struct mutable_buffer_pair_test
         // mutable_buffer_pair()
         {
             mutable_buffer_pair mb;
-            BOOST_TEST_EQ(
-                size(mb), 0);
+            BOOST_TEST_EQ(size(mb), 0);
         }
 
         // mutable_buffer_pair(

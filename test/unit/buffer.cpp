@@ -24,6 +24,26 @@
 namespace boost {
 namespace buffers {
 
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<const_buffer>::value);
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<mutable_buffer>::value);
+BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<const_buffer>::value);
+BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<mutable_buffer>::value);
+
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<const_buffer const>::value);
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<mutable_buffer const>::value);
+BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<const_buffer const>::value);
+BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<mutable_buffer const>::value);
+
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<const_buffer>>::value);
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<mutable_buffer>>::value);
+BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer>>::value);
+BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer>>::value);
+
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<const_buffer const>>::value);
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<mutable_buffer const>>::value);
+BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer const>>::value);
+BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer const>>::value);
+
 struct buffer_test
 {
     void
@@ -77,8 +97,6 @@ struct buffer_test
 
         // boost::span
         {
-            BOOST_STATIC_ASSERT(is_const_buffer_sequence<
-                span<const_buffer const>>::value);
             const_buffer b[3] = {
                 const_buffer("123", 3),
                 const_buffer("456", 3),
@@ -154,8 +172,6 @@ struct buffer_test
 
         // boost::span
         {
-            BOOST_STATIC_ASSERT(is_mutable_buffer_sequence<
-                span<mutable_buffer const>>::value);
             char c[10] = "123456789";
             mutable_buffer b[3] = {
                 mutable_buffer(c+0, 3),
