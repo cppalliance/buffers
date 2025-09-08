@@ -23,6 +23,7 @@ base-url: https://www.github.com/cppalliance/buffers/blob/develop/include/
 # Style
 verbose: true
 multipage: true
-use-system-libc: true
+# use-system-libc: true
+# use-system-stdlib: true
 
 cmake: '-DCMAKE_CXX_STANDARD=20 -DBOOST_BUFFERS_BUILD_TESTS=OFF -DBOOST_BUFFERS_BUILD_EXAMPLES=OFF'
