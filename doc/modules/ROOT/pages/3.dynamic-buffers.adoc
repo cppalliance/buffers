@@ -1,0 +1,30 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie.falco@gmail.com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= Dynamic Buffers
+
+While buffer sequences are useful for transporting raw bytes across function
+boundaries, they can only represent sequences of fixed size. To allow the
+creation of sequences whose size can change, we adopt the "dynamic buffer"
+concept introduced in Boost.Asio. A dynamic buffer represents memory regions
+which may be automatically sized as required.
+
+* A dynamic buffer has an input sequence defined as a _ConstBufferSequence_
+
+* A dynamic buffer has an output sequence defined as a _MutableBufferSequence_
+
+* Callers acquire the output sequence by calling `prepare(n)` where `n` is the
+  desired size.
+
+* Callers invoke `commit(n)` to move written bytes from the output sequence
+  to the input sequence.
+
+* The input sequence is returned by calling `data()`
+
+* The input sequence is released by calling `consume(n)`

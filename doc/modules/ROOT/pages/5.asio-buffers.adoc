@@ -1,0 +1,28 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie.falco@gmail.com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= Asio Buffers
+
+This library borrows heavily on the concepts and algorithms invented by
+Christopher Kohlhoff in the Asio and Boost.Asio libraries. A conscious design
+choice was made to avoid depending on Asio's concrete types, as libraries
+which deal in buffers may not also need to perform asynchronous I/O. For
+example, the Sans I/O philosophy of library design suggests that protocol
+libraries be engineered to operate independently of any particular model of
+asynchrony or I/O. It is desired that these libraries remain agnostic and not
+incur compile-time dependencies on particular I/O implementations. This can be
+seen in the
+https://github.com/cppalliance/http_proto[Boost.Http.Proto] (proposed) and
+https://github.com/cppalliance/http_proto[Boost.WS.Proto] (proposed) libraries.
+
+
+
+
+* 
+

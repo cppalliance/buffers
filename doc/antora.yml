@@ -20,3 +20,9 @@ nav:
 ext:
   cpp-reference:
     config: doc/mrdocs.yml
+#  cpp-tagfiles:
+#    files:
+#      - file: ./doc/tagfiles/boost-buffers-doxygen.tag.xml
+#        base_url: 'xref:reference:'
+#    using-namespaces:
+#      - boost::buffers

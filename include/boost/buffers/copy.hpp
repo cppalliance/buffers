@@ -27,8 +27,8 @@ constexpr struct
         class ConstBufferSequence>
     std::size_t
     operator()(
-        MutableBufferSequence const& to,
-        ConstBufferSequence const& from,
+        MutableBufferSequence const& dest,
+        ConstBufferSequence const& src,
         std::size_t at_most =
             std::size_t(-1)) const noexcept
     {
@@ -47,10 +47,10 @@ constexpr struct
         std::size_t total = 0;
         std::size_t pos0 = 0;
         std::size_t pos1 = 0;
-        auto const end0 = end(from);
-        auto const end1 = end(to);
-        auto it0 = begin(from);
-        auto it1 = begin(to);
+        auto const end0 = end(src);
+        auto const end1 = end(dest);
+        auto it0 = begin(src);
+        auto it1 = begin(dest);
         while(
             total < at_most &&
             it0 != end0 &&

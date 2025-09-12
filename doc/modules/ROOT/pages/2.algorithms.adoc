@@ -1,0 +1,88 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie.falco@gmail.com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= Algorithms
+
+Algorithms which operate on buffer sequences are written as function templates,
+using one or more template parameters to reflect the sequence types. The
+metafunctions cpp:is_const_buffer_sequence[] and cpp:is_mutable_buffer_sequence[]
+determine whether or not a specified type meets the syntactic requirements for
+buffer sequences. They can be used for generating precise error messages at
+compile time when parameters are misused, or they can be used to constrain a
+function's overload set as shown:
+
+[source,cpp]
+----
+template< class ConstBufferSequence >
+requires is_const_buffer_sequence< ConstBufferSequence >
+void print( ConstBufferSequence const& bs );
+----
+
+To iterate over a sequence the functions cpp::begin[] and
+cpp:end[] are used to obtain the starting and ending iterators. This
+example writes each individual buffer in the sequence to standard output,
+separated by a newline:
+
+[source,cpp]
+----
+template< class ConstBufferSequence >
+requires is_const_buffer_sequenc<ConstBufferSequence>
+void print( ConstBufferSequence const& bs )
+{
+    auto const end_ = buffers::end( bs );
+    for( auto it = buffers::begin( bs ); it != end_; ++it )
+    {
+        buffers::const_buffer cb( *it );
+        std::cout << std::string_view( static_cast<char const*>cb.data(), cb.size() ) << "\n";
+    }
+}
+----
+
+WARNING: Care must be exercised when a raw pointer is cast to other data
+types such as `char` or to aggregate types. It is the caller's responsibility
+to ensure that such casts do not violate the type safety features of the
+language.
+
+== Calculating Size
+
+The function cpp:size[] returns the total number of bytes represented in
+a sequence of buffers, with this equivalent signature:
+
+[source,cpp]
+----
+template< class ConstBufferSequence >
+std::size_t
+size(
+    ConstBufferSequence const& bs);
+----
+
+The default implementation performs a straightforward summation of individual
+elements visited through iteration. The size customization point, discussed
+later, permits optimizations of the algorithm for types which can do better.
+
+== Copying Bytes
+
+To facilitate copying data between arbitrary buffer sequences, the function
+cpp:copy[] is provided, with this equivalent signature:
+
+[source,cpp]
+----
+template<
+    class MutableBufferSequence,
+    class ConstBufferSequence >
+std::size_t
+copy(
+    MutableBufferSequence const& dest,
+    ConstBufferSequence const& src,
+    std::size_t at_most = std::numeric_limits<std::size_t>::max );
+----
+
+This function copies up to `at_most` bytes from the source buffer sequence to
+the destination sequence, or less depending on the size of the smaller of the
+two sequences. The return value indicates the actual number of bytes copied.

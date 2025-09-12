@@ -1,0 +1,115 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie.falco@gmail.com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= Introduction
+
+The C++ language is strongly typed; programs express data structures and
+algorithms in terms of types. However many categories of algorithms operate
+instead on data represented as raw bytes, such as:
+
+* Encryption and decryption
+* Compression and decompression
+* JSON parsing and serialization
+* Network protocols, such as HTTP and WebSocket
+
+Algorithms are often combined; a network application may need to remove the
+framing from a WebSocket stream, apply decompression to the unframed payloads,
+then parse the decompressed payloads as serialized JSON. We define common
+vocabulary types and concepts to facilitate interoperability between libraries,
+in order that such algorithms may be composed.
+
+== Contiguous Buffers
+
+The fundamental representation of unstructured bytes is the contiguous buffer,
+characterized by a possibly `const` pointer to region of memory with a defined
+number of valid bytes. These are represented as objects of type
+cpp:const_buffer[] and cpp:mutable_buffer[].
+
+[source,cpp]
+----
+struct const_buffer
+{
+    void const*     data() const noexcept;
+    std::size_t     size() const noexcept;
+};
+
+struct mutable_buffer
+{
+    void      *     data() const noexcept;
+    std::size_t     size() const noexcept;
+};
+----
+
+This representation is helpful yet insufficient for all use-cases. For example
+an algorithm which must add framing data to caller-provided contiguous buffers
+would need to perform costly reallocations and copies to represent it as a
+single buffer before passing it on to the next algorithm. Operating-system
+level facilities which transact raw bytes on file descriptors or sockets often
+provide a
+https://en.wikipedia.org/wiki/Vectored_I/O[_scatter/gather_]
+interface: an ordered list of zero or more contiguous buffers. Linux provides
+the type
+https://man7.org/linux/man-pages/man3/iovec.3type.html[`iovec`]
+this purpose. In C++ we may consider using a container to represent an
+sequence of buffers:
+
+[source,cpp]
+----
+std::list< const_buffer > bs1;
+
+std::vector< mutable_buffer > bs2;
+
+std::array< const_buffer, 3 > bs3;
+----
+
+There are some caveats with this approach:
+
+* `list` is expensive to copy.
+* `vector` can be resized at runtime yet allocates memory to do so.
+* `array` is fixed in size. Inserting additional buffers requires metaprogramming
+  and a redeclaration of the container type.
+* Choosing a single type as a vocabulary type precludes user-defined types.
+
+== Sequence Requirements
+
+The approach taken by this library is the same as the approach used in the popular
+Boost.Asio network library. That is, to define the concepts
+xref:concepts/ConstBufferSequence.adoc[_ConstBufferSequence_] and
+xref:concepts/MutableBufferSequence.adoc[_MutableBufferSequence_] for
+representing buffer sequences with these semantics:
+
+* A buffer sequence is cheap to copy.
+
+* A copy of a buffer sequence refers to the same underlying memory regions.
+
+* Buffer sequences model bidirectional ranges whose value type is convertible
+  to cpp:const_buffer[] or cpp:mutable_buffer[] for sequences whose contents.
+  are modifiable.
+
+* The types cpp:const_buffer[] and cpp:mutable_buffer[] are also considered
+  to be buffer sequences.
+
+Algorithms which use buffer sequences have these additional requirements:
+
+* The algorithm shall maintain a copy of every input buffer sequence for at
+  least as long as any of the underlying memory regions are accessed.
+
+* Iterators to elements of a buffer sequence are obtained using
+  cpp:begin[] and cpp:end[].
+
+== Buffer Pairs
+
+Buffer sequences of length two; that is, buffer sequences consisting of up to
+two separate contiguous memory regions, occur in design patterns with sufficient
+frequency that the library provides a custom implementation for representing
+them. Objects of type cpp:const_buffer_pair[] or cpp::mutable_buffer_pair[] are
+buffer sequences of length two. These are the type of sequences returned by
+the cpp:circular_buffer[] dynamic buffer, discussed later.
+
+

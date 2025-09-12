@@ -10,46 +10,26 @@
 
 = Boost.Buffers
 
-Boost.Buffers is a portable, low-level C++ library which provides
-containers and algorithms for describing contiguous buffers of
-arbitrary bytes.
+This is a portable C++ library providing containers and algorithms for
+describing contiguous buffers of arbitrary bytes, with these notable features:
 
-Boost.Buffers offers these features:
-
-* Require only C++11
+* Requires only C++11
 * Works without exceptions
 * Fast compilation, few templates
-* Does not require Asio
+* Does not require Asio or Boost.Asio
 
 == Requirements
 
 * Requires Boost and a compiler supporting at least C++11
-* Aliases for standard types use their Boost equivalents
-* Link to a built static or dynamic Boost library, or use header-only (see below)
+* Link to a static or dynamically linked version of this library
 * Supports `-fno-exceptions`, detected automatically
-
-=== Header-Only
-
-To use the library as header-only; that is, to eliminate the requirement
-to link a program to a static or dynamic Boost.URL library, simply place
-the following line in *exactly one* source file in your project.
-
-[source,cpp]
-----
-#include <boost/buffers/src.hpp>
-----
-
-=== Embedded
-
-Boost.Buffers works great on embedded devices.
-It is designed to work without exceptions if desired.
 
 == Tested Compilers
 
 Boost.Buffers has been tested with the following compilers:
 
 * clang: 3.8, 4, 5, 6, 7, 8, 9, 10, 11, 12
-* gcc: 4.8, 4.9, 5, 6, 7, 8, 9, 10, 11
+* gcc: 5, 6, 7, 8, 9, 10, 11
 * msvc: 14.1, 14.2, 14.3
 
 == Quality Assurance

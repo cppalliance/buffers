@@ -1,0 +1,86 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie.falco@gmail.com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= Customization
+
+The definitions for sequences allow for the possibility of user-defined types
+to act as custom sequences. The library provides a set of customization points
+so its algorithms can be optimized for these types. Customization points are
+implementing as overloads of a function named `tag_invoke` found by argument
+dependent lookup. For example, here is a custom sequence which implements the
+`size` customization point:
+
+[source,cpp]
+----
+struct custom_sequence
+{
+    struct iterator;
+
+    iterator begin()    const noexcept;
+    iterator end()      const noexcept;
+
+    /** Return the total number of bytes in the sequence.
+
+        This function is intended to be found via
+        argument-dependent lookup only.
+    */
+    friend
+    std::size_t
+    tag_invoke(
+        buffers::size_tag const&,
+        custom_sequence const& bs ) noexcept
+    {
+        return bs.size_impl();
+    }
+
+private:
+    std::size_t size_impl() const noexcept;
+};
+
+----
+
+NOTE: For maximum compile-time efficiency, overloads of `tag_invoke` for a
+specific type should be declared as _hidden friends_ \[1\] of that type. That is,
+the definition for the function should be in the class declaration, and no
+out-of-class or namespace-scope declarations should exist.
+
+These are the available customization points and tags:
+
+[cols="1a,1a,3a"]
+|===
+|tag|Signature|Semantics, Pre/Post-conditions
+
+|`size_tag`
+|
+[source,cpp]
+----
+std::size_t
+tag_invoke(
+    size_tag const&,
+    T const& )
+----
+|Return the total number of bytes represented by a buffer sequence object.
+
+|`slice_tag`
+|
+[source,cpp]
+----
+void
+tag_invoke(
+    slice_tag const&,
+    T&,
+    slice_how how,
+    std::size_t n )
+----
+|Remove a number of bytes from a buffer sequence object, modifying the
+ object in place.
+
+|===
+
+\[1\] https://www.youtube.com/watch?v=POa_V15je8Y[Making New Friends (CppCon 2018)]

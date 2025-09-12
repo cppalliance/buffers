@@ -1,3 +1,7 @@
+* xref:1.intro.adoc[]
+* xref:2.algorithms.adoc[]
+* xref:3.dynamic-buffers.adoc[]
+* xref:4.custom-sequences.adoc[]
 * Concepts
 ** xref:concepts/ConstBufferSequence.adoc[]
 ** xref:concepts/MutableBufferSequence.adoc[]
