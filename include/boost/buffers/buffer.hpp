@@ -204,9 +204,14 @@ public:
     }
 
     /** Assignment.
+
+        @par Postconditions
+        ```
+        this->data() == other.data() && this->size() == other.size()
+        ```
     */
     const_buffer& operator=(
-        const_buffer const&) = default;
+        const_buffer const& other) = default;
 
     // conversion to boost::asio::const_buffer
     // VFALCO REMOVE
@@ -224,18 +229,13 @@ public:
         return T{ data(), size() };
     }
 
-    void const*
-    data() const noexcept
-    {
-        return p_;
-    }
+    /** Remove a prefix of the memory region
 
-    std::size_t
-    size() const noexcept
-    {
-        return n_;
-    }
+        If the requested number of bytes is larger than the current size,
+        the resulting buffer will have size 0.
 
+        @param n The number of bytes to remove.
+    */
     const_buffer&
     operator+=(std::size_t n) noexcept
     {
@@ -246,6 +246,24 @@ public:
         return *this;
     }
 
+    /** Return a constant pointer to the beginning of the memory region
+    */
+    void const*
+    data() const noexcept
+    {
+        return p_;
+    }
+
+    /** Return the number of valid bytes in the referenced memory region
+    */
+    std::size_t
+    size() const noexcept
+    {
+        return n_;
+    }
+
+    /** Remove a slice from the buffer
+    */
     friend
     void
     tag_invoke(
@@ -454,7 +472,7 @@ struct is_buffer_sequence<
 };
 
 template<class T, class B>
-struct is_buffer_sequence<T, B, void_t<typename std::enable_if<
+struct is_buffer_sequence<T, B, detail::void_t<typename std::enable_if<
     std::is_convertible<decltype(*begin(std::declval<T&>())), B>::value &&
     std::is_convertible<decltype(*end(std::declval<T&>())), B>::value &&
     detail::is_bidirectional_iterator<decltype(begin(std::declval<T&>()))>::value &&

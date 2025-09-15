@@ -27,23 +27,16 @@ struct is_dynamic_buffer : std::false_type {};
 
 template<class T>
 struct is_dynamic_buffer<
-    T, void_t<decltype(
-        std::declval<std::size_t&>() =
-            std::declval<T const&>().size()
-        ,std::declval<std::size_t&>() =
-            std::declval<T const&>().max_size()
-        ,std::declval<std::size_t&>() =
-            std::declval<T const&>().capacity()
-        ,std::declval<T&>().commit(
-            std::declval<std::size_t>())
-        ,std::declval<T&>().consume(
-            std::declval<std::size_t>())
+    T, detail::void_t<decltype(
+        std::declval<std::size_t&>() = std::declval<T const&>().size(),
+        std::declval<std::size_t&>() = std::declval<T const&>().max_size(),
+        std::declval<std::size_t&>() = std::declval<T const&>().capacity(),
+        std::declval<T&>().commit(std::declval<std::size_t>()),
+        std::declval<T&>().consume(std::declval<std::size_t>())
     )
     ,typename std::enable_if<
-        is_const_buffer_sequence<typename
-            T::const_buffers_type>::value
-        && is_mutable_buffer_sequence<typename
-            T::mutable_buffers_type>::value
+        is_const_buffer_sequence<typename T::const_buffers_type>::value &&
+        is_mutable_buffer_sequence<typename T::mutable_buffers_type>::value
         >::type
     ,typename std::enable_if<
         std::is_same<decltype(

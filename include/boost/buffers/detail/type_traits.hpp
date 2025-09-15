@@ -39,7 +39,7 @@ struct is_bidirectional_iterator : std::false_type
 };
 
 template<class T>
-struct is_bidirectional_iterator<T, void_t<
+struct is_bidirectional_iterator<T, detail::void_t<
     // ITER_TRAITS
     typename std::iterator_traits<T>::value_type,
     typename std::iterator_traits<T>::difference_type,

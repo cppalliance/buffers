@@ -108,8 +108,6 @@ Algorithms which use buffer sequences have these additional requirements:
 Buffer sequences of length two; that is, buffer sequences consisting of up to
 two separate contiguous memory regions, occur in design patterns with sufficient
 frequency that the library provides a custom implementation for representing
-them. Objects of type cpp:const_buffer_pair[] or cpp::mutable_buffer_pair[] are
+them. Objects of types cpp:const_buffer_pair[] and cpp:mutable_buffer_pair[] are
 buffer sequences of length two. These are the type of sequences returned by
-the cpp:circular_buffer[] dynamic buffer, discussed later.
-
-
+the cpp:circular_buffer[], discussed later.

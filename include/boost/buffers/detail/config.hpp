@@ -61,8 +61,10 @@ namespace buffers {
 //------------------------------------------------
 
 // avoid all of Boost.TypeTraits for just this
+namespace detail {
 template<class...> struct make_void { typedef void type; };
 template<class... Ts> using void_t = typename make_void<Ts...>::type;
+} // detail
 
 } // buffers
 } // boost

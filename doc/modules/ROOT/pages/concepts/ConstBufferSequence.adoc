@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2024 Mohammad Nejati
+// Copyright (c) 2025 Vinnie Falco
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,7 +20,7 @@ cpp:const_buffer[], cpp:is_const_buffer_sequence[], cpp:begin[], cpp:end[]
 
 == Requirements
 
-* `T` denotes a type meeting the requirements of __ConstBufferSequence__.
+* `T` denotes a type meeting the requirements of _ConstBufferSequence_.
 * `t` denotes a (possibly const) value of type `T`.
 * `u` denotes an identifier.
 * `It` is the type `decltype(buffers::begin(t))`.
@@ -34,7 +35,12 @@ cpp:const_buffer[], cpp:is_const_buffer_sequence[], cpp:begin[], cpp:end[]
 
 |`It`
 |
-|`requires std::bidirectional_iterator<It>`
+|
+Requirements
+[source,cpp]
+----
+requires std::bidirectional_iterator<It>
+----
 
 |`begin(t)`
 |`It`
@@ -47,6 +53,7 @@ cpp:const_buffer[], cpp:is_const_buffer_sequence[], cpp:begin[], cpp:end[]
 |`T u(t)`;
 |
 |
+Requirements
 [source,cpp]
 ----
 requires

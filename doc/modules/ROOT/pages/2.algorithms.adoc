@@ -66,7 +66,7 @@ The default implementation performs a straightforward summation of individual
 elements visited through iteration. The size customization point, discussed
 later, permits optimizations of the algorithm for types which can do better.
 
-== Copying Bytes
+== Copying Data
 
 To facilitate copying data between arbitrary buffer sequences, the function
 cpp:copy[] is provided, with this equivalent signature:

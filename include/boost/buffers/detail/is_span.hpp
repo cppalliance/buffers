@@ -22,7 +22,7 @@ template<class T, class = void>
 struct is_span : std::false_type {};
 
 template<class T>
-struct is_span<T, void_t<
+struct is_span<T, detail::void_t<
     decltype(std::declval<T const&>().subspan(
         std::size_t(0), std::size_t(0)))
     > > : std::true_type
