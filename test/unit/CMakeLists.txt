@@ -38,8 +38,8 @@ add_executable(boost_buffers_tests ${PFILES} ${EXTRAFILES})
 target_include_directories(boost_buffers_tests PRIVATE . ../../../url/extra/test_suite)
 target_link_libraries(
     boost_buffers_tests PRIVATE
-    boost_asio
-    boost_buffers
+    Boost::asio
+    Boost::buffers
     )
 add_test(NAME boost_buffers_tests COMMAND boost_buffers_tests)
 add_dependencies(tests boost_buffers_tests)
