@@ -473,11 +473,11 @@ struct is_buffer_sequence<
 
 template<class T, class B>
 struct is_buffer_sequence<T, B, detail::void_t<typename std::enable_if<
-    std::is_convertible<decltype(*begin(std::declval<T&>())), B>::value &&
-    std::is_convertible<decltype(*end(std::declval<T&>())), B>::value &&
-    detail::is_bidirectional_iterator<decltype(begin(std::declval<T&>()))>::value &&
-    detail::is_bidirectional_iterator<decltype(end(std::declval<T&>()))>::value &&
-    std::is_same<decltype(begin(std::declval<T&>())), decltype(end(std::declval<T&>()))>::value
+    std::is_convertible<decltype(*begin(std::declval<T const&>())), B>::value &&
+    std::is_convertible<decltype(*end(std::declval<T const&>())), B>::value &&
+    detail::is_bidirectional_iterator<decltype(begin(std::declval<T const&>()))>::value &&
+    detail::is_bidirectional_iterator<decltype(end(std::declval<T const&>()))>::value &&
+    std::is_same<decltype(begin(std::declval<T const&>())), decltype(end(std::declval<T const&>()))>::value
     >::type > >
     : std::true_type
 {

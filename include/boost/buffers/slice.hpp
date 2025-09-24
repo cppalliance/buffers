@@ -126,8 +126,9 @@ class slice_of
     // VFALCO Need to fix this
     //using iter_type = decltype(
         //std::declval<BufferSequence&>().begin());
-    using iter_type = typename
-        BufferSequence::const_iterator;
+    //using iter_type = typename
+        //BufferSequence::const_iterator;
+    using iter_type = decltype(buffers::begin(std::declval<BufferSequence const&>()));
 
     BufferSequence bs_;
     iter_type begin_;

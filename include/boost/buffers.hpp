@@ -10,6 +10,7 @@
 #ifndef BOOST_BUFFERS_HPP
 #define BOOST_BUFFERS_HPP
 
+#include <boost/buffers/any.hpp>
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/buffer_pair.hpp>
 #include <boost/buffers/circular_buffer.hpp>

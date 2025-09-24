@@ -22,6 +22,7 @@ project
 
 local SOURCES =
     test_buffers.hpp
+    any.cpp
     asio.cpp
     buffer.cpp
     buffer_pair.cpp
