@@ -133,14 +133,14 @@ struct slice_test
         {
             auto bs = bs0;
             auto pat = pat0.substr(0, pat0.size() - i);
-            trim_back(bs, i);
+            remove_suffix(bs, i);
             check(bs, pat);
         }
         // n >= size
         for(std::size_t i = 0; i < 2; ++i)
         {
             auto bs = bs0;
-            trim_back(bs, n + i);
+            remove_suffix(bs, n + i);
             BOOST_TEST_EQ(size(bs), 0);
             check(bs, "");
         }
@@ -158,7 +158,7 @@ struct slice_test
         {
             auto bs = bs0;
             auto pat = pat0.substr(i);
-            trim_front(bs, i);
+            remove_prefix(bs, i);
             check(bs, pat);
             grind_back(bs, pat);
         }
@@ -166,7 +166,7 @@ struct slice_test
         for(std::size_t i = 0; i < 2; ++i)
         {
             auto bs = bs0;
-            trim_front(bs, n + i);
+            remove_prefix(bs, n + i);
             BOOST_TEST_EQ(size(bs), 0);
             check(bs, "");
         }

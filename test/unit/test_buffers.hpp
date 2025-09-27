@@ -262,14 +262,14 @@ grind_front(
         {
             auto pat = trimmed_front(pat0, n);
             slice_type<ConstBufferSequence> bs(bs0);
-            trim_front(bs, n);
+            remove_prefix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
         }
         {
             auto pat = kept_front(pat0, n);
             slice_type<ConstBufferSequence> bs(bs0);
-            keep_front(bs, n);
+            keep_prefix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
         }
@@ -287,14 +287,14 @@ grind_back(
         {
             auto pat = trimmed_back(pat0, n);
             slice_type<ConstBufferSequence> bs(bs0);
-            trim_back(bs, n);
+            remove_suffix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
         }
         {
             auto pat = kept_back(pat0, n);
             slice_type<ConstBufferSequence> bs(bs0);
-            keep_back(bs, n);
+            keep_suffix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
         }
@@ -317,8 +317,7 @@ void
 check_sequence(
     T const& t, core::string_view pat)
 {
-    BOOST_STATIC_ASSERT(
-        is_const_buffer_sequence<T>::value);
+    BOOST_STATIC_ASSERT(is_const_buffer_sequence<T>::value);
 
     check_iterators(t, pat);
     check_slice(t, pat);

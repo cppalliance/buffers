@@ -18,32 +18,37 @@
 namespace boost {
 namespace buffers {
 
-/** Copy buffer contents
+/** Copy the contents of a buffer sequence into another buffer sequence
+
+    This function copies no more than `at_most` bytes from the constant buffer
+    sequence denoted by `src` into the mutable buffer sequence denoted by `dest`.
+
+    @par Constraints
+    @code
+    requires is_mutable_buffer_sequence_v<decltype(dest)> &&
+             is_const_buffer_sequence_v<decltype(src)>;
+    @endcode
+
+    @return The number of bytes actually copied, which will be exactly equal to
+    `std::min( size(dest), size(src), at_most )`.
+
+    @param dest The destination buffer sequence
+
+    @param src The source buffer sequence
 */
 constexpr struct
 {
     template<
         class MutableBufferSequence,
         class ConstBufferSequence>
-    std::size_t
+    auto
     operator()(
         MutableBufferSequence const& dest,
         ConstBufferSequence const& src,
-        std::size_t at_most =
-            std::size_t(-1)) const noexcept
+        std::size_t at_most = std::size_t(-1)) const noexcept -> typename std::enable_if<
+            is_mutable_buffer_sequence<MutableBufferSequence>::value &&
+            is_const_buffer_sequence<ConstBufferSequence>::value, std::size_t>::type
     {
-        // If you get a compile error here it
-        // means that one or both of your types
-        // do not meet the requirements.
-        static_assert(
-            is_mutable_buffer_sequence<
-                MutableBufferSequence>::value,
-            "Type requirements not met");
-        static_assert(
-            is_const_buffer_sequence<
-                ConstBufferSequence>::value,
-            "Type requirements not met");
-
         std::size_t total = 0;
         std::size_t pos0 = 0;
         std::size_t pos1 = 0;
@@ -56,8 +61,8 @@ constexpr struct
             it0 != end0 &&
             it1 != end1)
         {
-            auto b0 = const_buffer(*it0);
-            auto b1 = mutable_buffer(*it1);
+            const_buffer b0 = *it0;
+            mutable_buffer b1 = *it1;
             b0 += pos0;
             b1 += pos1;
             std::size_t const amount =

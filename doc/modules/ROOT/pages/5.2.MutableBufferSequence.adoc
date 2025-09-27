@@ -1,0 +1,55 @@
+//
+// Copyright (c) 2024 Mohammad Nejati
+// Copyright (c) 2025 Vinnie Falco
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= MutableBufferSequence
+
+A mutable buffer sequence represents zero or more contiguous memory regions
+as a bidirectional range whose value type is convertible to cpp:mutable_buffer[],
+or as an object which is convertible to cpp:mutable_buffer[]. All mutable buffer
+sequences are also constant buffer sequences.
+
+[source,cpp]
+----
+template< typename T >
+concept mutable_buffer_sequence =
+    std::is_convertible_v<T, mutable_buffer> || (
+        std::ranges::bidirectional_range<T> &&
+        std::is_convertible_v<std::ranges::range_value_t<T>, mutable_buffer>);
+----
+
+While the functions cpp:std::ranges::begin[] and cpp:std::ranges::end[] will
+work on bidirectional ranges, they do not handle objects which are merely
+convertible to cpp:mutable_buffer[]. To enable this use-case, the functions
+cpp:begin[`buffers::begin`] and cpp:end[`buffers::end`] must be used. These
+are always called with namespace qualification. Alternatively, the function
+cpp:single[`buffers::single`] or cpp:std::views::single[] may be used to adapt
+a cpp:mutable_buffer[] into a 1-element range.
+
+Copies of a buffer sequence must point to the same memory regions:
+
+[source,cpp]
+----
+T t(u);
+static_assert( mutable_buffer_sequence<T> );
+assert( std::equal(
+    buffers::begin(t), buffers::end(t),
+    buffers::begin(u), buffers::end(u),
+    [](mutable_buffer const& b1, mutable_buffer const& b2)
+    {
+        return b1.data() == b2.data() && b1.size() == b2.size();
+    }));
+----
+
+== Models
+
+* cpp:mutable_buffer[]
+* cpp:mutable_buffer_1[]
+* cpp:mutable_buffer_pair[]
+* cpp:slice_of[]

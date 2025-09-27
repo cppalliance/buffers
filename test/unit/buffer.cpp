@@ -8,9 +8,11 @@
 //
 
 // Test that header file is self-contained.
-#include <boost/buffers.hpp>
+#include <boost/buffers/buffer.hpp>
 
+#include <boost/buffers.hpp>
 #include <boost/core/span.hpp>
+#include <array>
 
 #include "test_buffers.hpp"
 
@@ -44,10 +46,213 @@ BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<mutable_buffer const>>::valu
 BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer const>>::value);
 BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer const>>::value);
 
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<std::array<const_buffer const, 3>>::value);
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<std::array<mutable_buffer const, 3>>::value);
+BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<std::array<const_buffer const, 3>>::value);
+BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<std::array<mutable_buffer const, 3>>::value);
+
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<const_buffer[3]>::value);
+BOOST_STATIC_ASSERT(  is_const_buffer_sequence<mutable_buffer[3]>::value);
+BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<const_buffer[3]>::value);
+BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<mutable_buffer[3]>::value);
+
+namespace {
+
+// test fixture
+template<class T>
+struct fixt;
+
+// VFALCO This is a quick hack, need to fix make_buffer
+const_buffer buf(core::string_view s) noexcept
+{
+    return const_buffer(s.data(), s.size());
+}
+
+template<>
+struct fixt<const_buffer>
+{
+    const_buffer t;
+    fixt(core::string_view pat)
+        : t(pat.data(), pat.size())
+    {
+    }
+};
+
+template<>
+struct fixt<mutable_buffer>
+{
+    char data[64];
+    mutable_buffer t;
+    fixt(core::string_view pat)
+        : t(data, pat.size())
+    {
+        BOOST_ASSERT(pat.size()<=sizeof(data));
+        pat.copy(data, pat.size());
+    }
+};
+
+template<>
+struct fixt<const_buffer_pair>
+{
+    const_buffer_pair t;
+    fixt(core::string_view pat)
+        : t({buf(pat.substr(0, 3)),
+            buf(pat.substr(3))})
+    {
+    }
+};
+
+template<>
+struct fixt<mutable_buffer_pair>
+{
+    char data[64];
+    mutable_buffer_pair t;
+    fixt(core::string_view pat)
+        : t{{{data,3}, {data+3, pat.size()-3}}}
+    {
+        BOOST_ASSERT(pat.size()>=3);
+        BOOST_ASSERT(pat.size()<=sizeof(data));
+        pat.copy(data, pat.size());
+    }
+};
+
+template<>
+struct fixt<span<const_buffer,3>>
+{
+    const_buffer a[3];
+    span<const_buffer,3> t;
+    fixt(core::string_view pat)
+        : a{ buf(pat.substr(0, 3)),
+             buf(pat.substr(3, pat.size()-8)),
+             buf(pat.substr(pat.size()-5)) }
+        , t(a)
+    {
+    }
+};
+
+template<>
+struct fixt<span<mutable_buffer,3>>
+{
+    char data[64];
+    mutable_buffer a[3];
+    span<mutable_buffer,3> t;
+    fixt(core::string_view pat)
+        : t([&]
+            {
+                a[0] = { data+0, 3 };
+                a[1] = { data+3, pat.size()-8 };
+                a[2] = { data+pat.size()-5, 5 };
+                return span<mutable_buffer,3>(a);
+            }())
+    {
+        BOOST_ASSERT(pat.size()>=8);
+        BOOST_ASSERT(pat.size()<=sizeof(data));
+        pat.copy(data, pat.size());
+    }
+};
+
+template<>
+struct fixt<std::array<const_buffer,3>>
+{
+    std::array<const_buffer,3> t;
+    fixt(core::string_view pat)
+        : t{ buf(pat.substr(0, 3)),
+             buf(pat.substr(3, pat.size()-8)),
+             buf(pat.substr(pat.size()-5)) }
+    {
+    }
+};
+
+template<>
+struct fixt<std::array<mutable_buffer,3>>
+{
+    char data[64];
+    std::array<mutable_buffer,3> t;
+    fixt(core::string_view pat)
+        : t([&]
+            {
+                return std::array<mutable_buffer,3>{{
+                    { data+0, 3 },
+                    { data+3, pat.size()-8 },
+                    { data+pat.size()-5, 5 }}};
+            }())
+    {
+        BOOST_ASSERT(pat.size()>=8);
+        BOOST_ASSERT(pat.size()<=sizeof(data));
+        pat.copy(data, pat.size());
+    }
+};
+
+template<>
+struct fixt<const_buffer[3]>
+{
+    const_buffer t[3];
+    fixt(core::string_view pat)
+        : t{ buf(pat.substr(0, 3)),
+             buf(pat.substr(3, pat.size()-8)),
+             buf(pat.substr(pat.size()-5)) }
+    {
+    }
+};
+
+template<>
+struct fixt<mutable_buffer[3]>
+{
+    char data[64];
+    mutable_buffer t[3];
+    fixt(core::string_view pat)
+        : t{ { data+0, 3 },
+             { data+3, pat.size()-8 },
+             { data+pat.size()-5, 5 }}
+    {
+        BOOST_ASSERT(pat.size()>=8);
+        BOOST_ASSERT(pat.size()<=sizeof(data));
+        pat.copy(data, pat.size());
+    }
+};
+
+} // (anon)
+
 struct buffer_test
 {
-    void
-    testConstBuffer()
+    template<class T>
+    void testBuffer()
+    {
+        core::string_view pat = "0123456789abcdef";
+
+        // size()
+        {
+            fixt<T> f(pat);
+            BOOST_TEST_EQ(size(f.t), pat.size());
+        }
+
+        // copy()
+        {
+            char data[64];
+            mutable_buffer mb(data, sizeof(data));
+            fixt<T> f(pat);
+            keep_prefix(mb, copy(mb, f.t));
+            BOOST_TEST_EQ(test::make_string(mb), pat);
+        }
+    }
+
+    void testBuffers()
+    {
+        testBuffer<const_buffer>();
+        testBuffer<mutable_buffer>();
+        testBuffer<const_buffer_pair>();
+        testBuffer<mutable_buffer_pair>();
+        testBuffer<span<const_buffer,3>>();
+        testBuffer<span<mutable_buffer,3>>();
+        testBuffer<std::array<const_buffer,3>>();
+        testBuffer<std::array<mutable_buffer,3>>();
+        testBuffer<const_buffer[3]>();
+        testBuffer<mutable_buffer[3]>();
+    }
+
+    //--------------------------------------------
+
+    void testConstBuffer()
     {
         // const_buffer()
         BOOST_TEST_EQ(const_buffer().size(), 0);
@@ -88,13 +293,6 @@ struct buffer_test
             BOOST_TEST_EQ(b.size(), 5);
         }
 
-        // buffer sequence
-        {
-            auto const& pat = test_pattern();
-            const_buffer cb(&pat[0], pat.size());
-            test::check_sequence(cb, pat);
-        }
-
         // boost::span
         {
             const_buffer b[3] = {
@@ -109,8 +307,8 @@ struct buffer_test
         // std::span
         {
         #if HAVE_STD_SPAN
-            BOOST_STATIC_ASSERT(is_const_buffer_sequence<
-                std::span<const_buffer const>>::value);
+            BOOST_STATIC_ASSERT(is_const_buffer_sequence_v<
+                std::span<const_buffer const>>);
             const_buffer b[3] = {
                 const_buffer("123", 3),
                 const_buffer("456", 3),
@@ -122,8 +320,7 @@ struct buffer_test
         }
     }
 
-    void
-    testMutableBuffer()
+    void testMutableBuffer()
     {
         // mutable_buffer()
         BOOST_TEST_EQ(mutable_buffer().size(), 0);
@@ -163,13 +360,6 @@ struct buffer_test
             BOOST_TEST_EQ(b.size(), 5);
         }
 
-        // buffer sequence
-        {
-            std::string pat = test_pattern();
-            mutable_buffer cb(&pat[0], pat.size());
-            test::check_sequence(cb, pat);
-        }
-
         // boost::span
         {
             char c[10] = "123456789";
@@ -185,8 +375,8 @@ struct buffer_test
         // std::span
         {
         #if HAVE_STD_SPAN
-            BOOST_STATIC_ASSERT(is_const_buffer_sequence<
-                std::span<const_buffer const>>::value);
+            BOOST_STATIC_ASSERT(is_const_buffer_sequence_v<
+                std::span<const_buffer const>>);
             const_buffer b[3] = {
                 const_buffer("123", 3),
                 const_buffer("456", 3),
@@ -198,8 +388,7 @@ struct buffer_test
         }
     }
 
-    void
-    testSize()
+    void testSize()
     {
         char data[9];
         for(std::size_t i = 0; i < 3; ++i)
@@ -217,9 +406,9 @@ struct buffer_test
         }
     }
 
-    void
-    run()
+    void run()
     {
+        testBuffers();
         testConstBuffer();
         testMutableBuffer();
         testSize();
@@ -232,3 +421,16 @@ TEST_SUITE(
 
 } // buffers
 } // boost
+
+#if 0
+const_buffer
+mutable_buffer
+const_buffer_pair
+mutable_buffer_pair
+span<const_buffer,3>
+span<mutable_buffer,3>
+std::array<const_buffer,3>
+std::array<mutable_buffer,3>
+const_buffer[3]
+mutable_buffer[3]
+#endif

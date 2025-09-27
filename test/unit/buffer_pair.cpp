@@ -38,10 +38,9 @@ struct buffer_pair_test
             for(std::size_t i = 0;
                 i <= pat.size(); ++i)
             {
-                const_buffer_pair cb0(
+                const_buffer_pair cb0({{
                     { &pat[0], i },
-                    { &pat[i],
-                        pat.size() - i });
+                    { &pat[i], pat.size() - i }}});
                 const_buffer_pair cb1(cb0);
                 BOOST_TEST_EQ(
                     test::make_string(cb0), pat);
@@ -61,35 +60,14 @@ struct buffer_pair_test
             }
         }
 
-        // const_buffer_pair(
-        //  mutable_buffer_pair)
-        {
-            for(std::size_t i = 0;
-                i <= pat.size(); ++i)
-            {
-                auto s = pat;
-                mutable_buffer_pair b(
-                    { &s[0], i },
-                    { &s[i],
-                        s.size() - i });
-                const_buffer_pair cb(b);
-                BOOST_TEST_EQ(
-                    test::make_string(cb), pat);
-                BOOST_TEST_EQ(
-                    test::make_string(cb),
-                    test::make_string(b));
-            }
-        }
-
         // operator=(const_buffer_pair const&)
         {
             for(std::size_t i = 0;
                 i <= pat.size(); ++i)
             {
-                const_buffer_pair cb0(
+                const_buffer_pair cb0({{
                     { &pat[0], i },
-                    { &pat[i],
-                        pat.size() - i });
+                    { &pat[i], pat.size() - i }}});
                 const_buffer_pair cb1;
                 cb1 = cb0;
                 BOOST_TEST_EQ(
@@ -100,33 +78,13 @@ struct buffer_pair_test
             }
         }
 
-        // operator=(mutable_buffer_pair const&)
         {
             for(std::size_t i = 0;
                 i <= pat.size(); ++i)
             {
-                auto s = pat;
-                mutable_buffer_pair b(
-                    { &s[0], i },
-                    { &s[i],
-                        s.size() - i });
-                const_buffer_pair cb;
-                cb = b;
-                BOOST_TEST_EQ(
-                    test::make_string(cb), pat);
-                BOOST_TEST_EQ(
-                    test::make_string(cb),
-                    test::make_string(b));
-            }
-        }
-        {
-            for(std::size_t i = 0;
-                i <= pat.size(); ++i)
-            {
-                const_buffer_pair cb(
+                const_buffer_pair cb({{
                     { &pat[0], i },
-                    { &pat[i],
-                        pat.size() - i });
+                    { &pat[i], pat.size() - i }}});
                 test::check_sequence(cb, pat);
             }
         }
@@ -152,10 +110,9 @@ struct buffer_pair_test
             for(std::size_t i = 0;
                 i <= pat.size(); ++i)
             {
-                mutable_buffer_pair mb0(
+                mutable_buffer_pair mb0({{
                     { &pat[0], i },
-                    { &pat[i],
-                        pat.size() - i });
+                    { &pat[i], pat.size() - i }}});
                 mutable_buffer_pair mb1(mb0);
                 BOOST_TEST_EQ(
                     test::make_string(mb0), pat);
@@ -180,10 +137,9 @@ struct buffer_pair_test
             for(std::size_t i = 0;
                 i <= pat.size(); ++i)
             {
-                mutable_buffer_pair mb0(
+                mutable_buffer_pair mb0({{
                     { &pat[0], i },
-                    { &pat[i],
-                        pat.size() - i });
+                    { &pat[i], pat.size() - i }}});
                 mutable_buffer_pair mb1;
                 mb1 = mb0;
                 BOOST_TEST_EQ(
@@ -200,10 +156,9 @@ struct buffer_pair_test
                 i <= pat.size(); ++i)
             {
                 auto s = pat;
-                mutable_buffer_pair b(
+                mutable_buffer_pair b({{
                     { &s[0], i },
-                    { &s[i],
-                        s.size() - i });
+                    { &s[i], s.size() - i }}});
                 mutable_buffer_pair mb;
                 mb = b;
                 BOOST_TEST_EQ(
@@ -218,10 +173,9 @@ struct buffer_pair_test
             for(std::size_t i = 0;
                 i <= pat.size(); ++i)
             {
-                mutable_buffer_pair cb(
+                mutable_buffer_pair cb({{
                     { &pat[0], i },
-                    { &pat[i],
-                        pat.size() - i });
+                    { &pat[i], pat.size() - i }}});
                 test::check_sequence(cb, pat);
             }
         }

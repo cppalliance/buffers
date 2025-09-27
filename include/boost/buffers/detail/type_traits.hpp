@@ -50,7 +50,8 @@ struct is_bidirectional_iterator<T, detail::void_t<
     typename std::enable_if<
 
     // std::input_iterator
-    std::is_same<decltype(*std::declval<T&>()), typename std::iterator_traits<T>::reference>::value &&
+    std::is_same<decltype(*std::declval<T const&>()),
+        typename std::iterator_traits<T>::reference>::value &&
 
     // std::forward_iterator
     std::is_destructible<T>::value &&

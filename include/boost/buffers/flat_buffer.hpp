@@ -99,9 +99,8 @@ public:
     const_buffers_type
     data() const noexcept
     {
-        return {
-            data_ + in_pos_,
-            in_size_ };
+        return const_buffers_type(
+            data_ + in_pos_, in_size_);
     }
 
     mutable_buffers_type
@@ -112,8 +111,8 @@ public:
             detail::throw_invalid_argument();
 
         out_size_ = n;
-        return { data_ +
-            in_pos_ + in_size_, n };
+        return mutable_buffers_type(
+            data_ + in_pos_ + in_size_, n);
     }
 
     void

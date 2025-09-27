@@ -12,188 +12,34 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
-#include <boost/assert.hpp>
+#include <array>
 
 namespace boost {
 namespace buffers {
 
-/** A mutable buffer pair
-*/
-class mutable_buffer_pair
-{
-public:
-    using value_type = mutable_buffer;
-
-    using const_iterator = value_type const*;
-
-    /** Constructor.
-    */
-    mutable_buffer_pair() = default;
-
-    /** Constructor.
-    */
-    mutable_buffer_pair(
-        mutable_buffer_pair const&) = default;
-
-    /** Constructor.
-    */
-    mutable_buffer_pair(
-        mutable_buffer const& b0,
-        mutable_buffer const& b1) noexcept
-        : b_{ b0, b1 }
-    {
-    }
-
-    /** Assignment.
-    */
-    mutable_buffer_pair& operator=(
-        mutable_buffer_pair const&) = default;
-
-    mutable_buffer const&
-    operator[](unsigned i) const noexcept
-    {
-        BOOST_ASSERT(i < 2);
-        return b_[i];
-    }
-
-    mutable_buffer&
-    operator[](unsigned i) noexcept
-    {
-        BOOST_ASSERT(i < 2);
-        return b_[i];
-    }
-
-    const_iterator
-    begin() const noexcept
-    {
-        return b_;
-    }
-
-    const_iterator
-    end() const noexcept
-    {
-        return b_ + 2;
-    }
-
-    friend
-    void
-    tag_invoke(
-        slice_tag const&,
-        mutable_buffer_pair& b,
-        slice_how how,
-        std::size_t n) noexcept
-    {
-        b.slice_impl(how, n);
-    }
-
-private:
-    BOOST_BUFFERS_DECL
-    void
-    slice_impl(
-        slice_how,
-        std::size_t n) noexcept;
-
-    mutable_buffer b_[2];
-};
-
-//------------------------------------------------
-
 /** A constant buffer pair
 */
-class const_buffer_pair
-{
-public:
-    using value_type = const_buffer;
+using const_buffer_pair = std::array<const_buffer,2>;
 
-    using const_iterator = value_type const*;
+BOOST_BUFFERS_DECL
+void
+tag_invoke(
+    slice_tag const&,
+    const_buffer_pair& bs,
+    slice_how how,
+    std::size_t n) noexcept;
 
-    /** Constructor.
-    */
-    const_buffer_pair() = default;
+/** A mutable buffer pair
+*/
+using mutable_buffer_pair = std::array<mutable_buffer,2>;
 
-    /** Constructor.
-    */
-    const_buffer_pair(
-        const_buffer_pair const&) = default;
-
-    /** Constructor.
-    */
-    const_buffer_pair(
-        const_buffer const& b0,
-        const_buffer const& b1) noexcept
-        : b_{ b0, b1 }
-    {
-    }
-
-    /** Constructor.
-    */
-    const_buffer_pair(
-        mutable_buffer_pair const& bs) noexcept
-        : b_{ bs.begin()[0], bs.begin()[1] }
-    {
-    }
-
-    /** Assignment.
-    */
-    const_buffer_pair& operator=(
-        const_buffer_pair const&) = default;
-
-    /** Assignment.
-    */
-    const_buffer_pair& operator=(
-        mutable_buffer_pair const& other) noexcept
-    {
-        b_[0] = other.begin()[0];
-        b_[1] = other.begin()[1];
-        return *this;
-    }
-
-    const_buffer const&
-    operator[](unsigned i) const noexcept
-    {
-        BOOST_ASSERT(i < 2);
-        return b_[i];
-    }
-
-    const_buffer&
-    operator[](unsigned i) noexcept
-    {
-        BOOST_ASSERT(i < 2);
-        return b_[i];
-    }
-
-    const_iterator
-    begin() const noexcept
-    {
-        return b_;
-    }
-
-    const_iterator
-    end() const noexcept
-    {
-        return b_ + 2;
-    }
-
-    friend
-    void
-    tag_invoke(
-        slice_tag const&,
-        const_buffer_pair& b,
-        slice_how how,
-        std::size_t n) noexcept
-    {
-        b.slice_impl(how, n);
-    }
-
-private:
-    BOOST_BUFFERS_DECL
-    void
-    slice_impl(
-        slice_how,
-        std::size_t n) noexcept;
-
-    const_buffer b_[2];
-};
+BOOST_BUFFERS_DECL
+void
+tag_invoke(
+    slice_tag const&,
+    mutable_buffer_pair& bs,
+    slice_how how,
+    std::size_t n) noexcept;
 
 } // buffers
 } // boost

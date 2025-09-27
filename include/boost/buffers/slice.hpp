@@ -14,6 +14,7 @@
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/range.hpp>
 #include <boost/assert.hpp>
+#include <array>
 #include <iterator>
 #include <type_traits>
 
@@ -44,78 +45,6 @@ using slice_type = typename std::conditional<
     detail::has_tag_invoke<T>::value,
     T, slice_of<T> >::type;
 
-/** Remove from the front of a buffer sequence
-*/
-constexpr struct
-{
-    template<
-        class BufferSequence,
-        class = typename std::enable_if<
-            detail::has_tag_invoke<BufferSequence>::value>::type
-    >
-    void operator()(
-        BufferSequence& bs,
-        std::size_t n) const
-    {
-        tag_invoke(slice_tag{}, bs,
-            slice_how::trim_front, n);
-    }
-} const trim_front{};
-
-/** Remove from the back from a buffer sequence
-*/
-constexpr struct
-{
-    template<
-        class BufferSequence,
-        class = typename std::enable_if<
-            detail::has_tag_invoke<BufferSequence>::value>::type
-    >
-    void operator()(
-        BufferSequence& bs,
-        std::size_t n) const
-    {
-        tag_invoke(slice_tag{}, bs,
-            slice_how::trim_back, n);
-    }
-} const trim_back{};
-
-/** Remove all but the front from a buffer sequence
-*/
-constexpr struct
-{
-    template<
-        class BufferSequence,
-        class = typename std::enable_if<
-            detail::has_tag_invoke<BufferSequence>::value>::type
-    >
-    void operator()(
-        BufferSequence& bs,
-        std::size_t n) const
-    {
-        tag_invoke(slice_tag{}, bs,
-            slice_how::keep_front, n);
-    }
-} const keep_front{};
-
-/** Remove all but the back from a buffer sequence
-*/
-constexpr struct
-{
-    template<
-        class BufferSequence,
-        class = typename std::enable_if<
-            detail::has_tag_invoke<BufferSequence>::value>::type
-    >
-    void operator()(
-        BufferSequence& bs,
-        std::size_t n) const
-    {
-        tag_invoke(slice_tag{}, bs,
-            slice_how::keep_back, n);
-    }
-} const keep_back{};
-
 //------------------------------------------------
 
 /** A wrapper enabling a buffer sequence to be consumed
@@ -123,11 +52,17 @@ constexpr struct
 template<class BufferSequence>
 class slice_of
 {
-    // VFALCO Need to fix this
-    //using iter_type = decltype(
-        //std::declval<BufferSequence&>().begin());
-    using iter_type = typename
-        BufferSequence::const_iterator;
+    static_assert(! std::is_const<BufferSequence>::value,
+        "BufferSequence can't be const");
+
+    static_assert(! std::is_reference<BufferSequence>::value,
+        "BufferSequence can't be a reference");
+
+    static_assert(is_const_buffer_sequence<BufferSequence>::value,
+        "BufferSequence does not meet type requirements");
+
+    using iter_type = decltype(
+        std::declval<BufferSequence const&>().begin());
 
     BufferSequence bs_;
     iter_type begin_;
@@ -136,13 +71,6 @@ class slice_of
     std::size_t size_ = 0;      // total bytes
     std::size_t prefix_ = 0;    // used prefix bytes
     std::size_t suffix_ = 0;    // used suffix bytes
-
-    // If you get a compile error here it
-    // means that your type does not meet
-    // the requirements.
-    static_assert(
-        is_const_buffer_sequence<BufferSequence>::value,
-        "Type requirements not met.");
 
 public:
     /** The type of values returned by iterators
@@ -200,7 +128,7 @@ public:
 
 private:
     void
-    trim_front(
+    remove_prefix_impl(
         std::size_t n)
     {
         // nice hack to simplify the loop (M. Nejati)
@@ -225,7 +153,7 @@ private:
     }
 
     void
-    trim_back(
+    remove_suffix_impl(
         std::size_t n)
     {
         if(size_ == 0)
@@ -267,7 +195,7 @@ private:
     }
 
     void
-    keep_front(
+    keep_prefix_impl(
         std::size_t n)
     {
         if(n >= size_)
@@ -279,11 +207,11 @@ private:
             size_ = 0;
             return;
         }
-        trim_back(size_ - n);
+        remove_suffix_impl(size_ - n);
     }
 
     void
-    keep_back(
+    keep_suffix_impl(
         std::size_t n)
     {
         if(n >= size_)
@@ -295,7 +223,7 @@ private:
             size_ = 0;
             return;
         }
-        trim_front(size_ - n);
+        remove_prefix_impl(size_ - n);
     }
 
     void
@@ -305,24 +233,14 @@ private:
     {
         switch(how)
         {
-        case slice_how::trim_front:
+        case slice_how::remove_prefix:
         {
-            trim_front(n);
+            remove_prefix_impl(n);
             break;
         }
-        case slice_how::trim_back:
+        case slice_how::keep_prefix:
         {
-            trim_back(n);
-            break;
-        }
-        case slice_how::keep_front:
-        {
-            keep_front(n);
-            break;
-        }
-        case slice_how::keep_back:
-        {
-            keep_back(n);
+            keep_prefix_impl(n);
             break;
         }
         }
@@ -470,6 +388,154 @@ end() const noexcept ->
     return const_iterator(
         this->end_, prefix_, suffix_, len_, len_);
 }
+
+//------------------------------------------------
+
+// in-place modify  return value
+// -----------------------------
+// keep_prefix*     prefix
+// keep_suffix      suffix
+// remove_prefix*   sans_prefix
+// remove_suffix    sans_suffix
+
+/** Remove all but the first `n` bytes from a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence& bs,
+        std::size_t n) const -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value &&
+            detail::has_tag_invoke<BufferSequence>::value>::type
+
+    {
+        tag_invoke(slice_tag{}, bs, slice_how::keep_prefix, n);
+    }
+} const keep_prefix{};
+
+/** Remove all but the last `n` bytes from a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence& bs,
+        std::size_t n) const -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value &&
+            detail::has_tag_invoke<BufferSequence>::value>::type
+    {
+        auto n0 = size(bs);
+        if(n < n0)
+            tag_invoke(slice_tag{}, bs, slice_how::remove_prefix, n0 - n);
+    }
+} const keep_suffix{};
+
+/** Remove `n` bytes from the beginning of a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence& bs,
+        std::size_t n) const -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value &&
+            detail::has_tag_invoke<BufferSequence>::value>::type
+    {
+        tag_invoke(slice_tag{}, bs, slice_how::remove_prefix, n);
+    }
+} const remove_prefix{};
+
+/** Remove `n` bytes from the end of a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence& bs,
+        std::size_t n) const -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value &&
+            detail::has_tag_invoke<BufferSequence>::value>::type
+    {
+        auto n0 = size(bs);
+        if(n > 0)
+        {
+            if( n > n0)
+                n = n0;
+            tag_invoke(slice_tag{}, bs, slice_how::keep_prefix, n0 - n);
+        }
+    }
+} const remove_suffix{};
+
+//------------------------------------------------
+
+/** Return a sequence representing the first `n` bytes of a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence const& bs,
+        std::size_t n) const noexcept -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value,
+            slice_type<BufferSequence>>::type
+    {
+        slice_type<BufferSequence> result(bs);
+        keep_prefix(result, n);
+        return result;
+    }
+} prefix{};
+
+/** Return a sequence representing the last `n` bytes of a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence const& bs,
+        std::size_t n) const noexcept -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value,
+            slice_type<BufferSequence>>::type
+    {
+        slice_type<BufferSequence> result(bs);
+        keep_suffix(result, n);
+        return result;
+    }
+} suffix{};
+
+/** Return a sequence representing all but the first `n` bytes of a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence const& bs,
+        std::size_t n) const noexcept -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value,
+            slice_type<BufferSequence>>::type
+    {
+        slice_type<BufferSequence> result(bs);
+        remove_prefix(result, n);
+        return result;
+    }
+} sans_prefix{};
+
+/** Return a sequence representing all but the last `n` bytes of a buffer sequence
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence const& bs,
+        std::size_t n) const noexcept -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value,
+            slice_type<BufferSequence>>::type
+    {
+        slice_type<BufferSequence> result(bs);
+        remove_suffix(result, n);
+        return result;
+    }
+} sans_suffix{};
 
 } // buffers
 } // boost

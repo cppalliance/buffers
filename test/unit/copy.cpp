@@ -34,18 +34,14 @@ struct buffer_copy_test
                 for(std::size_t k = 0;
                     k < N + 2; ++k)
                 {
-                    const_buffer_pair p0(
-                        const_buffer(
-                            s.data(), i),
-                        const_buffer(
-                            s.data() + i, N - i));
+                    const_buffer_pair p0({
+                        const_buffer(s.data(), i),
+                        const_buffer(s.data() + i, N - i)});
                     char tmp[13];
                     std::memset(tmp, 0, sizeof(tmp));
-                    mutable_buffer_pair p1(
-                        mutable_buffer(
-                            tmp, j),
-                        mutable_buffer(
-                            tmp + j, N - j));
+                    mutable_buffer_pair p1({
+                        mutable_buffer(tmp, j),
+                        mutable_buffer(tmp + j, N - j)});
                     auto const n = copy(
                         p1, p0, k);
                     BOOST_TEST_LE(n, N);

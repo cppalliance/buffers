@@ -3,7 +3,7 @@
 * xref:3.dynamic-buffers.adoc[]
 * xref:4.custom-sequences.adoc[]
 * Concepts
-** xref:concepts/ConstBufferSequence.adoc[]
-** xref:concepts/MutableBufferSequence.adoc[]
-** xref:concepts/DynamicBuffer.adoc[]
+** xref:5.1.ConstBufferSequence.adoc[]
+** xref:5.2.MutableBufferSequence.adoc[]
+** xref:5.3.DynamicBuffer.adoc[]
 * xref:reference:boost/buffers.adoc[Reference]

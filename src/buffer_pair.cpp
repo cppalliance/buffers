@@ -14,141 +14,86 @@ namespace boost {
 namespace buffers {
 
 void
-mutable_buffer_pair::
-slice_impl(
+tag_invoke(
+    slice_tag const&,
+    const_buffer_pair& bs,
     slice_how how,
     std::size_t n) noexcept
 {
     switch(how)
     {
-    case slice_how::trim_front:
+    case slice_how::remove_prefix:
     {
-        auto p = &b_[0];
+        auto p = &bs[0];
         if(n < p->size())
         {
-            trim_front(*p, n);
+            remove_prefix(*p, n);
             return;
         }
         n -= p->size();
-        *p = b_[1];
-        b_[1] = {};
-        trim_front(*p, n);
+        *p = bs[1];
+        bs[1] = {};
+        remove_prefix(*p, n);
         return;
     }
 
-    case slice_how::trim_back:
+    case slice_how::keep_prefix:
     {
-        auto p = &b_[1];
-        if(n < p->size())
-        {
-            trim_back(*p, n);
-            return;
-        }
-        n -= p->size();
-        *p-- = {};
-        trim_back(*p, n);
-        return;
-    }
-
-    case slice_how::keep_front:
-    {
-        auto p = &b_[0];
+        auto p = &bs[0];
         if(n <= p->size())
         {
-            keep_front(*p, n);
-            b_[1] = {};
+            keep_prefix(*p, n);
+            bs[1] = {};
             return;
         }
         n -= p->size();
         ++p;
-        keep_front(*p, n);
-        return;
-    }
-
-    case slice_how::keep_back:
-    {
-        auto p = &b_[1];
-        if(n <= p->size())
-        {
-            b_[0] = *p;
-            b_[1] = {};
-            keep_back(*--p, n);
-            return;
-        }
-        n -= p->size();
-        keep_back(*--p, n);
+        keep_prefix(*p, n);
         return;
     }
     }
 }
 
 void
-const_buffer_pair::
-slice_impl(
+tag_invoke(
+    slice_tag const&,
+    mutable_buffer_pair& bs,
     slice_how how,
     std::size_t n) noexcept
 {
     switch(how)
     {
-    case slice_how::trim_front:
+    case slice_how::remove_prefix:
     {
-        auto p = &b_[0];
+        auto p = &bs[0];
         if(n < p->size())
         {
-            trim_front(*p, n);
+            remove_prefix(*p, n);
             return;
         }
         n -= p->size();
-        *p = b_[1];
-        b_[1] = {};
-        trim_front(*p, n);
+        *p = bs[1];
+        bs[1] = {};
+        remove_prefix(*p, n);
         return;
     }
 
-    case slice_how::trim_back:
+    case slice_how::keep_prefix:
     {
-        auto p = &b_[1];
-        if(n < p->size())
-        {
-            trim_back(*p, n);
-            return;
-        }
-        n -= p->size();
-        *p-- = {};
-        trim_back(*p, n);
-        return;
-    }
-
-    case slice_how::keep_front:
-    {
-        auto p = &b_[0];
+        auto p = &bs[0];
         if(n <= p->size())
         {
-            keep_front(*p, n);
-            b_[1] = {};
+            keep_prefix(*p, n);
+            bs[1] = {};
             return;
         }
         n -= p->size();
         ++p;
-        keep_front(*p, n);
-        return;
-    }
-
-    case slice_how::keep_back:
-    {
-        auto p = &b_[1];
-        if(n <= p->size())
-        {
-            b_[0] = *p;
-            b_[1] = {};
-            keep_back(*--p, n);
-            return;
-        }
-        n -= p->size();
-        keep_back(*--p, n);
+        keep_prefix(*p, n);
         return;
     }
     }
 }
+
 } // buffers
 } // boost
