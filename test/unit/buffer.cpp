@@ -96,8 +96,7 @@ struct fixt<const_buffer_pair>
 {
     const_buffer_pair t;
     fixt(core::string_view pat)
-        : t({buf(pat.substr(0, 3)),
-            buf(pat.substr(3))})
+        : t{{ {buf(pat.substr(0, 3))}, {buf(pat.substr(3))} }}
     {
     }
 };
@@ -156,9 +155,9 @@ struct fixt<std::array<const_buffer,3>>
 {
     std::array<const_buffer,3> t;
     fixt(core::string_view pat)
-        : t{ buf(pat.substr(0, 3)),
-             buf(pat.substr(3, pat.size()-8)),
-             buf(pat.substr(pat.size()-5)) }
+        : t{{ buf(pat.substr(0, 3)),
+              buf(pat.substr(3, pat.size()-8)),
+              buf(pat.substr(pat.size()-5)) }}
     {
     }
 };

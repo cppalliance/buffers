@@ -21,15 +21,12 @@ data() const noexcept ->
     const_buffers_type
 {
     if(in_pos_ + in_len_ <= cap_)
-        return {
-            const_buffer{
-                base_ + in_pos_, in_len_ },
-            const_buffer{ base_, 0} };
-    return {
-        const_buffer{
-            base_ + in_pos_, cap_ - in_pos_},
-        const_buffer{
-            base_, in_len_- (cap_ - in_pos_)}};
+        return {{
+            const_buffer{ base_ + in_pos_, in_len_ },
+            const_buffer{ base_, 0} }};
+    return {{
+        const_buffer{ base_ + in_pos_, cap_ - in_pos_},
+        const_buffer{ base_, in_len_- (cap_ - in_pos_)} }};
 }
 
 auto
@@ -45,15 +42,12 @@ prepare(std::size_t n) ->
     auto const pos = (
         in_pos_ + in_len_) % cap_;
     if(pos + n <= cap_)
-        return {
-            mutable_buffer{
-                base_ + pos, n},
-            mutable_buffer{base_, 0}};
-    return {
-        mutable_buffer{
-            base_ + pos, cap_ - pos},
-        mutable_buffer{
-            base_, n - (cap_ - pos)}};
+        return {{
+            mutable_buffer{ base_ + pos, n },
+            mutable_buffer{ base_, 0 } }};
+    return {{
+        mutable_buffer{ base_ + pos, cap_ - pos },
+        mutable_buffer{ base_, n - (cap_ - pos) } }};
 }
 
 void
