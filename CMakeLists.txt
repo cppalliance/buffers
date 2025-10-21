@@ -54,8 +54,10 @@ set(BOOST_SRC_DIR ${DEFAULT_BOOST_SRC_DIR} CACHE STRING "Boost source dir to use
 #-------------------------------------------------
 # The boost super-project requires one explicit dependency per-line.
 set(BOOST_BUFFERS_DEPENDENCIES
+    Boost::assert
+    Boost::config
     Boost::core
-    )
+    Boost::throw_exception)
 
 foreach (BOOST_BUFFERS_DEPENDENCY ${BOOST_BUFFERS_DEPENDENCIES})
     if (BOOST_BUFFERS_DEPENDENCY MATCHES "^[ ]*Boost::([A-Za-z0-9_]+)[ ]*$")

@@ -10,7 +10,6 @@
 #include <boost/buffers/circular_buffer.hpp>
 #include <boost/buffers/detail/except.hpp>
 #include <boost/assert.hpp>
-#include <boost/static_assert.hpp>
 
 namespace boost {
 namespace buffers {
