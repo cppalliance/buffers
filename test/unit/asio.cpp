@@ -8,9 +8,14 @@
 //
 
 #include <boost/buffers/buffer.hpp>
+#include <boost/buffers/buffer_pair.hpp>
+#include <boost/buffers/circular_buffer.hpp>
+#include <boost/buffers/copy.hpp>
+#include <boost/buffers/dynamic_buffer.hpp>
+#include <boost/buffers/flat_buffer.hpp>
 #include <boost/core/span.hpp>
 #include <boost/asio/buffer.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/core/detail/static_assert.hpp>
 
 #include <type_traits>
 
@@ -23,46 +28,76 @@ namespace buffers {
 // sequences and our buffer sequences are interoperable
 
 // our buffer is convertible to asio buffer
-BOOST_STATIC_ASSERT(  std::is_convertible<const_buffer,   asio::const_buffer>::value);
-BOOST_STATIC_ASSERT(! std::is_convertible<const_buffer,   asio::mutable_buffer>::value);
-BOOST_STATIC_ASSERT(  std::is_convertible<mutable_buffer, asio::const_buffer>::value);
-BOOST_STATIC_ASSERT(  std::is_convertible<mutable_buffer, asio::mutable_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  std::is_convertible<const_buffer,   asio::const_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(! std::is_convertible<const_buffer,   asio::mutable_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  std::is_convertible<mutable_buffer, asio::const_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  std::is_convertible<mutable_buffer, asio::mutable_buffer>::value);
 
 // asio buffer is convertible to our buffer
-//BOOST_STATIC_ASSERT(  std::is_convertible<asio::const_buffer,   const_buffer>::value);
-//BOOST_STATIC_ASSERT(! std::is_convertible<asio::const_buffer,   mutable_buffer>::value);
-//BOOST_STATIC_ASSERT(  std::is_convertible<asio::mutable_buffer, const_buffer>::value);
-//BOOST_STATIC_ASSERT(  std::is_convertible<asio::mutable_buffer, mutable_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  std::is_convertible<asio::const_buffer,   const_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(! std::is_convertible<asio::const_buffer,   mutable_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  std::is_convertible<asio::mutable_buffer, const_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  std::is_convertible<asio::mutable_buffer, mutable_buffer>::value);
 
 // span of asio buffer is an asio sequence
-BOOST_STATIC_ASSERT(  asio::is_const_buffer_sequence<  span<asio::const_buffer>>::value);
-BOOST_STATIC_ASSERT(  asio::is_const_buffer_sequence<  span<asio::mutable_buffer>>::value);
-BOOST_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<asio::const_buffer>>::value);
-BOOST_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<asio::mutable_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<  span<asio::const_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<  span<asio::mutable_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<asio::const_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<asio::mutable_buffer>>::value);
 
 // span of our buffer is an asio sequence
-BOOST_STATIC_ASSERT(  asio::is_const_buffer_sequence<span<const_buffer>>::value);
-BOOST_STATIC_ASSERT(  asio::is_const_buffer_sequence<span<mutable_buffer>>::value);
-BOOST_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<const_buffer>>::value);
-BOOST_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<mutable_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<span<const_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<span<mutable_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<const_buffer>>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<mutable_buffer>>::value);
 
 // span of asio buffer is our sequence
-//BOOST_STATIC_ASSERT(  is_const_buffer_sequence<  span<asio::const_buffer const>>::value);
-//BOOST_STATIC_ASSERT(  is_const_buffer_sequence<  span<asio::mutable_buffer const>>::value);
-//BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<span<asio::const_buffer const>>::value);
-//BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<span<asio::mutable_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<asio::const_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<asio::mutable_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(! is_mutable_buffer_sequence<span<asio::const_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(  is_mutable_buffer_sequence<span<asio::mutable_buffer const>>::value);
 
 // span of our buffer is our sequence
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<  span<const_buffer const>>::value);
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<  span<mutable_buffer const>>::value);
-BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer const>>::value);
-BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<const_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<mutable_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer const>>::value);
+BOOST_CORE_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer const>>::value);
+
+// satisfy asio metafunctions
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   const_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   const_buffer_pair>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   circular_buffer::const_buffers_type>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   flat_buffer::const_buffers_type>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   mutable_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   mutable_buffer_pair>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   circular_buffer::mutable_buffers_type>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   flat_buffer::mutable_buffers_type>::value);
+BOOST_CORE_STATIC_ASSERT(! asio::is_mutable_buffer_sequence< const_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(! asio::is_mutable_buffer_sequence< const_buffer_pair>::value);
+BOOST_CORE_STATIC_ASSERT(! asio::is_mutable_buffer_sequence< circular_buffer::const_buffers_type>::value);
+BOOST_CORE_STATIC_ASSERT(! asio::is_mutable_buffer_sequence< flat_buffer::const_buffers_type>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_mutable_buffer_sequence< mutable_buffer>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_mutable_buffer_sequence< mutable_buffer_pair>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_mutable_buffer_sequence< circular_buffer::mutable_buffers_type>::value);
+BOOST_CORE_STATIC_ASSERT(  asio::is_mutable_buffer_sequence< flat_buffer::mutable_buffers_type>::value);
 
 struct asio_test
 {
     void
     run()
     {
+        // these should compile
+        mutable_buffer mb;
+        const_buffer cb;
+        asio::mutable_buffer amb;
+        asio::const_buffer acb;
+
+        asio::buffer_copy( mb,  cb);
+        asio::buffer_copy( mb,  mb);
+        asio::buffer_copy(amb,  cb);
+        asio::buffer_copy(amb,  mb);
+        asio::buffer_copy( mb, acb);
+        asio::buffer_copy( mb, amb);
     }
 };
 

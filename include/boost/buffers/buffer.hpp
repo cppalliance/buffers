@@ -19,12 +19,78 @@
 
 // https://www.boost.org/doc/libs/1_65_0/doc/html/boost_asio/reference/ConstBufferSequence.html
 
+// GCC 6 and earlier bug fixed after PR 42329
+// (“deduction of template template argument via base class fails”)
+#if defined(__GNUC__) && ! defined(__clang__) && (__GNUC__ < 7)
+#define BOOST_BUFFERS_GCC6_WORKAROUND
+#endif
+
 namespace boost {
+
+namespace asio {
+class const_buffer;
+class mutable_buffer;
+} // asio
+
 namespace buffers {
 
-//------------------------------------------------
+#ifndef BOOST_BUFFERS_GCC6_WORKAROUND
 
-//#if ! (__cpp_decltype_auto >= 201304)
+namespace detail {
+
+// this is designed to satisfy Asio's buffer constructors
+template<class T, std::size_t Extent = (std::size_t)(-1)>
+class basic_buffer
+{
+public:
+    /** Return a pointer to the beginning of the memory region
+    */
+    constexpr auto
+    data() const noexcept ->
+        typename std::conditional<
+            std::is_const<T>::value,
+            void const*, void*>::type
+    {
+        return p_;
+    }
+
+    /** Return the number of valid bytes in the referenced memory region
+    */
+    constexpr std::size_t size() const noexcept
+    {
+        return n_;
+    }
+
+protected:
+    basic_buffer() = default;
+
+    constexpr basic_buffer(
+        T* p, std::size_t n) noexcept
+        : p_(p)
+        , n_(n)
+    {
+    }
+
+    T* p_ = nullptr;
+    std::size_t n_ = 0;
+
+private:
+    friend class asio::const_buffer;
+    friend class asio::mutable_buffer;
+    constexpr basic_buffer<T, (std::size_t)(-1)>
+    subspan(std::size_t offset, std::size_t count =
+        (std::size_t)(-1)) const noexcept
+    {
+        return {};
+    }
+};
+
+} // detail
+
+#endif
+
+//-----------------------------------------------
+
 namespace detail {
 namespace adl {
 
@@ -36,10 +102,8 @@ using std::end;
 template<class T>
 using end_type = decltype(end(std::declval<T&>()));
 
-
 // determine if T is a bidirectional range
 // whose value type is convertible to B
-
 template<class T, class B, class = void>
 struct is_buffer_sequence : std::false_type
 {
@@ -61,7 +125,6 @@ struct is_buffer_sequence<T, B, detail::void_t<typename std::enable_if<
 
 } // adl
 } // detail
-//#endif
 
 //------------------------------------------------
 
@@ -98,13 +161,13 @@ enum class slice_how
 
 //------------------------------------------------
 
+#ifndef BOOST_BUFFERS_GCC6_WORKAROUND
+
 /** Holds a contiguous range of modifiable bytes
 */
 class mutable_buffer
+    : public detail::basic_buffer<unsigned char>
 {
-    unsigned char* p_ = nullptr;
-    std::size_t n_ = 0;
-
 public:
     /** Constructor.
     */
@@ -123,39 +186,31 @@ public:
     /** Constructor.
     */
     constexpr mutable_buffer(
-        void* data,
-        std::size_t size) noexcept
-        : p_(static_cast<unsigned char*>(data))
-        , n_(size)
+        void* data, std::size_t size) noexcept
+        : basic_buffer<unsigned char>(
+            static_cast<unsigned char*>(data), size)
     {
     }
 
-    constexpr void* data() const noexcept
+    /** Constructor
+    */
+    template<class MutableBuffer, class = typename std::enable_if<
+        std::is_same<MutableBuffer, asio::mutable_buffer>::value>::type>
+    constexpr mutable_buffer(
+        MutableBuffer const& b) noexcept
+        : basic_buffer<unsigned char>(
+            static_cast<unsigned char*>(
+                b.data()), b.size())
     {
-        return p_;
     }
 
-    constexpr std::size_t size() const noexcept
-    {
-        return n_;
-    }
+    /** Remove a prefix of the memory region
 
-    // conversion to boost::asio::mutable_buffer
-    // VFALCO REMOVE
-    template<
-        class T
-        , class = typename std::enable_if<
-            std::is_constructible<T,
-                void*, std::size_t>::value
-            && ! std::is_same<T, mutable_buffer>::value
-            //&& ! std::is_same<T, const_buffer>::value
-        >::type
-    >
-    operator T() const noexcept
-    {
-        return T{ data(), size() };
-    }
+        If the requested number of bytes is larger than the current size,
+        the resulting buffer will have size 0.
 
+        @param n The number of bytes to remove.
+    */
     mutable_buffer&
     operator+=(std::size_t n) noexcept
     {
@@ -166,6 +221,8 @@ public:
         return *this;
     }
 
+    /** Remove a slice from the buffer
+    */
     friend
     void
     tag_invoke(
@@ -193,10 +250,8 @@ public:
 /** Holds a contiguous range of unmodifiable bytes
 */
 class const_buffer
+    : public detail::basic_buffer<unsigned char const>
 {
-    unsigned char const* p_ = nullptr;
-    std::size_t n_ = 0;
-
 public:
     /** Constructor
     */
@@ -219,10 +274,9 @@ public:
     /** Constructor
     */
     constexpr const_buffer(
-        void const* data,
-        std::size_t size) noexcept
-        : p_(static_cast<unsigned char const*>(data))
-        , n_(size)
+        void const* data, std::size_t size) noexcept
+        : basic_buffer<unsigned char const>(
+            static_cast<unsigned char const*>(data), size)
     {
     }
 
@@ -230,40 +284,22 @@ public:
     */
     constexpr const_buffer(
         mutable_buffer const& b) noexcept
-        : p_(static_cast<
-            unsigned char const*>(b.data()))
-        , n_(b.size())
+        : basic_buffer<unsigned char const>(
+            static_cast<unsigned char const*>(b.data()), b.size())
     {
     }
 
-    /** Return a constant pointer to the beginning of the memory region
+    /** Constructor
     */
-    constexpr void const* data() const noexcept
+    template<class ConstBuffer, class = typename std::enable_if<
+        std::is_same<ConstBuffer, asio::const_buffer>::value ||
+        std::is_same<ConstBuffer, asio::mutable_buffer>::value>::type>
+    constexpr const_buffer(
+        ConstBuffer const& b) noexcept
+        : basic_buffer<unsigned char const>(
+            static_cast<unsigned char const*>(
+                b.data()), b.size())
     {
-        return p_;
-    }
-
-    /** Return the number of valid bytes in the referenced memory region
-    */
-    constexpr std::size_t size() const noexcept
-    {
-        return n_;
-    }
-
-    // conversion to boost::asio::const_buffer
-    // VFALCO REMOVE
-    template<
-        class T
-        , class = typename std::enable_if<
-            std::is_constructible<T,
-                void const*, std::size_t>::value &&
-            ! std::is_same<T, mutable_buffer>::value &&
-            ! std::is_same<T, const_buffer>::value
-        >::type
-    >
-    operator T() const noexcept
-    {
-        return T{ data(), size() };
     }
 
     /** Remove a prefix of the memory region
@@ -307,9 +343,77 @@ public:
     }
 };
 
+#else
+
+template<class T, std::size_t Extent = (std::size_t)(-1)>
+class basic_buffer
+{
+    using pointer = typename std::conditional<
+        std::is_const<T>::value, void const*, void*>::type;
+public:
+    basic_buffer() = default;
+    basic_buffer(basic_buffer const&) = default;
+    basic_buffer& operator=(basic_buffer const& other) = default;
+    constexpr auto data() const noexcept -> pointer { return p_; }
+    constexpr std::size_t size() const noexcept { return n_; }
+    constexpr basic_buffer(pointer p, std::size_t n) noexcept
+        : p_(p) , n_(n) {}
+    template<class U, std::size_t E, class = typename std::enable_if<
+        std::is_const<T>::value && ! std::is_const<U>::value>::type>
+    constexpr basic_buffer(basic_buffer<U,E> b) noexcept
+        : p_(b.data()), n_(b.size()) {}
+    template<class Buffer, class = typename std::enable_if<
+        std::is_same<Buffer, asio::mutable_buffer>::value ||
+        (std::is_same<Buffer, asio::const_buffer>::value &&
+            std::is_const<T>::value)>::type>
+    constexpr basic_buffer(Buffer b) noexcept
+        : p_(b.data()), n_(b.size()) {}
+    basic_buffer& operator+=(std::size_t n) noexcept
+    {
+        if( n > n_)
+            n = n_;
+        p_ = static_cast<T*>(p_) + n;
+        n_ -= n;
+        return *this;
+    }
+    friend void tag_invoke(slice_tag const&, basic_buffer& b,
+        slice_how how, std::size_t n) noexcept
+    {
+        switch(how)
+        {
+        case slice_how::remove_prefix:
+            b += n;
+            return;
+
+        case slice_how::keep_prefix:
+            if(n < b.n_)
+                b.n_ = n;
+            return;
+        }
+    }
+
+private:
+    friend class asio::const_buffer;
+    friend class asio::mutable_buffer;
+    constexpr basic_buffer<T, (std::size_t)(-1)>
+    subspan(std::size_t offset, std::size_t count =
+        (std::size_t)(-1)) const noexcept
+    {
+        return {};
+    }
+
+    pointer p_ = nullptr;
+    std::size_t n_ = 0;
+};
+
+using mutable_buffer = basic_buffer<unsigned char>;
+using const_buffer = basic_buffer<unsigned char const>;
+
+#endif
+
 //------------------------------------------------------------------------------
 
-/** Return an iterator pointing to the first element of the buffer sequence
+/** Return an iterator pointing to the first element of a buffer sequence
 
     This function returns an iterator to the beginning of the range denoted by
     `t`. While this works for any valid range, it is provided for convenience

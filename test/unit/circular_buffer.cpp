@@ -75,8 +75,7 @@ struct circular_buffer_test
         // circular_buffer(
         //  circular_buffer const&)
         {
-            circular_buffer cb0(
-                make_buffer(&pat[0], pat.size()));
+            circular_buffer cb0(&pat[0], pat.size());
             circular_buffer cb1(cb0);
             BOOST_TEST_EQ(cb1.size(), cb0.size());
             BOOST_TEST_EQ(cb1.capacity(), cb0.capacity());
@@ -86,8 +85,7 @@ struct circular_buffer_test
         // operator=(
         //  circular_buffer const&)
         {
-            circular_buffer cb0(
-                make_buffer(&pat[0], pat.size()));
+            circular_buffer cb0(&pat[0], pat.size());
             circular_buffer cb1;
             cb1 = cb0;
             BOOST_TEST_EQ(cb1.size(), cb0.size());
@@ -97,8 +95,7 @@ struct circular_buffer_test
 
         // prepare(std::size_t)
         {
-            circular_buffer cb(make_buffer(
-                &pat[0], pat.size()));
+            circular_buffer cb(&pat[0], pat.size());
             BOOST_TEST_THROWS(
                 cb.prepare(cb.capacity() + 1),
                 std::length_error);
@@ -106,8 +103,7 @@ struct circular_buffer_test
 
         // commit(std::size_t)
         {
-            circular_buffer cb(make_buffer(
-                &pat[0], pat.size()));
+            circular_buffer cb(&pat[0], pat.size());
             auto n = pat.size() / 2;
             cb.prepare(pat.size());
             cb.commit(n);
@@ -182,8 +178,7 @@ struct circular_buffer_test
 
         for(std::size_t i = 0; i <= pat.size(); ++i)
         {
-            circular_buffer cb(make_buffer(
-                &pat[0], pat.size()));
+            circular_buffer cb(&pat[0], pat.size());
             cb.prepare(i);
             cb.commit(i);
             BOOST_TEST_EQ(
