@@ -54,19 +54,6 @@ public:
     circular_buffer(
         circular_buffer const&) = default;
 
-#if 0
-    /** Constructor.
-    */
-    explicit
-    circular_buffer(
-        mutable_buffer b) noexcept
-        : base_(static_cast<
-            unsigned char*>(b.data()))
-        , cap_(b.size())
-    {
-    }
-#endif
-
     /** Constructor.
     */
     circular_buffer(
