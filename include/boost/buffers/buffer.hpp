@@ -34,6 +34,8 @@ class mutable_buffer;
 
 namespace buffers {
 
+#ifndef BOOST_BUFFERS_GCC6_WORKAROUND
+
 namespace detail {
 
 // this is designed to satisfy Asio's buffer constructors
@@ -72,7 +74,6 @@ protected:
     T* p_ = nullptr;
     std::size_t n_ = 0;
 
-#if ! defined(BOOST_BUFFERS_GCC6_WORKAROUND)
 private:
     friend class asio::const_buffer;
     friend class asio::mutable_buffer;
@@ -82,14 +83,14 @@ private:
     {
         return {};
     }
-#endif
 };
 
-} // (detail)
+} // detail
+
+#endif
 
 //-----------------------------------------------
 
-//#if ! (__cpp_decltype_auto >= 201304)
 namespace detail {
 namespace adl {
 
@@ -124,7 +125,6 @@ struct is_buffer_sequence<T, B, detail::void_t<typename std::enable_if<
 
 } // adl
 } // detail
-//#endif
 
 //------------------------------------------------
 
@@ -161,6 +161,8 @@ enum class slice_how
 
 //------------------------------------------------
 
+#ifndef BOOST_BUFFERS_GCC6_WORKAROUND
+
 /** Holds a contiguous range of modifiable bytes
 */
 class mutable_buffer
@@ -184,32 +186,16 @@ public:
     /** Constructor.
     */
     constexpr mutable_buffer(
-        void* data,
-        std::size_t size) noexcept
+        void* data, std::size_t size) noexcept
         : basic_buffer<unsigned char>(
             static_cast<unsigned char*>(data), size)
     {
     }
 
-#ifdef BOOST_BUFFERS_GCC6_WORKAROUND
-    template<class MutableBuffer, class = typename std::enable_if<
-        std::is_same<MutableBuffer, asio::const_buffer>::value ||
-        std::is_same<MutableBuffer, asio::mutable_buffer>::value>::type>
-    operator MutableBuffer() const noexcept
-    {
-        return MutableBuffer(p_, n_);
-    }
-#endif
-
     /** Constructor
     */
-    template<class MutableBuffer
-        , class = typename std::enable_if<
-            std::is_convertible<mutable_buffer, MutableBuffer>::value &&
-            std::is_constructible<MutableBuffer, void*, std::size_t>::value &&
-            ! std::is_constructible<MutableBuffer, void const*, std::size_t>::value &&
-            ! std::is_same<MutableBuffer, mutable_buffer>::value>::type
-    >
+    template<class MutableBuffer, class = typename std::enable_if<
+        std::is_same<MutableBuffer, asio::mutable_buffer>::value>::type>
     constexpr mutable_buffer(
         MutableBuffer const& b) noexcept
         : basic_buffer<unsigned char>(
@@ -288,8 +274,7 @@ public:
     /** Constructor
     */
     constexpr const_buffer(
-        void const* data,
-        std::size_t size) noexcept
+        void const* data, std::size_t size) noexcept
         : basic_buffer<unsigned char const>(
             static_cast<unsigned char const*>(data), size)
     {
@@ -304,27 +289,11 @@ public:
     {
     }
 
-#ifdef BOOST_BUFFERS_GCC6_WORKAROUND
-// GCC 6 and earlier bug fixed after PR 42329
-// (“deduction of template template argument via base class fails”)
-    template<class ConstBuffer, class = typename std::enable_if<
-        std::is_same<ConstBuffer, asio::const_buffer>::value>::type>
-    operator ConstBuffer() const noexcept
-    {
-        return ConstBuffer(p_, n_);
-    }
-#endif
-
     /** Constructor
     */
-    template<class ConstBuffer
-        , class = typename std::enable_if<
-            std::is_convertible<mutable_buffer, ConstBuffer>::value &&
-            std::is_constructible<ConstBuffer, void*, std::size_t>::value &&
-            ! std::is_same<ConstBuffer, const_buffer>::value &&
-            ! std::is_same<ConstBuffer, mutable_buffer>::value
-        >::type
-    >
+    template<class ConstBuffer, class = typename std::enable_if<
+        std::is_same<ConstBuffer, asio::const_buffer>::value ||
+        std::is_same<ConstBuffer, asio::mutable_buffer>::value>::type>
     constexpr const_buffer(
         ConstBuffer const& b) noexcept
         : basic_buffer<unsigned char const>(
@@ -373,6 +342,74 @@ public:
         }
     }
 };
+
+#else
+
+template<class T, std::size_t Extent = (std::size_t)(-1)>
+class basic_buffer
+{
+    using pointer = typename std::conditional<
+        std::is_const<T>::value, void const*, void*>::type;
+public:
+    basic_buffer() = default;
+    basic_buffer(basic_buffer const&) = default;
+    basic_buffer& operator=(basic_buffer const& other) = default;
+    constexpr auto data() const noexcept -> pointer { return p_; }
+    constexpr std::size_t size() const noexcept { return n_; }
+    constexpr basic_buffer(pointer p, std::size_t n) noexcept
+        : p_(p) , n_(n) {}
+    template<class U, std::size_t E, class = typename std::enable_if<
+        std::is_const<T>::value && ! std::is_const<U>::value>::type>
+    constexpr basic_buffer(basic_buffer<U,E> b) noexcept
+        : p_(b.data()), n_(b.size()) {}
+    template<class Buffer, class = typename std::enable_if<
+        std::is_same<Buffer, asio::mutable_buffer>::value ||
+        (std::is_same<Buffer, asio::const_buffer>::value &&
+            std::is_const<T>::value)>::type>
+    constexpr basic_buffer(Buffer b) noexcept
+        : p_(b.data()), n_(b.size()) {}
+    basic_buffer& operator+=(std::size_t n) noexcept
+    {
+        if( n > n_)
+            n = n_;
+        p_ = static_cast<T*>(p_) + n;
+        n_ -= n;
+        return *this;
+    }
+    friend void tag_invoke(slice_tag const&, basic_buffer& b,
+        slice_how how, std::size_t n) noexcept
+    {
+        switch(how)
+        {
+        case slice_how::remove_prefix:
+            b += n;
+            return;
+
+        case slice_how::keep_prefix:
+            if(n < b.n_)
+                b.n_ = n;
+            return;
+        }
+    }
+
+private:
+    friend class asio::const_buffer;
+    friend class asio::mutable_buffer;
+    constexpr basic_buffer<T, (std::size_t)(-1)>
+    subspan(std::size_t offset, std::size_t count =
+        (std::size_t)(-1)) const noexcept
+    {
+        return {};
+    }
+
+    pointer p_ = nullptr;
+    std::size_t n_ = 0;
+};
+
+using mutable_buffer = basic_buffer<unsigned char>;
+using const_buffer = basic_buffer<unsigned char const>;
+
+#endif
 
 //------------------------------------------------------------------------------
 
