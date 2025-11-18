@@ -20,7 +20,7 @@
 // https://www.boost.org/doc/libs/1_65_0/doc/html/boost_asio/reference/ConstBufferSequence.html
 
 // GCC 6 and earlier bug fixed after PR 42329
-// (“deduction of template template argument via base class fails”)
+// ("deduction of template template argument via base class fails")
 #if defined(__GNUC__) && ! defined(__clang__) && (__GNUC__ < 7)
 #define BOOST_BUFFERS_GCC6_WORKAROUND
 #endif
@@ -78,11 +78,7 @@ private:
     friend class asio::const_buffer;
     friend class asio::mutable_buffer;
     constexpr basic_buffer<T, (std::size_t)(-1)>
-    subspan(std::size_t offset, std::size_t count =
-        (std::size_t)(-1)) const noexcept
-    {
-        return {};
-    }
+    subspan(std::size_t, std::size_t = (std::size_t)(-1)) const noexcept;
 };
 
 } // detail
@@ -396,11 +392,7 @@ private:
     friend class asio::const_buffer;
     friend class asio::mutable_buffer;
     constexpr basic_buffer<T, (std::size_t)(-1)>
-    subspan(std::size_t offset, std::size_t count =
-        (std::size_t)(-1)) const noexcept
-    {
-        return {};
-    }
+    subspan(std::size_t, std::size_t = (std::size_t)(-1)) const noexcept;
 
     pointer p_ = nullptr;
     std::size_t n_ = 0;
