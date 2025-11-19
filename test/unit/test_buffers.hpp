@@ -17,6 +17,7 @@
 #include <boost/core/detail/string_view.hpp>
 #include <boost/assert.hpp>
 #include <boost/static_assert.hpp>
+
 #include <string>
 
 // Trick boostdep into requiring URL
@@ -255,7 +256,8 @@ template<class ConstBufferSequence>
 void
 grind_front(
     ConstBufferSequence const& bs0,
-    core::string_view pat0)
+    core::string_view pat0,
+    int levels)
 {
     for(std::size_t n = 0; n <= pat0.size() + 1; ++n)
     {
@@ -265,6 +267,18 @@ grind_front(
             remove_prefix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
+
+            if(levels)
+            {
+                // Take a copy, blank out the original to invalidate any
+                // iterators, and redo the test
+                slice_type<ConstBufferSequence> bsc(bs);
+                {
+                    slice_type<ConstBufferSequence> dummy{};
+                    std::swap(bs, dummy);
+                }
+                grind_front(bsc, pat, levels-1);
+            }
         }
         {
             auto pat = kept_front(pat0, n);
@@ -272,6 +286,18 @@ grind_front(
             keep_prefix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
+
+            if(levels)
+            {
+                // Take a copy, blank out the original to invalidate any
+                // iterators, and redo the test
+                slice_type<ConstBufferSequence> bsc(bs);
+                {
+                    slice_type<ConstBufferSequence> dummy{};
+                    std::swap(bs, dummy);
+                }
+                grind_front(bsc, pat, levels-1);
+            }
         }
     }
 }
@@ -280,7 +306,8 @@ template<class ConstBufferSequence>
 void
 grind_back(
     ConstBufferSequence const& bs0,
-    core::string_view pat0)
+    core::string_view pat0,
+    int levels)
 {
     for(std::size_t n = 0; n <= pat0.size() + 1; ++n)
     {
@@ -290,6 +317,18 @@ grind_back(
             remove_suffix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
+
+            if(levels)
+            {
+                // Take a copy, blank out the original to invalidate any
+                // iterators, and redo the test
+                slice_type<ConstBufferSequence> bsc(bs);
+                {
+                    slice_type<ConstBufferSequence> dummy{};
+                    std::swap(bs, dummy);
+                }
+                grind_back(bsc, pat, levels-1);
+            }
         }
         {
             auto pat = kept_back(pat0, n);
@@ -297,6 +336,70 @@ grind_back(
             keep_suffix(bs, n);
             check_eq(bs, pat);
             check_iterators(bs, pat);
+
+            if(levels)
+            {
+                // Take a copy, blank out the original to invalidate any
+                // iterators, and redo the test
+                slice_type<ConstBufferSequence> bsc(bs);
+                {
+                    slice_type<ConstBufferSequence> dummy{};
+                    std::swap(bs, dummy);
+                }
+                grind_back(bsc, pat, levels-1);
+            }
+        }
+    }
+}
+
+template<class ConstBufferSequence>
+void
+grind_both(
+    ConstBufferSequence const& bs0,
+    core::string_view pat0,
+    int levels)
+{
+    for(std::size_t n = 0; n <= pat0.size() / 2 + 2; ++n)
+    {
+        {
+            auto pat = trimmed_back(trimmed_front(pat0, n), n);
+            slice_type<ConstBufferSequence> bs(bs0);
+            remove_prefix(bs, n);
+            remove_suffix(bs, n);
+            check_eq(bs, pat);
+            check_iterators(bs, pat);
+
+            if(levels)
+            {
+                // Take a copy, blank out the original to invalidate any
+                // iterators, and redo the test
+                slice_type<ConstBufferSequence> bsc(bs);
+                {
+                    slice_type<ConstBufferSequence> dummy{};
+                    std::swap(bs, dummy);
+                }
+                grind_both(bsc, pat, levels - 1);
+            }
+        }
+        {
+            auto pat = kept_back(kept_front(pat0, n), n);
+            slice_type<ConstBufferSequence> bs(bs0);
+            keep_prefix(bs, n);
+            keep_suffix(bs, n);
+            check_eq(bs, pat);
+            check_iterators(bs, pat);
+
+            if(levels)
+            {
+                // Take a copy, blank out the original to invalidate any
+                // iterators, and redo the test
+                slice_type<ConstBufferSequence> bsc(bs);
+                {
+                    slice_type<ConstBufferSequence> dummy{};
+                    std::swap(bs, dummy);
+                }
+                grind_both(bsc, pat, levels - 1);
+            }
         }
     }
 }
@@ -307,8 +410,9 @@ check_slice(
     ConstBufferSequence const& bs,
     core::string_view pat)
 {
-    grind_front(bs, pat);
-    grind_back(bs, pat);
+    grind_front(bs, pat, 1);
+    grind_back(bs, pat, 1);
+    grind_both(bs, pat, 1);
 }
 
 // Test API and behavior of a BufferSequence
@@ -320,6 +424,7 @@ check_sequence(
     BOOST_STATIC_ASSERT(is_const_buffer_sequence<T>::value);
 
     check_iterators(t, pat);
+
     check_slice(t, pat);
 }
 
