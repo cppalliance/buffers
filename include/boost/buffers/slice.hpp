@@ -64,9 +64,12 @@ class slice_of
     using iter_type = decltype(
         std::declval<BufferSequence const&>().begin());
 
+    using difference_type =
+        typename std::iterator_traits<iter_type>::difference_type;
+
     BufferSequence bs_;
-    iter_type begin_;
-    iter_type end_;
+    difference_type begin_ = 0; // index of first buffer in sequence
+    difference_type end_ = 0;   // 1 + index of last buffer in sequence
     std::size_t len_ = 0;       // length of bs_
     std::size_t size_ = 0;      // total bytes
     std::size_t prefix_ = 0;    // used prefix bytes
@@ -92,11 +95,12 @@ public:
     slice_of(
         BufferSequence const& bs)
         : bs_(bs)
-        , begin_(buffers::begin(bs_))
-        , end_(buffers::end(bs_))
     {
-        auto it = begin_;
-        while(it != end_)
+        iter_type it = buffers::begin(bs_);
+        iter_type eit = buffers::end(bs_);
+        begin_ = 0;
+        end_ = std::distance(it, eit);
+        while(it != eit)
         {
             value_type b(*it);
             size_ += b.size();
@@ -127,18 +131,39 @@ public:
     }
 
 private:
+    iter_type
+    begin_iter_impl() const noexcept
+    {
+        iter_type it = buffers::begin(bs_);
+        std::advance(it, begin_);
+        return it;
+    }
+
+    iter_type
+    end_iter_impl() const noexcept
+    {
+        iter_type it = buffers::begin(bs_);
+        std::advance(it, end_);
+        return it;
+    }
+
     void
     remove_prefix_impl(
         std::size_t n)
     {
+        if(n > size_)
+            n = size_;
+
         // nice hack to simplify the loop (M. Nejati)
         n += prefix_;
         size_ += prefix_;
         prefix_ = 0;
 
+        iter_type it = begin_iter_impl();
+
         while(n > 0 && begin_ != end_)
         {
-            value_type b = *begin_;
+            value_type b = *it;
             if(n < b.size())
             {
                 prefix_ = n;
@@ -148,6 +173,7 @@ private:
             n -= b.size();
             size_ -= b.size();
             ++begin_;
+            ++it;
             --len_;
         }
     }
@@ -162,12 +188,19 @@ private:
             return;
         }
         BOOST_ASSERT(begin_ != end_);
+
+        if(n > size_)
+            n = size_;
+
         n += suffix_;
         size_ += suffix_;
         suffix_ = 0;
-        iter_type it = end_;
-        --it;
-        while(it != begin_)
+
+        iter_type bit = begin_iter_impl();
+        iter_type it = end_iter_impl();
+        it--;
+
+        while(it != bit)
         {
             value_type b = *it;
             if(n < b.size())
@@ -192,6 +225,7 @@ private:
         }
         end_ = begin_;
         len_ = 0;
+        size_ = 0;
     }
 
     void
@@ -376,7 +410,7 @@ begin() const noexcept ->
     const_iterator
 {
     return const_iterator(
-        this->begin_, prefix_, suffix_, 0, len_);
+        begin_iter_impl(), prefix_, suffix_, 0, len_);
 }
 
 template<class BufferSequence>
@@ -386,7 +420,7 @@ end() const noexcept ->
     const_iterator
 {
     return const_iterator(
-        this->end_, prefix_, suffix_, len_, len_);
+        end_iter_impl(), prefix_, suffix_, len_, len_);
 }
 
 //------------------------------------------------
