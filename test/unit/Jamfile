@@ -13,31 +13,18 @@ project
     : requirements
       $(c11-requires)
       <library>/boost/buffers//boost_buffers
-      <library>/boost/asio//boost_asio
+      <library>/boost/asio//boost_asio/<warnings-as-errors>off
       <source>../../../url/extra/test_suite/test_main.cpp
       <source>../../../url/extra/test_suite/test_suite.cpp
       <include>.
       <include>../../../url/extra/test_suite
+      <warnings>extra
+      <warnings-as-errors>on
+      <target-os>darwin,<undefined-sanitizer>norecover:<link>static
+      <target-os>windows:<define>_WIN32_WINNT=0x0601
     ;
 
-local SOURCES =
-    test_buffers.hpp
-    asio.cpp
-    buffer.cpp
-    buffer_pair.cpp
-    buffers.cpp
-    circular_buffer.cpp
-    copy.cpp
-    dynamic_buffer.cpp
-    flat_buffer.cpp
-    front.cpp
-    make_buffer.cpp
-    range.cpp
-    slice.cpp
-    string_buffer.cpp
-    ;
-
-for local f in $(SOURCES)
+for local f in [ glob-tree-ex . : *.cpp : ]
 {
-    run $(f) : : : ;
+    run $(f) ;
 }

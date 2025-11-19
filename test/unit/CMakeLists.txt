@@ -7,39 +7,24 @@
 # Official repository: https://github.com/cppalliance/buffers
 #
 
-set(EXTRAFILES
-    ../../../url/extra/test_suite/test_main.cpp
-    ../../../url/extra/test_suite/test_suite.cpp
-    ../../../url/extra/test_suite/test_suite.hpp
-    )
+add_subdirectory(../../../url/extra/test_suite test_suite)
 
-set(PFILES
-    test_buffers.hpp
+file(GLOB_RECURSE PFILES CONFIGURE_DEPENDS *.cpp *.hpp)
+list(APPEND PFILES
     CMakeLists.txt
-    Jamfile
-    asio.cpp
-    buffer.cpp
-    buffer_pair.cpp
-    buffers.cpp
-    circular_buffer.cpp
-    copy.cpp
-    dynamic_buffer.cpp
-    flat_buffer.cpp
-    front.cpp
-    make_buffer.cpp
-    range.cpp
-    slice.cpp
-    string_buffer.cpp
-    )
+    Jamfile)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "" FILES ${PFILES})
-source_group("_extra" FILES ${EXTRAFILES})
+
 add_executable(boost_buffers_tests ${PFILES} ${EXTRAFILES})
-target_include_directories(boost_buffers_tests PRIVATE . ../../../url/extra/test_suite)
 target_link_libraries(
     boost_buffers_tests PRIVATE
+    boost_url_test_suite_with_main
     Boost::asio
-    Boost::buffers
-    )
-add_test(NAME boost_buffers_tests COMMAND boost_buffers_tests)
+    Boost::buffers)
+
+# Register individual tests with CTest
+boost_url_test_suite_discover_tests(boost_buffers_tests)
+
+# Add the main test target to Boost's test suite
 add_dependencies(tests boost_buffers_tests)
