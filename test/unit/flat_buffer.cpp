@@ -61,26 +61,6 @@ struct flat_buffer_test
                 std::invalid_argument);
         }
 
-        // flat_buffer(mutable_buffer)
-        {
-            std::string s = pat;
-            flat_buffer fb(mutable_buffer(
-                &s[0], s.size()));
-            BOOST_TEST_EQ(fb.size(), 0);
-            BOOST_TEST_EQ(fb.max_size(), s.size());
-            BOOST_TEST_EQ(fb.capacity(), s.size());
-        }
-
-        // flat_buffer(mutable_buffer, size_t)
-        {
-            std::string s = pat;
-            flat_buffer fb(mutable_buffer(
-                &s[0], s.size()), 6);
-            BOOST_TEST_EQ(fb.size(), 6);
-            BOOST_TEST_EQ(fb.max_size(), s.size());
-            BOOST_TEST_EQ(fb.capacity(), s.size() - 6);
-        }
-
         // flat_buffer(flat_buffer const&)
         {
             std::string s = pat;

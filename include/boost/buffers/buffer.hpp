@@ -36,6 +36,9 @@ namespace buffers {
 
 #ifndef BOOST_BUFFERS_GCC6_WORKAROUND
 
+class const_buffer;
+class mutable_buffer;
+
 namespace detail {
 
 // this is designed to satisfy Asio's buffer constructors
@@ -61,24 +64,18 @@ public:
         return n_;
     }
 
-protected:
+private:
+    friend class buffers::const_buffer;
+    friend class buffers::mutable_buffer;
+    friend class asio::const_buffer;
+    friend class asio::mutable_buffer;
     basic_buffer() = default;
-
-    constexpr basic_buffer(
-        T* p, std::size_t n) noexcept
-        : p_(p)
-        , n_(n)
-    {
-    }
+    constexpr basic_buffer(T* p, std::size_t n) noexcept : p_(p), n_(n) {}
+    constexpr basic_buffer<T, (std::size_t)(-1)> subspan(
+        std::size_t, std::size_t = (std::size_t)(-1)) const noexcept;
 
     T* p_ = nullptr;
     std::size_t n_ = 0;
-
-private:
-    friend class asio::const_buffer;
-    friend class asio::mutable_buffer;
-    constexpr basic_buffer<T, (std::size_t)(-1)>
-    subspan(std::size_t, std::size_t = (std::size_t)(-1)) const noexcept;
 };
 
 } // detail
@@ -101,12 +98,12 @@ using end_type = decltype(end(std::declval<T&>()));
 // determine if T is a bidirectional range
 // whose value type is convertible to B
 template<class T, class B, class = void>
-struct is_buffer_sequence : std::false_type
+struct is_bidir_of : std::false_type
 {
 };
 
 template<class T, class B>
-struct is_buffer_sequence<T, B, detail::void_t<typename std::enable_if<
+struct is_bidir_of<T, B, detail::void_t<typename std::enable_if<
     std::is_convertible<decltype(*std::declval<begin_type<T const>>()), B>::value &&
     std::is_convertible<decltype(*std::declval<end_type<T const>>()), B>::value &&
     detail::is_bidirectional_iterator<begin_type<T const>>::value &&
@@ -227,15 +224,22 @@ public:
         slice_how how,
         std::size_t n) noexcept
     {
+        b.do_slice(how, n);
+    }
+
+private:
+    void do_slice(
+        slice_how how, std::size_t n) noexcept
+    {
         switch(how)
         {
         case slice_how::remove_prefix:
-            b += n;
+            *this += n;
             return;
 
         case slice_how::keep_prefix:
-            if(n < b.n_)
-                b.n_ = n;
+            if( n < n_)
+                n_ = n;
             return;
         }
     }
@@ -325,15 +329,22 @@ public:
         slice_how how,
         std::size_t n) noexcept
     {
+        b.do_slice(how, n);
+    }
+
+private:
+    void do_slice(
+        slice_how how, std::size_t n) noexcept
+    {
         switch(how)
         {
         case slice_how::remove_prefix:
-            b += n;
+            *this += n;
             return;
 
         case slice_how::keep_prefix:
-            if(n < b.n_)
-                b.n_ = n;
+            if( n < n_)
+                n_ = n;
             return;
         }
     }
@@ -541,7 +552,7 @@ struct is_const_buffer_sequence
 template<class T>
 struct is_const_buffer_sequence<T>
     : std::integral_constant<bool,
-        detail::adl::is_buffer_sequence<typename std::remove_cv<typename
+        detail::adl::is_bidir_of<typename std::remove_cv<typename
             std::remove_reference<T>::type>::type, const_buffer>::value ||
         std::is_convertible<T, const_buffer>::value>
 {
@@ -567,7 +578,7 @@ struct is_mutable_buffer_sequence : std::false_type
 template<class T>
 struct is_mutable_buffer_sequence<T>
     : std::integral_constant<bool,
-        detail::adl::is_buffer_sequence<typename std::remove_cv<typename
+        detail::adl::is_bidir_of<typename std::remove_cv<typename
             std::remove_reference<T>::type>::type, mutable_buffer>::value ||
         std::is_convertible<T, mutable_buffer>::value>
 {
