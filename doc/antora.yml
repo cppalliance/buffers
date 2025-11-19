@@ -22,9 +22,8 @@ ext:
     config: doc/mrdocs.yml
   cpp-tagfiles:
     files:
-      - file: ./doc/tagfiles/boost-buffers-doxygen.tag.xml
-        base_url: 'xref:reference:'
       - file: ./doc/tagfiles/boost-core-doxygen.tag.xml
         base_url: https://www.boost.org/doc/libs/master/libs/core/doc/html/
     using-namespaces:
       - boost::buffers
+      - boost::core
