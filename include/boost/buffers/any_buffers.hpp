@@ -22,19 +22,70 @@
 namespace boost {
 namespace buffers {
 
+/** A type-erased buffer sequence.
+
+    This class template wraps any buffer sequence and
+    exposes it through a uniform interface, hiding the
+    concrete type. Iteration is performed via a type-erased
+    bidirectional iterator.
+
+    The implementation uses small buffer optimization (SBO)
+    for iterators that are small, trivially aligned, and
+    nothrow copy constructible. Larger iterators fall back
+    to an index-based traversal strategy.
+
+    @note The wrapped buffer sequence must remain valid
+    for the lifetime of this object.
+
+    @tparam IsConst If `true`, the sequence yields
+    @ref const_buffer elements. If `false`, it yields
+    @ref mutable_buffer elements.
+
+    @see any_const_buffers, any_mutable_buffers, make_any_buffers
+*/
 template<bool IsConst>
 class any_buffers
 {
 public:
+    /** The buffer type returned when dereferencing iterators.
+
+        This is @ref const_buffer when `IsConst` is `true`,
+        otherwise @ref mutable_buffer.
+    */
     using value_type = typename std::conditional<
         IsConst, const_buffer, mutable_buffer>::type;
 
+    /** A bidirectional iterator over the buffer sequence.
+
+        @see begin, end
+    */
     class const_iterator;
 
+    /** Return an iterator to the beginning.
+
+        @return An iterator pointing to the first buffer,
+        or `end()` if the sequence is empty.
+    */
     const_iterator begin() const noexcept;
 
+    /** Return an iterator to the end.
+
+        @return An iterator pointing one past the last buffer.
+    */
     const_iterator end() const noexcept;
 
+    /** Construct from a buffer sequence.
+
+        Wraps the given buffer sequence for type-erased
+        access. The caller must ensure `bs` remains valid
+        for the lifetime of this object.
+
+        @param bs The buffer sequence to wrap. Must satisfy
+        `ConstBufferSequence`. If `IsConst` is `false`, must
+        also satisfy `MutableBufferSequence`.
+
+        @tparam BufferSequence The concrete buffer sequence type.
+    */
     template<class BufferSequence>
     any_buffers(BufferSequence const& bs);
 
@@ -92,8 +143,20 @@ private:
     iter_ops const* ops_ = nullptr;
 };
 
+/** Alias for a type-erased const buffer sequence.
+
+    Equivalent to `any_buffers<true>`.
+
+    @see any_buffers, any_mutable_buffers
+*/
 using any_const_buffers = any_buffers<true>;
 
+/** Alias for a type-erased mutable buffer sequence.
+
+    Equivalent to `any_buffers<false>`.
+
+    @see any_buffers, any_const_buffers
+*/
 using any_mutable_buffers = any_buffers<false>;
 
 //-----------------------------------------------
@@ -114,34 +177,66 @@ struct any_buffers<IsConst>::
 
 //-----------------------------------------------
 
+/** A bidirectional iterator for @ref any_buffers.
+
+    This iterator provides type-erased access to the
+    underlying buffer sequence elements. It models
+    `BidirectionalIterator` and returns buffer objects
+    by value.
+*/
 template<bool IsConst>
 class any_buffers<IsConst>::
     const_iterator
 {
 public:
+    /** The buffer type returned by dereferencing.
+    */
     using value_type = typename any_buffers::value_type;
+
+    /** The type returned by `operator*`.
+
+        Buffers are returned by value.
+    */
     using reference = value_type;
+
+    /** Pointer type (void, not used).
+    */
     using pointer = void;
+
+    /** Signed integer type for iterator differences.
+    */
     using difference_type = std::ptrdiff_t;
+
+    /** Iterator category tag.
+    */
     using iterator_category =
         std::bidirectional_iterator_tag;
 
 #if defined(__cpp_concepts) || defined(__cpp_lib_concepts)
+    /** Iterator concept tag (C++20).
+    */
     using iterator_concept = std::bidirectional_iterator_tag;
 #endif
 
     /** Destructor.
+
+        Destroys the type-erased iterator state.
     */
     ~const_iterator()
     {
         ops_->destroy(&storage_);
     }
 
-    /** Constructor.
+    /** Default constructor.
+
+        Constructs a singular iterator. A default-constructed
+        iterator may only be assigned to or destroyed.
     */
     const_iterator() = default;
 
-    /** Constructor.
+    /** Copy constructor.
+
+        @param other The iterator to copy.
     */
     const_iterator(
         const_iterator const& other) noexcept
@@ -150,7 +245,10 @@ public:
         ops_->copy(&storage_, &other.storage_);
     }
 
-    /** Assignment.
+    /** Copy assignment.
+
+        @param other The iterator to copy.
+        @return `*this`
     */
     const_iterator& operator=(
         const_iterator const& other) noexcept
@@ -165,7 +263,11 @@ public:
         return *this;
     }
 
-    /** Return true if two iterators point to the same element.
+    /** Test for equality.
+
+        @param other The iterator to compare.
+        @return `true` if both iterators point to the
+        same element of the same sequence.
     */
     bool
     operator==(
@@ -178,7 +280,11 @@ public:
         return ops_->equal(&storage_, &other.storage_);
     }
 
-    /** Return true if two iterators point to different elements.
+    /** Test for inequality.
+
+        @param other The iterator to compare.
+        @return `true` if the iterators point to
+        different elements or different sequences.
     */
     bool
     operator!=(
@@ -187,7 +293,12 @@ public:
         return !(*this == other);
     }
 
-    /** Return the value of the pointed-to element.
+    /** Dereference the iterator.
+
+        @return The buffer at the current position.
+
+        @pre The iterator is dereferenceable
+        (not default-constructed or past-the-end).
     */
     reference
     operator*() const noexcept
@@ -196,6 +307,14 @@ public:
         return ops_->deref(&storage_);
     }
 
+    /** Pre-increment.
+
+        Advances the iterator to the next buffer.
+
+        @return `*this`
+
+        @pre The iterator is incrementable.
+    */
     const_iterator&
     operator++() noexcept
     {
@@ -204,6 +323,14 @@ public:
         return *this;
     }
 
+    /** Post-increment.
+
+        Advances the iterator to the next buffer.
+
+        @return A copy of the iterator before incrementing.
+
+        @pre The iterator is incrementable.
+    */
     const_iterator
     operator++(int) noexcept
     {
@@ -212,6 +339,14 @@ public:
         return temp;
     }
 
+    /** Pre-decrement.
+
+        Moves the iterator to the previous buffer.
+
+        @return `*this`
+
+        @pre The iterator is decrementable.
+    */
     const_iterator&
     operator--() noexcept
     {
@@ -220,6 +355,14 @@ public:
         return *this;
     }
 
+    /** Post-decrement.
+
+        Moves the iterator to the previous buffer.
+
+        @return A copy of the iterator before decrementing.
+
+        @pre The iterator is decrementable.
+    */
     const_iterator
     operator--(int) noexcept
     {
@@ -275,6 +418,20 @@ protected:
 
 } // detail
 
+/** An owning type-erased buffer sequence.
+
+    This class stores a copy of a buffer sequence and
+    provides type-erased access to it. Unlike @ref any_buffers,
+    this class owns the underlying buffer sequence.
+
+    @tparam BufferSequence The concrete buffer sequence type.
+
+    @tparam IsConst If `true`, exposes @ref const_buffer
+    elements. Defaults to `true` if `BufferSequence` is
+    not a mutable buffer sequence.
+
+    @see any_buffers, make_any_buffers
+*/
 template<class BufferSequence,
     bool IsConst = ! is_mutable_buffer_sequence<BufferSequence>::value>
 class any_buffers_impl
@@ -282,8 +439,20 @@ class any_buffers_impl
     , public any_buffers<IsConst>
 {
 public:
+    /** Move constructor.
+    */
     any_buffers_impl(any_buffers_impl&&) = default;
 
+    /** Construct from a buffer sequence.
+
+        Stores a copy of `bs` and initializes the
+        type-erased view.
+
+        @param bs The buffer sequence to store.
+
+        @tparam BufferSequence_ The source type,
+        which must be convertible to `BufferSequence`.
+    */
     template<class BufferSequence_>
     any_buffers_impl(
         BufferSequence_&& bs) noexcept
@@ -294,9 +463,20 @@ public:
     }
 };
 
-/** Return a type-erased buffer sequence
+/** Create an owning type-erased buffer sequence.
+
+    Returns an @ref any_buffers_impl that stores a
+    decayed copy of `bs` and provides type-erased
+    access to it.
+
+    @param bs The buffer sequence to wrap.
+
+    @return An @ref any_buffers_impl owning a copy of `bs`.
+
+    @tparam BufferSequence The buffer sequence type.
+
+    @see any_buffers, any_buffers_impl
 */
-// VFALCO need to make sure we don't type-erase twice!
 template<class BufferSequence>
 auto
 make_any_buffers(

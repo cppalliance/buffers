@@ -80,8 +80,8 @@ There are some caveats with this approach:
 
 The approach taken by this library is the same as the approach used in the popular
 Boost.Asio network library. That is, to define the concepts
-xref:concepts/ConstBufferSequence.adoc[_ConstBufferSequence_] and
-xref:concepts/MutableBufferSequence.adoc[_MutableBufferSequence_] for
+xref:5.1.ConstBufferSequence.adoc[_ConstBufferSequence_] and
+xref:5.2.MutableBufferSequence.adoc[_MutableBufferSequence_] for
 representing buffer sequences with these semantics:
 
 * A buffer sequence is cheap to copy.
