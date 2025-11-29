@@ -639,6 +639,43 @@ constexpr struct
     }
 } size {};
 
+//-----------------------------------------------
+
+namespace detail {
+
+template<class It>
+auto
+length_impl(It first, It last, int)
+    -> decltype(static_cast<std::size_t>(last - first))
+{
+    return static_cast<std::size_t>(last - first);
+}
+
+template<class It>
+std::size_t
+length_impl(It first, It last, long)
+{
+    std::size_t n = 0;
+    while(first != last)
+    {
+        ++first;
+        ++n;
+    }
+    return n;
+}
+
+} // detail
+
+/** Return the number of elements in a buffer sequence.
+*/
+template<class ConstBufferSequence>
+std::size_t
+length(ConstBufferSequence const& bs)
+{
+    return detail::length_impl(
+        buffers::begin(bs), buffers::end(bs), 0);
+}
+
 } // buffers
 } // boost
 
