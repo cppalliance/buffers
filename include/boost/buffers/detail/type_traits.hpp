@@ -79,6 +79,26 @@ struct is_bidirectional_iterator<T, detail::void_t<
 //#endif
 
 } // detail
+
+// Forward declarations for has_tag_invoke
+struct slice_tag;
+enum class slice_how;
+
+namespace detail {
+
+// Type trait to detect if T supports tag_invoke for slicing
+template<class T, class = void>
+struct has_tag_invoke : std::false_type {};
+
+template<class T>
+struct has_tag_invoke<T, decltype(tag_invoke(
+    std::declval<slice_tag const&>(),
+    std::declval<T&>(),
+    std::declval<slice_how>(),
+    std::declval<std::size_t>()))>
+    : std::true_type {};
+
+} // detail
 } // buffers
 } // boost
 

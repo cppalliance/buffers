@@ -11,6 +11,7 @@
 #define BOOST_BUFFERS_SANS_SUFFIX_HPP
 
 #include <boost/buffers/detail/config.hpp>
+#include <boost/buffers/detail/type_traits.hpp>
 #include <boost/buffers/slice.hpp>
 #include <boost/buffers/remove_suffix.hpp>
 #include <type_traits>
@@ -19,21 +20,6 @@ namespace boost {
 namespace buffers {
 
 template<class T> class slice_of;
-
-namespace detail {
-
-template<class T, class = void>
-struct has_tag_invoke : std::false_type {};
-
-template<class T>
-struct has_tag_invoke<T, decltype(tag_invoke(
-    std::declval<slice_tag const&>(),
-    std::declval<T&>(),
-    std::declval<slice_how>(),
-    std::declval<std::size_t>()))>
-    : std::true_type {};
-
-} // detail
 
 /** Alias for the type representing a slice of T
 */
