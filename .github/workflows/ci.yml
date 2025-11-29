@@ -1205,4 +1205,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: antora-docs-${{ matrix.name }}
-          path: doc/build/site
+          path: boost-root/libs/buffers/doc/build/site
