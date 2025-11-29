@@ -1,0 +1,58 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie.falco@gmail.com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+#ifndef BOOST_BUFFERS_REMOVE_PREFIX_HPP
+#define BOOST_BUFFERS_REMOVE_PREFIX_HPP
+
+#include <boost/buffers/detail/config.hpp>
+#include <boost/buffers/buffer.hpp>
+#include <boost/buffers/range.hpp>
+#include <type_traits>
+
+namespace boost {
+namespace buffers {
+
+namespace detail {
+
+template<class T, class = void>
+struct has_tag_invoke : std::false_type {};
+
+template<class T>
+struct has_tag_invoke<T, decltype(tag_invoke(
+    std::declval<slice_tag const&>(),
+    std::declval<T&>(),
+    std::declval<slice_how>(),
+    std::declval<std::size_t>()))>
+    : std::true_type {};
+
+} // detail
+
+/** Remove `n` bytes from the beginning of a buffer sequence
+
+    @param bs The buffer sequence to modify.
+
+    @param n The number of bytes to remove.
+*/
+constexpr struct
+{
+    template<class BufferSequence>
+    auto operator()(
+        BufferSequence& bs,
+        std::size_t n) const -> typename std::enable_if<
+            is_const_buffer_sequence<BufferSequence>::value &&
+            detail::has_tag_invoke<BufferSequence>::value>::type
+    {
+        tag_invoke(slice_tag{}, bs, slice_how::remove_prefix, n);
+    }
+} const remove_prefix{};
+
+} // buffers
+} // boost
+
+#endif
