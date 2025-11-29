@@ -57,6 +57,7 @@ set(BOOST_BUFFERS_DEPENDENCIES
     Boost::assert
     Boost::config
     Boost::core
+    Boost::system
     Boost::throw_exception)
 
 foreach (BOOST_BUFFERS_DEPENDENCY ${BOOST_BUFFERS_DEPENDENCIES})

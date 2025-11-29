@@ -24,6 +24,7 @@ else()
     assert
     config
     core
+    system
     throw_exception
 
     # Secondary dependencies
