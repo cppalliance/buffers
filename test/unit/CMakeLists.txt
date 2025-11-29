@@ -16,7 +16,7 @@ list(APPEND PFILES
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "" FILES ${PFILES})
 
-add_executable(boost_buffers_tests ${PFILES} ${EXTRAFILES})
+add_executable(boost_buffers_tests ${PFILES})
 target_link_libraries(
     boost_buffers_tests PRIVATE
     boost_url_test_suite_with_main
