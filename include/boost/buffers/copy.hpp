@@ -36,7 +36,7 @@ namespace buffers {
 
     @param src The source buffer sequence
 */
-constexpr struct
+constexpr struct copy_mrdocs_workaround_t
 {
     template<
         class MutableBufferSequence,

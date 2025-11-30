@@ -400,7 +400,7 @@ end() const noexcept ->
 
 /** Remove all but the first `n` bytes from a buffer sequence
 */
-constexpr struct
+constexpr struct keep_prefix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(
@@ -416,7 +416,7 @@ constexpr struct
 
 /** Remove all but the last `n` bytes from a buffer sequence
 */
-constexpr struct
+constexpr struct keep_suffix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(
@@ -433,7 +433,7 @@ constexpr struct
 
 /** Remove `n` bytes from the beginning of a buffer sequence
 */
-constexpr struct
+constexpr struct remove_prefix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(
@@ -448,7 +448,7 @@ constexpr struct
 
 /** Remove `n` bytes from the end of a buffer sequence
 */
-constexpr struct
+constexpr struct remove_suffix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(
@@ -471,7 +471,7 @@ constexpr struct
 
 /** Return a sequence representing the first `n` bytes of a buffer sequence
 */
-constexpr struct
+constexpr struct prefix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(
@@ -488,7 +488,7 @@ constexpr struct
 
 /** Return a sequence representing the last `n` bytes of a buffer sequence
 */
-constexpr struct
+constexpr struct suffix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(
@@ -505,7 +505,7 @@ constexpr struct
 
 /** Return a sequence representing all but the first `n` bytes of a buffer sequence
 */
-constexpr struct
+constexpr struct sans_prefix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(
@@ -522,7 +522,7 @@ constexpr struct
 
 /** Return a sequence representing all but the last `n` bytes of a buffer sequence
 */
-constexpr struct
+constexpr struct sans_suffix_mrdocs_workaround_t
 {
     template<class BufferSequence>
     auto operator()(

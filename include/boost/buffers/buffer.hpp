@@ -429,7 +429,7 @@ using const_buffer = basic_buffer<unsigned char const>;
 
     @param t The buffer sequence
 */
-constexpr struct
+constexpr struct begin_mrdocs_workaround_t
 {
     template<
         class ConvertibleToBuffer
@@ -491,7 +491,7 @@ constexpr struct
 
     @param t The buffer sequence
 */
-constexpr struct
+constexpr struct end_mrdocs_workaround_t
 {
     template<
         class ConvertibleToBuffer
@@ -626,7 +626,7 @@ tag_invoke(
     }
     @endcode
 */
-constexpr struct
+constexpr struct size_mrdocs_workaround_t
 {
     template<class ConstBufferSequence>
     constexpr auto operator()(
