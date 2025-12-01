@@ -55,6 +55,18 @@ struct read_source
         system::error_code&);
 };
 
+// blows up in gcc 5,6,7 without workarounds
+struct gcc_banger
+{
+    template<class T,
+        typename std::enable_if<
+            is_data_source<typename std::decay<T>::type>::value,
+        int>::type = 0>
+    gcc_banger(T&&);
+    
+    gcc_banger(gcc_banger&&) = default;
+};
+
 } // (anon)
 
 BOOST_CORE_STATIC_ASSERT(  is_data_source<test_source>::value);
@@ -62,6 +74,7 @@ BOOST_CORE_STATIC_ASSERT(! is_data_source<int>::value);
 BOOST_CORE_STATIC_ASSERT(! is_data_source<not_source1>::value);
 BOOST_CORE_STATIC_ASSERT(! is_data_source<not_source2>::value);
 BOOST_CORE_STATIC_ASSERT(! is_data_source<read_source>::value);
+BOOST_CORE_STATIC_ASSERT(! is_data_source<gcc_banger>::value);
 
 struct data_source_test
 {

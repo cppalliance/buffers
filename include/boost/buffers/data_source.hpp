@@ -40,13 +40,12 @@ struct is_data_source
 };
 
 template<class T>
-struct is_data_source<T, detail::void_t<typename
-    std::enable_if<
+struct is_data_source<T, detail::void_t<
+    decltype(std::declval<T const&>().data())>>
+    : std::integral_constant<bool,
         std::is_nothrow_move_constructible<T>::value &&
         buffers::is_const_buffer_sequence<
-            decltype(std::declval<T const&>().data())>::value
-        >::type> >
-    : std::true_type
+            decltype(std::declval<T const&>().data())>::value>
 {
 };
 
