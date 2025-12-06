@@ -330,7 +330,8 @@ struct any_buffers<IsConst>::
 
     bool is_small_buffers() const noexcept override
     {
-        return sizeof(*this) <= sbo_size;
+        return sizeof(*this) <=
+            any_buffers<IsConst>::sbo_size;
     }
 
     bool is_small_iter() const noexcept override
@@ -341,7 +342,7 @@ struct any_buffers<IsConst>::
     void destroy() const override
     {
         destroy(std::integral_constant<bool,
-            sizeof(*this) <= sbo_size>{});
+            sizeof(*this) <= any_buffers<IsConst>::sbo_size>{});
     }
 
     void destroy(std::true_type) const // small buffers
@@ -355,18 +356,20 @@ struct any_buffers<IsConst>::
             delete this;
     }
 
-    void copy(any_buffers& dest) const override
+    void copy(any_buffers<IsConst>& dest) const override
     {
         copy(dest, std::integral_constant<bool,
             sizeof(*this) <= sbo_size>{});
     }
 
-    void copy(any_buffers& dest, std::true_type) const // small buffers
+    void copy(any_buffers<IsConst>& dest,
+        std::true_type) const // small buffers
     {
         dest.p_ = ::new(&dest.storage_) impl<T>(t_);
     }
 
-    void copy(any_buffers& dest, std::false_type) const
+    void copy(any_buffers<IsConst>& dest,
+        std::false_type) const
     {
         ++refs_;
         dest.p_ = this;
@@ -392,7 +395,8 @@ struct any_buffers<IsConst>::
         --static_cast<iter_t*>(p)->i;
     }
 
-    value_type deref(void const* p) const override
+    typename any_buffers<IsConst>::value_type
+    deref(void const* p) const override
     {
         auto const& it_ = *static_cast<iter_t const*>(p);
         auto it = buffers::begin(t_);
