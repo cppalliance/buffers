@@ -359,7 +359,7 @@ struct any_buffers<IsConst>::
     void copy(any_buffers<IsConst>& dest) const override
     {
         copy(dest, std::integral_constant<bool,
-            sizeof(*this) <= sbo_size>{});
+            sizeof(*this) <= any_buffers<IsConst>::sbo_size>{});
     }
 
     void copy(any_buffers<IsConst>& dest,
