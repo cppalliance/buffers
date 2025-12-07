@@ -183,7 +183,7 @@ private:
 
     alignas(std::max_align_t)
         unsigned char mutable storage_[sbo_size] = {};
-    any_impl const* p_ = nullptr;
+    any_impl const* p_;
 };
 
 //-----------------------------------------------
@@ -599,7 +599,6 @@ public:
     const_iterator&
     operator--() noexcept
     {
-        BOOST_ASSERT(p_ != nullptr);
         p_->dec(&storage_);
         return *this;
     }
@@ -631,7 +630,6 @@ private:
         : p_(p)
     {
         p_->begin(&storage_);
-        BOOST_ASSERT(p_ != nullptr);
     }
 
     const_iterator(end_tag,
@@ -639,12 +637,11 @@ private:
         : p_(p)
     {
         p_->end(&storage_);
-        BOOST_ASSERT(p_ != nullptr);
     }
 
     alignas(std::max_align_t)
         unsigned char mutable storage_[iter_sbo_size] = {};
-    any_buffers::any_impl const* p_ = nullptr;
+    any_buffers::any_impl const* p_;
 };
 
 //-----------------------------------------------
@@ -679,8 +676,6 @@ any_buffers<IsConst>::
 begin() const noexcept ->
     const_iterator
 {
-    if(! p_)
-        return const_iterator();
     return const_iterator(typename
         const_iterator::begin_tag{}, p_);
 }
@@ -691,8 +686,6 @@ any_buffers<IsConst>::
 end() const noexcept ->
     const_iterator
 {
-    if(! p_)
-        return const_iterator();
     return const_iterator(typename
         const_iterator::end_tag{}, p_);
 }

@@ -40,12 +40,12 @@ struct any_buffers_test
     {
         BOOST_TEST_EQ(to_string(t), pat);
         any_const_buffers ab(t);
+        test::check_sequence(ab, pat);
         BOOST_TEST_EQ(length(ab), length(t));
         BOOST_TEST_EQ(to_string(ab), pat);
         any_const_buffers ab2(ab);
         BOOST_TEST_EQ(to_string(ab2), to_string(ab));
         BOOST_TEST_EQ(length(ab2), length(ab));
-        //test::check_sequence(t, pat);
     }
 
     template<class T>
@@ -55,10 +55,10 @@ struct any_buffers_test
         any_mutable_buffers ab(t);
         BOOST_TEST_EQ(length(ab), length(t));
         auto n = copy(ab, const_buffer(pat.data(), pat.size()));
+        test::check_sequence(ab, pat);
         BOOST_TEST_EQ(n, pat.size());
         BOOST_TEST_EQ(to_string(ab), pat);
         BOOST_TEST_EQ(to_string(ab), to_string(t));
-        //test::check_sequence(t, pat);
     }
 
     void testEmpty()
