@@ -7,9 +7,7 @@
 # Official repository: https://github.com/cppalliance/buffers
 #
 
-if (NOT TARGET boost_url_test_suite)
-    add_subdirectory(../../../url/extra/test_suite test_suite)
-endif()
+add_subdirectory(../../../url/extra/test_suite test_suite)
 
 file(GLOB_RECURSE PFILES CONFIGURE_DEPENDS *.cpp *.hpp)
 list(APPEND PFILES
