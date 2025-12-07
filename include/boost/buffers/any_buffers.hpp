@@ -244,8 +244,11 @@ struct any_buffers<IsConst>::
 
     void destroy(std::false_type) const
     {
-        if(--refs_ == 0)
+        if(refs_.fetch_sub( 1, std::memory_order_acq_rel ) == 1)
+        {
+            std::atomic_thread_fence(std::memory_order_acquire);
             delete this;
+        }
     }
 
     void copy(any_buffers& dest) const override
@@ -261,7 +264,7 @@ struct any_buffers<IsConst>::
 
     void copy(any_buffers& dest, std::false_type) const
     {
-        ++refs_;
+        refs_.fetch_add( 1, std::memory_order_acq_rel );
         dest.p_ = this;
     }
 

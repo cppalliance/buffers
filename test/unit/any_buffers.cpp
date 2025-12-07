@@ -18,6 +18,7 @@
 #include <boost/core/detail/static_assert.hpp>
 #include <boost/core/detail/string_view.hpp>
 
+#include "test_buffers.hpp"
 #include "test_suite.hpp"
 
 namespace boost {
@@ -35,27 +36,29 @@ namespace {
 struct any_buffers_test
 {
     template<class T>
-    void checkConst(T const& t, core::string_view s0)
+    void checkConst(T const& t, core::string_view pat)
     {
-        BOOST_TEST_EQ(to_string(t), s0);
+        BOOST_TEST_EQ(to_string(t), pat);
         any_const_buffers ab(t);
         BOOST_TEST_EQ(length(ab), length(t));
-        BOOST_TEST_EQ(to_string(ab), s0);
+        BOOST_TEST_EQ(to_string(ab), pat);
         any_const_buffers ab2(ab);
         BOOST_TEST_EQ(to_string(ab2), to_string(ab));
         BOOST_TEST_EQ(length(ab2), length(ab));
+        //test::check_sequence(t, pat);
     }
 
     template<class T>
-    void checkMutable(T const& t, core::string_view s0)
+    void checkMutable(T const& t, core::string_view pat)
     {
-        BOOST_TEST_EQ(size(t), s0.size());
+        BOOST_TEST_EQ(size(t), pat.size());
         any_mutable_buffers ab(t);
         BOOST_TEST_EQ(length(ab), length(t));
-        auto n = copy(ab, const_buffer(s0.data(), s0.size()));
-        BOOST_TEST_EQ(n, s0.size());
-        BOOST_TEST_EQ(to_string(ab), s0);
+        auto n = copy(ab, const_buffer(pat.data(), pat.size()));
+        BOOST_TEST_EQ(n, pat.size());
+        BOOST_TEST_EQ(to_string(ab), pat);
         BOOST_TEST_EQ(to_string(ab), to_string(t));
+        //test::check_sequence(t, pat);
     }
 
     void testEmpty()
