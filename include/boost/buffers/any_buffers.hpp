@@ -12,10 +12,11 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
+#include <boost/core/null_deleter.hpp>
 #include <boost/core/detail/static_assert.hpp>
 #include <boost/assert.hpp>
-#include <atomic>
 #include <cstddef>
+#include <memory>
 #include <new>
 #include <type_traits>
 
@@ -60,14 +61,12 @@ public:
 
     /** Destructor.
     */
-    ~any_buffers()
-    {
-        p_->destroy();
-    }
+    ~any_buffers() = default;
 
     /** Constructor.
         Default-constructed objects are empty with zero length.
     */
+    BOOST_BUFFERS_DECL
     any_buffers() noexcept;
 
     /** Constructor.
@@ -75,7 +74,7 @@ public:
     any_buffers(
         any_buffers const& other) noexcept
     {
-        other.p_->copy(*this);
+        other.sp_->copy(*this, other.sp_);
     }
 
     /** Assignment.
@@ -86,8 +85,7 @@ public:
     {
         if(this == &other)
             return *this;
-        p_->destroy();
-        other.p_->copy(*this);
+        other.sp_->copy(*this, other.sp_);
         return *this;
     }
 
@@ -107,6 +105,9 @@ public:
     any_buffers(
         BufferSequence&& buffers)
     {
+        BOOST_CORE_STATIC_ASSERT(
+            is_const_buffer_sequence<BufferSequence>::value && (IsConst ||
+            is_mutable_buffer_sequence<BufferSequence>::value));
         using T = typename std::decay<BufferSequence>::type;
         construct(std::forward<BufferSequence>(buffers),
             std::integral_constant<bool, (
@@ -139,8 +140,8 @@ private:
         virtual ~any_impl() = default;
         virtual bool is_small_buffers() const noexcept = 0;
         virtual bool is_small_iter() const noexcept = 0;
-        virtual void destroy() const = 0;
-        virtual void copy(any_buffers& dest) const = 0;
+        virtual void copy(any_buffers& dest,
+            std::shared_ptr<any_impl const> const&) const = 0;
         virtual void it_copy(void*, void const*) const = 0;
         virtual void it_destroy(void*) const = 0;
         virtual void inc(void*) const = 0;
@@ -160,30 +161,31 @@ private:
     void construct(T&& t, std::true_type)
     {
         using U = typename std::decay<T>::type;
-        p_ = ::new(&storage_) impl<U>(
-            std::forward<T>(t));
+        sp_ = {
+            ::new(&storage_) impl<U>(std::forward<T>(t)),
+            null_deleter{} };
     }
 
     template<class T>
     void construct(T&& t, std::false_type)
     {
         using U = typename std::decay<T>::type;
-        p_ = new impl<U>(std::forward<T>(t));
+        sp_ = std::make_shared<impl<U>>(std::forward<T>(t));
     }
 
     bool is_small_buffers() const noexcept
     {
-        return p_->is_small_buffers();
+        return sp_->is_small_buffers();
     }
 
     bool is_small_iter() const noexcept
     {
-        return p_->is_small_iter();
+        return sp_->is_small_iter();
     }
 
     alignas(std::max_align_t)
         unsigned char mutable storage_[sbo_size] = {};
-    any_impl const* p_;
+    std::shared_ptr<any_impl const> sp_;
 };
 
 //-----------------------------------------------
@@ -231,41 +233,29 @@ struct any_buffers<IsConst>::
         return true;
     }
 
-    void destroy() const override
+    void copy(any_buffers& dest,
+        std::shared_ptr<any_impl const> const& sp) const override
     {
-        destroy(std::integral_constant<bool,
+        copy(dest, sp, std::integral_constant<bool,
             sizeof(*this) <= sbo_size>{});
     }
 
-    void destroy(std::true_type) const // small buffers
+    void copy(
+        any_buffers& dest,
+        std::shared_ptr<any_impl const> const&,
+        std::true_type) const // small buffers
     {
-        this->~impl();
+        dest.sp_ = std::shared_ptr<impl<T>>(
+            ::new(&dest.storage_) impl<T>(t_),
+            null_deleter{} );
     }
 
-    void destroy(std::false_type) const
+    void copy(
+        any_buffers& dest,
+        std::shared_ptr<any_impl const> const&,
+        std::false_type) const
     {
-        if(refs_.fetch_sub( 1, std::memory_order_acq_rel ) == 1)
-        {
-            std::atomic_thread_fence(std::memory_order_acquire);
-            delete this;
-        }
-    }
-
-    void copy(any_buffers& dest) const override
-    {
-        copy(dest, std::integral_constant<bool,
-            sizeof(*this) <= sbo_size>{});
-    }
-
-    void copy(any_buffers& dest, std::true_type) const // small buffers
-    {
-        dest.p_ = ::new(&dest.storage_) impl<T>(t_);
-    }
-
-    void copy(any_buffers& dest, std::false_type) const
-    {
-        refs_.fetch_add( 1, std::memory_order_acq_rel );
-        dest.p_ = this;
+        dest.sp_ = std::make_shared<impl<T>>(t_);
     }
 
     void it_copy(void* dest, void const* src) const override
@@ -311,7 +301,6 @@ struct any_buffers<IsConst>::
 
 private:
     T t_;
-    std::atomic<std::size_t> mutable refs_{1};
 };
 
 template<bool IsConst>
@@ -342,40 +331,29 @@ struct any_buffers<IsConst>::
         return false;
     }
 
-    void destroy() const override
+    void copy(any_buffers& dest,
+        std::shared_ptr<any_impl const> const& sp) const override
     {
-        destroy(std::integral_constant<bool,
-            sizeof(*this) <= any_buffers<IsConst>::sbo_size>{});
+        copy(dest, sp, std::integral_constant<bool,
+            sizeof(*this) <= sbo_size>{});
     }
 
-    void destroy(std::true_type) const // small buffers
-    {
-        this->~impl();
-    }
-
-    void destroy(std::false_type) const
-    {
-        if(--refs_ == 0)
-            delete this;
-    }
-
-    void copy(any_buffers<IsConst>& dest) const override
-    {
-        copy(dest, std::integral_constant<bool,
-            sizeof(*this) <= any_buffers<IsConst>::sbo_size>{});
-    }
-
-    void copy(any_buffers<IsConst>& dest,
+    void copy(
+        any_buffers& dest,
+        std::shared_ptr<any_impl const> const&,
         std::true_type) const // small buffers
     {
-        dest.p_ = ::new(&dest.storage_) impl<T>(t_);
+        dest.sp_ = std::shared_ptr<impl<T>>(
+            ::new(&dest.storage_) impl<T>(t_),
+            null_deleter{});
     }
 
-    void copy(any_buffers<IsConst>& dest,
+    void copy(
+        any_buffers& dest,
+        std::shared_ptr<any_impl const> const&,
         std::false_type) const
     {
-        ++refs_;
-        dest.p_ = this;
+        dest.sp_ = std::make_shared<impl<T>>(t_);
     }
 
     void it_copy(void* dest, void const* src) const override
@@ -426,7 +404,6 @@ struct any_buffers<IsConst>::
 
 private:
     T t_;
-    std::atomic<std::size_t> mutable refs_{1};
     std::size_t len_;
 };
 
@@ -479,7 +456,7 @@ public:
     */
     ~const_iterator()
     {
-        p_->it_destroy(&storage_);
+        sp_->it_destroy(&storage_);
     }
 
     /** Default constructor.
@@ -495,9 +472,9 @@ public:
     */
     const_iterator(
         const_iterator const& other) noexcept
-        : p_(other.p_)
+        : sp_(other.sp_)
     {
-        p_->it_copy(&storage_, &other.storage_);
+        sp_->it_copy(&storage_, &other.storage_);
     }
 
     /** Copy assignment.
@@ -510,9 +487,9 @@ public:
     {
         if(this == &other)
             return *this;
-        p_->it_destroy(&storage_);
-        p_ = other.p_;
-        p_->it_copy(&storage_, &other.storage_);
+        sp_->it_destroy(&storage_);
+        sp_ = other.sp_;
+        sp_->it_copy(&storage_, &other.storage_);
         return *this;
     }
 
@@ -526,9 +503,9 @@ public:
     operator==(
         const_iterator const& other) const noexcept
     {
-        if(p_ != other.p_)
+        if(sp_ != other.sp_)
             return false;
-        return p_->equal(&storage_, &other.storage_);
+        return sp_->equal(&storage_, &other.storage_);
     }
 
     /** Test for inequality.
@@ -554,7 +531,7 @@ public:
     reference
     operator*() const noexcept
     {
-        return p_->deref(&storage_);
+        return sp_->deref(&storage_);
     }
 
     /** Pre-increment.
@@ -568,7 +545,7 @@ public:
     const_iterator&
     operator++() noexcept
     {
-        p_->inc(&storage_);
+        sp_->inc(&storage_);
         return *this;
     }
 
@@ -599,7 +576,7 @@ public:
     const_iterator&
     operator--() noexcept
     {
-        p_->dec(&storage_);
+        sp_->dec(&storage_);
         return *this;
     }
 
@@ -625,23 +602,23 @@ private:
     struct begin_tag {};
     struct end_tag {};
 
-    const_iterator(begin_tag,
-        any_impl const* p) noexcept
-        : p_(p)
+    const_iterator(begin_tag, std::shared_ptr<
+        any_impl const> const& sp) noexcept
+        : sp_(sp)
     {
-        p_->begin(&storage_);
+        sp_->begin(&storage_);
     }
 
-    const_iterator(end_tag,
-        any_impl const* p) noexcept
-        : p_(p)
+    const_iterator(end_tag, std::shared_ptr<
+        any_impl const> const& sp) noexcept
+        : sp_(sp)
     {
-        p_->end(&storage_);
+        sp_->end(&storage_);
     }
 
     alignas(std::max_align_t)
         unsigned char mutable storage_[iter_sbo_size] = {};
-    any_buffers::any_impl const* p_;
+    std::shared_ptr<any_buffers::any_impl const> sp_;
 };
 
 //-----------------------------------------------
@@ -677,7 +654,7 @@ begin() const noexcept ->
     const_iterator
 {
     return const_iterator(typename
-        const_iterator::begin_tag{}, p_);
+        const_iterator::begin_tag{}, sp_);
 }
 
 template<bool IsConst>
@@ -687,7 +664,7 @@ end() const noexcept ->
     const_iterator
 {
     return const_iterator(typename
-        const_iterator::end_tag{}, p_);
+        const_iterator::end_tag{}, sp_);
 }
 
 } // buffers
