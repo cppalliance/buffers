@@ -117,7 +117,9 @@ struct slice_test
             return;
         if(! BOOST_TEST_EQ(core::string_view(buf, n), s))
             return;
-        test::check_iterators(b, s);
+
+        std::string tmp;
+        test::check_iterators(b, s, tmp);
     }
 
     // Use a vector so that iterator invalidation is observable during testing.
@@ -180,7 +182,7 @@ struct slice_test
         std::string s;
         auto a = make_buffers(s, "boost.", "buffers.", "slice_");
         seq_type bs(a.begin(), a.end());
-        test::check_sequence(bs, s);
+        test::check_sequence(bs, s, true);
         //check(bs, s);
         //grind(bs, s);
     }
