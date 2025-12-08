@@ -110,20 +110,36 @@ BOOST_CORE_STATIC_ASSERT(std::is_assignable<any_source, read_source>::value);
 
 struct any_source_test
 {
+    void checkEmpty(any_source& s)
+    {
+        BOOST_TEST_EQ(s.has_size(), true);
+        BOOST_TEST_EQ(s.has_buffers(), true);
+        BOOST_TEST_EQ(s.size(), 0);
+        BOOST_TEST_EQ(size(s.data()), 0);
+        BOOST_TEST_NO_THROW(s.rewind());
+        mutable_buffer mb;
+        system::error_code ec;
+        auto const nread = s.read(mb, ec);
+        BOOST_TEST_EQ(nread, 0);
+        BOOST_TEST(ec == error::eof);
+        BOOST_TEST_NO_THROW(s.rewind());
+    }
+
     void grind(
         any_source& b,
         core::string_view s0,
         system::error_code fec = {})
     {
         char buf[16];
-        for(std::size_t n = 1; n <= sizeof(buf); ++n)
+        mutable_buffer mb(buf, sizeof(buf));
+        for(std::size_t n = 1; n <= mb.size(); ++n)
         {
             std::string s;
             system::error_code ec;
             b.rewind();
             for(;;)
             {
-                auto nread = b.read(buf, n, ec);
+                auto nread = b.read(mb, ec);
                 s.append(buf, nread);
                 if(ec == error::eof)
                 {
@@ -144,11 +160,7 @@ struct any_source_test
     void testEmpty()
     {
         any_source b;
-        BOOST_TEST_EQ(b.has_size(), true);
-        BOOST_TEST_EQ(b.size(), 0);
-        BOOST_TEST_EQ(b.has_buffers(), true);
-        BOOST_TEST_EQ(buffers::size(b.data()), 0);
-        BOOST_TEST_NO_THROW(b.rewind());
+        checkEmpty(b);
         grind(b, "");
     }
 
@@ -166,6 +178,7 @@ struct any_source_test
         grind(b1, s1);
 
         any_source b2 = std::move(b1);
+        checkEmpty(b1);
         BOOST_TEST_EQ(b2.has_size(), true);
         BOOST_TEST_EQ(b2.size(), s1.size());
         BOOST_TEST_EQ(b2.has_buffers(), true);
@@ -201,11 +214,7 @@ struct any_source_test
         BOOST_TEST_THROWS(b2.size(), std::invalid_argument);
         BOOST_TEST_THROWS(b2.data(), std::invalid_argument);
         BOOST_TEST_NO_THROW(b2.rewind());
-        BOOST_TEST_EQ(b1.has_size(), false);
-        BOOST_TEST_EQ(b1.has_buffers(), false);
-        BOOST_TEST_THROWS(b1.size(), std::invalid_argument);
-        BOOST_TEST_THROWS(b1.data(), std::invalid_argument);
-        BOOST_TEST_NO_THROW(b1.rewind());
+        checkEmpty(b1);
         grind(b2, s1);
 
         b1 = read_source(s2);

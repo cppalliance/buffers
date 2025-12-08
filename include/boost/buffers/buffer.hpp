@@ -676,6 +676,13 @@ length(ConstBufferSequence const& bs)
         buffers::begin(bs), buffers::end(bs), 0);
 }
 
+/** Alias for const_buffer or mutable_buffer depending on constness.
+*/
+template<class BufferSequence>
+using buffer_type = typename std::conditional<
+    is_mutable_buffer_sequence<BufferSequence>::value,
+    mutable_buffer, const_buffer>::type;
+
 } // buffers
 } // boost
 

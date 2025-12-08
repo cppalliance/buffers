@@ -80,8 +80,7 @@ any_source() noexcept
         }
 
         std::size_t read(
-            void*,
-            std::size_t,
+            span<mutable_buffer const>,
             system::error_code& ec) override
         {
             ec = error::eof;
@@ -91,6 +90,24 @@ any_source() noexcept
 
     static model instance;
     sp_ = { &instance, [](any_impl*) {} };
+}
+
+any_source::
+any_source(
+    any_source&& other) noexcept
+    : sp_(std::move(other.sp_))
+{
+    other.sp_ = any_source().sp_;
+}
+
+any_source&
+any_source::
+operator=(
+    any_source&& other) noexcept
+{
+    sp_ = std::move(other.sp_);
+    other.sp_ = any_source().sp_;
+    return *this;
 }
 
 } // buffers

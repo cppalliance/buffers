@@ -1,4 +1,4 @@
-# CLAUDE.md v2
+# CLAUDE.md v3
 
 ## Code Style
 
@@ -11,6 +11,7 @@
 - library cpp and private header files in "src/"
 - test files in "test/"
 - Prefer RAII rollback guards over try-catch for cleanup
+- No ABI compatibility guarantee in different Boost version
 
 ## Javadoc Documentation
 

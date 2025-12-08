@@ -19,6 +19,9 @@
 #include <boost/buffers/read_source.hpp>
 #include <boost/buffers/slice.hpp>
 #include <boost/buffers/detail/except.hpp>
+#include <boost/core/span.hpp>
+
+#include <type_traits>
 
 namespace boost {
 namespace buffers {
@@ -58,9 +61,42 @@ public:
     BOOST_BUFFERS_DECL
     any_source() noexcept;
 
+    /** Constructor
+
+        After the move, the moved-from source will be empty.
+    */
+    BOOST_BUFFERS_DECL
+    any_source(any_source&&) noexcept;
+
+    /** Constructor
+
+        After the copy, both sources share ownership of the same underlying source.
+    */
     any_source(any_source const&) = default;
 
+    /** Assignment
+
+        After the move, the moved-from source will be empty.
+    */
+    BOOST_BUFFERS_DECL
+    any_source& operator=(any_source&&) noexcept;
+
+    /** Assignment
+
+        After the copy, both sources share ownership of the same underlying source.
+    */
     any_source& operator=(any_source const&) = default;
+
+    /** Construct a data source.
+    */
+    template<class DataSource, typename std::enable_if<
+        std::conditional<
+            std::is_same<typename std::decay<
+                DataSource>::type, any_source>::value,
+            std::false_type,
+            is_data_source<typename std::decay<DataSource>::type>
+        >::type::value, int>::type = 0>
+    any_source(DataSource&& source);
 
     /** Construct a read source.
     */
@@ -85,17 +121,6 @@ public:
     any_source(
         std::size_t known_size,
         ReadSource&& source);
-
-    /** Construct a data source.
-    */
-    template<class DataSource, typename std::enable_if<
-        std::conditional<
-            std::is_same<typename std::decay<
-                DataSource>::type, any_source>::value,
-            std::false_type,
-            is_data_source<typename std::decay<DataSource>::type>
-        >::type::value, int>::type = 0>
-    any_source(DataSource&& source);
 
     /** Return `true` if the size of the source is known.
     */
@@ -145,18 +170,44 @@ public:
         When the last byte of data has been read,
         @p ec is set to @ref error::eof.
 
-        @param dest A pointer to the buffer to read into.
-        @param n The maximum number of bytes to read.
+        @param dest The buffer sequence to write to
         @param ec Set to the error, if any occurred.
         @return The number of bytes read, which may be
-        less than the number requested. 
+        less than `size(dest)`.
     */
-    auto
-    read(void* dest, std::size_t n,
+    template<class MutableBufferSequence>
+    auto read(
+        MutableBufferSequence const& dest,
         system::error_code& ec) ->
             std::size_t
     {
-        return sp_->read(dest, n, ec);
+        std::size_t result = 0;
+        constexpr std::size_t N = 16;
+        std::size_t n = 0;
+        mutable_buffer mb[N];
+        auto it = buffers::begin(dest);
+        auto const end_ = buffers::end(dest);
+        if(it == end_)
+            return 0;
+        for(;;)
+        {
+            mb[n++] = *it++;
+            if( n < N &&
+                it != end_)
+                continue;
+            span<mutable_buffer const> dest1{ mb, n };
+            auto const nread = sp_->read(dest1, ec);
+            BOOST_ASSERT(
+                ec.failed() ||
+                nread == buffers::size(dest1));
+            result += nread;
+            if(ec.failed())
+                break;
+            if(it == end_)
+                break;
+            n = 0;
+        }
+        return result;
     }
 
 private:
@@ -170,14 +221,166 @@ private:
         virtual auto data() const -> any_const_buffers;
         virtual void rewind() = 0;
         virtual std::size_t read(
-            void* dest, std::size_t n,
+            span<mutable_buffer const> dest,
             system::error_code& ec) = 0;
     };
+
+    template<class> struct data_model;
+    template<class> struct read_model;
+    template<class> struct sized_read_model;
 
     std::shared_ptr<any_impl> sp_;
 };
 
 //-----------------------------------------------
+
+template<class DataSource>
+struct any_source::
+    data_model
+    : any_source::any_impl
+{
+    typename std::decay<DataSource>::type source_;
+    std::size_t size_ = 0;
+    std::size_t nread_ = 0;
+
+    template<class DataSource_>
+    explicit data_model(
+        DataSource_&& source) noexcept
+        : source_(std::forward<DataSource_>(source))
+        , size_(buffers::size(source_.data()))
+    {
+    }
+
+    bool has_size() const noexcept override
+    {
+        return true;
+    }
+
+    bool has_buffers() const noexcept override
+    {
+        return true;
+    }
+
+    std::size_t size() const override
+    {
+        return size_;
+    }
+
+    any_const_buffers
+    data() const override
+    {
+        return source_.data();
+    }
+
+    void rewind() override
+    {
+        nread_ = 0;
+    }
+
+    std::size_t read(
+        span<mutable_buffer const> dest,
+        system::error_code& ec) override
+    {
+        std::size_t n = copy(dest,
+            sans_prefix(source_.data(), nread_));
+        nread_ += n;
+        if(nread_ >= size_)
+            ec = error::eof;
+        else
+            ec = {};
+        return n;
+    }
+};
+
+//-----------------------------------------------
+
+template<class ReadSource>
+struct any_source::
+    read_model : any_source::any_impl
+{
+    ReadSource source_;
+
+    template<class ReadSource_>
+    explicit read_model(
+        ReadSource_&& source)
+        : source_(std::forward<ReadSource_>(source))
+    {
+    }
+
+    void rewind() override
+    {
+        source_.rewind();
+    }
+
+    std::size_t read(
+        span<mutable_buffer const> dest,
+        system::error_code& ec) override
+    {
+        return source_.read(dest, ec);
+    }
+};
+
+//-----------------------------------------------
+
+template<class ReadSource>
+struct any_source::
+    sized_read_model : any_source::any_impl
+{
+    std::size_t size_;
+    ReadSource source_;
+
+    template<class ReadSource_>
+    explicit sized_read_model(
+        ReadSource_&& source,
+        std::size_t known_size)
+        : size_(known_size)
+        , source_(std::forward<ReadSource_>(source))
+    {
+    }
+
+    bool has_size() const noexcept override
+    {
+        return true;
+    }
+
+    std::size_t size() const override
+    {
+        return size_;
+    }
+
+    void rewind() override
+    {
+        source_.rewind();
+    }
+
+    std::size_t
+    read(
+        span<mutable_buffer const> dest,
+        system::error_code& ec) override
+    {
+        return source_.read(dest, ec);
+    }
+};
+
+//-----------------------------------------------
+
+template<class DataSource, typename std::enable_if<
+    std::conditional<
+        std::is_same<typename std::decay<
+            DataSource>::type, any_source>::value,
+        std::false_type,
+        is_data_source<typename std::decay<DataSource>::type>
+    >::type::value, int>::type>
+any_source::
+any_source(
+    DataSource&& source)
+{
+    // VFALCO this requires DataSource to be nothrow
+    // move constructible for strong exception safety.
+    using type = typename std::decay<DataSource>::type;
+    sp_ = std::make_shared<data_model<type>>(
+        std::forward<DataSource>(source));
+}
 
 template<class ReadSource, typename std::enable_if<
     std::conditional<
@@ -190,40 +393,8 @@ any_source::
 any_source(
     ReadSource&& source)
 {
-    struct model : any_impl
-    {
-        system::error_code ec_;
-        typename std::decay<ReadSource>::type source_;
-
-        explicit model(ReadSource&& source)
-            : source_(std::forward<ReadSource>(source))
-        {
-        }
-
-        void rewind() override
-        {
-            ec_ = {};
-            source_.rewind();
-        }
-
-        std::size_t read(
-            void* dest,
-            std::size_t size,
-            system::error_code& ec) override
-        {
-            if(ec_.failed())
-            {
-                ec = ec_;
-                return 0;
-            }
-            auto nread = source_.read(
-                mutable_buffer(dest, size), ec);
-            ec_ = ec;
-            return nread;
-        }
-    };
-
-    sp_ = std::make_shared<model>(
+    using type = typename std::decay<ReadSource>::type;
+    sp_ = std::make_shared<read_model<type>>(
         std::forward<ReadSource>(source));
 }
 
@@ -241,130 +412,9 @@ any_source(
     std::size_t known_size,
     ReadSource&& source)
 {
-    struct model : any_impl
-    {
-        std::size_t size_;
-        system::error_code ec_;
-        typename std::decay<ReadSource>::type source_;
-
-        model(
-            ReadSource&& source,
-            std::size_t known_size)
-            : size_(known_size)
-            , source_(std::forward<ReadSource>(source))
-        {
-        }
-
-        bool has_size() const noexcept override
-        {
-            return true;
-        }
-
-        std::size_t size() const override
-        {
-            return size_;
-        }
-
-        void rewind() override
-        {
-            ec_ = {};
-            source_.rewind();
-        }
-
-        std::size_t read(
-            void* dest,
-            std::size_t size,
-            system::error_code& ec) override
-        {
-            if(ec_.failed())
-            {
-                ec = ec_;
-                return 0;
-            }
-            auto nread = source_.read(
-                mutable_buffer(dest, size), ec);
-            ec_ = ec;
-            return nread;
-        }
-    };
-
-    sp_ = std::make_shared<model>(
+    using type = typename std::decay<ReadSource>::type;
+    sp_ = std::make_shared<sized_read_model<type>>(
         std::forward<ReadSource>(source), known_size);
-}
-
-/** Construct a buffers source source.
-*/
-template<class DataSource, typename std::enable_if<
-    std::conditional<
-        std::is_same<typename std::decay<
-            DataSource>::type, any_source>::value,
-        std::false_type,
-        is_data_source<typename std::decay<DataSource>::type>
-    >::type::value, int>::type>
-any_source::
-any_source(
-    DataSource&& source)
-{
-    struct model : any_impl
-    {
-        typename std::decay<DataSource>::type source_;
-        std::size_t size_ = 0;
-        std::size_t nread_ = 0;
-
-        explicit model(
-            DataSource&& source) noexcept
-            : source_(std::forward<DataSource>(source))
-            , size_(buffers::size(source_.data()))
-        {
-        }
-
-        bool has_size() const noexcept override
-        {
-            return true;
-        }
-
-        bool has_buffers() const noexcept override
-        {
-            return true;
-        }
-
-        std::size_t size() const override
-        {
-            return size_;
-        }
-
-        any_const_buffers
-        data() const override
-        {
-            return source_.data();
-        }
-
-        void rewind() override
-        {
-            nread_ = 0;
-        }
-
-        std::size_t read(
-            void* dest,
-            std::size_t n0,
-            system::error_code& ec) override
-        {
-            std::size_t n = copy(
-                mutable_buffer(dest, n0),
-                sans_prefix(source_.data(), nread_));
-            nread_ += n;
-            if(nread_ >= size_)
-                ec = error::eof;
-            else
-                ec = {};
-            return n;
-        }
-    };
-
-    // VFALCO this requires DataSource to be nothrow
-    // move constructible for strong exception safety.
-    sp_ = std::make_shared<model>(
-        std::forward<DataSource>(source));
 }
 
 } // buffers
