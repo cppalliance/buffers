@@ -17,6 +17,7 @@
 #include <boost/static_assert.hpp>
 
 #include <array>
+#include <vector>
 
 #include "test_buffers.hpp"
 #include "test_suite.hpp"
@@ -116,10 +117,13 @@ struct slice_test
             return;
         if(! BOOST_TEST_EQ(core::string_view(buf, n), s))
             return;
-        test::check_iterators(b, s);
+
+        std::string tmp;
+        test::check_iterators(b, s, tmp);
     }
 
-    using seq_type = std::array<const_buffer, 3>;
+    // Use a vector so that iterator invalidation is observable during testing.
+    using seq_type = std::vector<const_buffer>;
 
     void
     grind_back(
@@ -176,9 +180,9 @@ struct slice_test
     run()
     {
         std::string s;
-        seq_type bs =  make_buffers(s,
-            "boost.", "buffers.", "slice_" );
-        test::check_sequence(bs, s);
+        auto a = make_buffers(s, "boost.", "buffers.", "slice_");
+        seq_type bs(a.begin(), a.end());
+        test::check_sequence(bs, s, true);
         //check(bs, s);
         //grind(bs, s);
     }
