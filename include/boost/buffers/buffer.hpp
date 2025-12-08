@@ -143,7 +143,7 @@ struct slice_tag {};
     overloads of `tag_invoke` for user-defined
     types which customize the slicing algorithms.
 */
-enum class slice_how
+enum struct slice_how
 {
     /// Indicates that the front of the buffer sequence should be trimmed
     remove_prefix,
