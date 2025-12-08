@@ -29,13 +29,11 @@ any_buffers() noexcept
             return true;
         }
 
-        void destroy() const override
+        void copy(
+            any_buffers& dest,
+            std::shared_ptr<any_impl const> const& sp) const override
         {
-        }
-
-        void copy(any_buffers& dest) const override
-        {
-            dest.p_ = this;
+            dest.sp_ = sp;
         }
 
         void it_copy(void*, void const*) const override
@@ -74,7 +72,8 @@ any_buffers() noexcept
     };
 
     static impl const instance;
-    p_ = &instance;
+    sp_ = std::shared_ptr<any_impl const>(
+        &instance, null_deleter{} );
 }
 
 template<>
@@ -93,13 +92,11 @@ any_buffers() noexcept
             return true;
         }
 
-        void destroy() const override
+        void copy(
+            any_buffers& dest,
+            std::shared_ptr<any_impl const> const& sp) const override
         {
-        }
-
-        void copy(any_buffers& dest) const override
-        {
-            dest.p_ = this;
+            dest.sp_ = sp;
         }
 
         void it_copy(void*, void const*) const override
@@ -138,7 +135,8 @@ any_buffers() noexcept
     };
 
     static impl const instance;
-    p_ = &instance;
+    sp_ = std::shared_ptr<any_impl const>(
+        &instance, null_deleter{} );
 }
 
 template<>
@@ -146,7 +144,7 @@ any_buffers<true>::
 any_buffers::
 const_iterator::
 const_iterator() noexcept
-    : p_(any_buffers<true>().begin().p_)
+    : sp_(any_buffers<true>().begin().sp_)
 {
 }
 
@@ -155,7 +153,7 @@ any_buffers<false>::
 any_buffers::
 const_iterator::
 const_iterator() noexcept
-    : p_(any_buffers<false>().begin().p_)
+    : sp_(any_buffers<false>().begin().sp_)
 {
 }
 
