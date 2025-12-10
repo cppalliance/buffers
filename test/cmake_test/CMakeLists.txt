@@ -29,6 +29,7 @@ else()
 
     # Secondary dependencies
 
+    compat
   )
 
   foreach(dep IN LISTS deps)
