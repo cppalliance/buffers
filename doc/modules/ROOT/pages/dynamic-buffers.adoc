@@ -28,3 +28,4 @@ which may be automatically sized as required.
 * The input sequence is returned by calling `data()`
 
 * The input sequence is released by calling `consume(n)`
+

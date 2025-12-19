@@ -1,0 +1,110 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie dot falco at gmail dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= ReadSource
+
+A __ReadSource__ represents a source of data that can be read into caller-provided
+buffers. Data is obtained by calling the `read` member function one or more times,
+until it sets cpp:error::eof[] in the error code to indicate no more data is
+available.
+
+Read sources are useful for representing streaming data sources where the complete
+data may not be available in memory, such as file streams or generated data.
+
+== Related Identifiers
+
+cpp:is_read_source[], cpp:has_size[], cpp:has_rewind[]
+
+== Requirements
+
+* `S` denotes a read source class.
+* `s` denotes a value of type `S`.
+* `c` denotes a (possibly const) value of type `S`.
+* `ec` denotes a value of type `system::error_code&`.
+* `M` denotes a type meeting the requirements for xref:MutableBufferSequence.adoc[_MutableBufferSequence_].
+* `m` denotes a value of type `M const&`.
+
+[cols="1a,1a,5a"]
+|===
+// Headers
+|Expression|Type|Semantics, Pre/Post-conditions
+
+|`s.read(m, ec)`
+|`std::size_t`
+|Reads data from the source into the mutable buffer sequence `m`. Returns the
+number of bytes written to the buffers. When no more data is available,
+cpp:error::eof[] is set in `ec`. On success, `ec` is cleared.
+
+|`c.size()` (optional)
+|`std::uint64_t`
+|Returns the total size, in bytes, of the data that can be read from the source.
+This member is optional. The metafunction cpp:has_size[] may be used to detect
+its availability.
+
+|`s.rewind()` (optional)
+|
+|Resets the source to its initial state, allowing the data to be read again from
+the beginning. This member is optional. The metafunction cpp:has_rewind[] may be
+used to detect its availability.
+
+|===
+
+== Example
+
+[source,cpp]
+----
+struct my_read_source
+{
+    std::string data_;
+    std::size_t pos_ = 0;
+
+    explicit my_read_source(std::string s)
+        : data_(std::move(s))
+    {
+    }
+
+    std::uint64_t size() const noexcept
+    {
+        return data_.size();
+    }
+
+    void rewind()
+    {
+        pos_ = 0;
+    }
+
+    template<class MutableBufferSequence>
+    std::size_t read(
+        MutableBufferSequence const& buffers,
+        system::error_code& ec)
+    {
+        std::size_t n = buffers::copy(
+            buffers,
+            const_buffer(
+                data_.data() + pos_,
+                data_.size() - pos_));
+        pos_ += n;
+        if(pos_ >= data_.size())
+            ec = error::eof;
+        else
+            ec = {};
+        return n;
+    }
+};
+
+static_assert(is_read_source<my_read_source>::value, "");
+static_assert(has_size<my_read_source>::value, "");
+static_assert(has_rewind<my_read_source>::value, "");
+----
+
+== See Also
+
+* cpp:any_source[] - a type-erased wrapper that can hold either a _ReadSource_ or _DataSource_
+* xref:DataSource.adoc[_DataSource_] - a concept for in-memory data sources
+

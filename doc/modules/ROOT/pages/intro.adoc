@@ -80,8 +80,8 @@ There are some caveats with this approach:
 
 The approach taken by this library is the same as the approach used in the popular
 Boost.Asio network library. That is, to define the concepts
-xref:5.1.ConstBufferSequence.adoc[_ConstBufferSequence_] and
-xref:5.2.MutableBufferSequence.adoc[_MutableBufferSequence_] for
+xref:ConstBufferSequence.adoc[_ConstBufferSequence_] and
+xref:MutableBufferSequence.adoc[_MutableBufferSequence_] for
 representing buffer sequences with these semantics:
 
 * A buffer sequence is cheap to copy.
@@ -111,3 +111,4 @@ frequency that the library provides a custom implementation for representing
 them. Objects of types cpp:const_buffer_pair[] and cpp:mutable_buffer_pair[] are
 buffer sequences of length two. These are the type of sequences returned by
 the cpp:circular_buffer[], discussed later.
+

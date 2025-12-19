@@ -1,0 +1,100 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie dot falco at gmail dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= DataSource
+
+A __DataSource__ represents a source of data that is available as a constant
+buffer sequence in memory. Unlike a xref:ReadSource.adoc[_ReadSource_],
+which provides data through a streaming `read` interface, a data source
+exposes its entire contents directly through a `data()` member function.
+
+Data sources are useful for representing objects whose binary representation
+is already available in memory and can be accessed without copying, such as
+strings, byte arrays, or memory-mapped files.
+
+== Related Identifiers
+
+cpp:is_data_source[]
+
+== Requirements
+
+* `D` denotes a data source class.
+* `c` denotes a (possibly const) value of type `D`.
+* `T` denotes a type meeting the requirements for xref:ConstBufferSequence.adoc[_ConstBufferSequence_].
+
+[cols="1a,1a,5a"]
+|===
+// Headers
+|Expression|Type|Semantics, Pre/Post-conditions
+
+|`D(D&&)`
+|
+|Data sources must be nothrow move constructible.
+
+|`c.data()`
+|`T`
+|Returns a constant buffer sequence representing the data. This function must
+be `noexcept`. The returned buffer sequence remains valid for at least as long
+as the data source object exists and is not modified.
+
+|===
+
+== Example
+
+[source,cpp]
+----
+struct my_data_source
+{
+    std::string data_;
+
+    explicit my_data_source(std::string s) noexcept
+        : data_(std::move(s))
+    {
+    }
+
+    // Move constructor required
+    my_data_source(my_data_source&&) noexcept = default;
+
+    const_buffer data() const noexcept
+    {
+        return const_buffer(data_.data(), data_.size());
+    }
+};
+
+static_assert(is_data_source<my_data_source>::value, "");
+----
+
+== Comparison with ReadSource
+
+|===
+|Feature|DataSource|ReadSource
+
+|Data access
+|Direct via `data()` returning buffer sequence
+|Streaming via `read()` into caller-provided buffers
+
+|Memory
+|Data must be in memory
+|Data can be generated or streamed
+
+|Multiple reads
+|Implicit (buffer sequence can be iterated multiple times)
+|Requires `rewind()` if available
+
+|Size
+|Implicit (via `buffers::size(data())`)
+|Optional `size()` member
+
+|===
+
+== See Also
+
+* cpp:any_source[] - a type-erased wrapper that can hold either a _DataSource_ or _ReadSource_
+* xref:ReadSource.adoc[_ReadSource_] - a streaming data source concept
+
