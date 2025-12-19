@@ -6,4 +6,6 @@
 ** xref:5.1.ConstBufferSequence.adoc[]
 ** xref:5.2.MutableBufferSequence.adoc[]
 ** xref:5.3.DynamicBuffer.adoc[]
+** xref:5.4.ReadSource.adoc[]
+** xref:5.5.DataSource.adoc[]
 * xref:reference:boost/buffers.adoc[Reference]
