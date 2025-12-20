@@ -27,7 +27,7 @@ cpp:is_read_source[], cpp:has_size[], cpp:has_rewind[]
 * `s` denotes a value of type `S`.
 * `c` denotes a (possibly const) value of type `S`.
 * `ec` denotes a value of type `system::error_code&`.
-* `M` denotes a type meeting the requirements for xref:./5.2.MutableBufferSequence.adoc[_MutableBufferSequence_].
+* `M` denotes a type meeting the requirements for xref:MutableBufferSequence.adoc[_MutableBufferSequence_].
 * `m` denotes a value of type `M const&`.
 
 [cols="1a,1a,5a"]
@@ -106,5 +106,5 @@ static_assert(has_rewind<my_read_source>::value, "");
 == See Also
 
 * cpp:any_source[] - a type-erased wrapper that can hold either a _ReadSource_ or _DataSource_
-* xref:5.5.DataSource.adoc[_DataSource_] - a concept for in-memory data sources
+* xref:DataSource.adoc[_DataSource_] - a concept for in-memory data sources
 

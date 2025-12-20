@@ -28,8 +28,8 @@ cpp:is_dynamic_buffer[]
 * `a` denotes a value of type `D`.
 * `c` denotes a (possibly const) value of type `D`.
 * `n` denotes a value of type `std::size_t`.
-* `T` denotes a type meeting the requirements for xref:./5.1.ConstBufferSequence.adoc[_ConstBufferSequence_].
-* `U` denotes a type meeting the requirements for xref:./5.2.MutableBufferSequence.adoc[_MutableBufferSequence_].
+* `T` denotes a type meeting the requirements for xref:ConstBufferSequence.adoc[_ConstBufferSequence_].
+* `U` denotes a type meeting the requirements for xref:MutableBufferSequence.adoc[_MutableBufferSequence_].
 
 [cols="1a,1a,5a"]
 |===
@@ -95,3 +95,4 @@ constant or mutable buffer sequences previously obtained using `data()` or
 * `circular_buffer`
 * `flat_buffer`
 * `string_buffer`
+
