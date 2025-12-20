@@ -41,7 +41,10 @@ explicit buffers_sources ;
 lib boost_buffers
    : buffers_sources
    : requirements
+     <library>/boost//capy
+     <include>../
    : usage-requirements
+     <library>/boost//capy
    ;
 
 boost-install boost_buffers ;
