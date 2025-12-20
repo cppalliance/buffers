@@ -22,6 +22,7 @@ else()
     # Primary dependencies
 
     assert
+    capy
     config
     core
     system
