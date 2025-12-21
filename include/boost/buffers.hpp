@@ -12,7 +12,9 @@
 
 #include <boost/buffers/any_buffers.hpp>
 #include <boost/buffers/any_read_source.hpp>
+#include <boost/buffers/any_sink.hpp>
 #include <boost/buffers/any_source.hpp>
+#include <boost/buffers/any_stream.hpp>
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/buffer_pair.hpp>
 #include <boost/buffers/circular_buffer.hpp>
