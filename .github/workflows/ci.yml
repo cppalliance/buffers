@@ -1143,6 +1143,13 @@ jobs:
         with:
           path: buffers-root
 
+      - name: Clone Boost.Capy
+        uses: actions/checkout@v3
+        with:
+          path: capy-root
+          repository: cppalliance/capy
+          ref: develop
+
       - name: Clone Boost
         uses: alandefreitas/cpp-actions/boost-clone@v1.9.0
         id: boost-clone
@@ -1184,7 +1191,7 @@ jobs:
 
           # Patch boost-root with workspace module
           cp -r "$workspace_root"/buffers-root "libs/$module"
-
+          cp -r "$workspace_root"/capy-root libs/capy
 
       - uses: actions/setup-node@v4
         with:
