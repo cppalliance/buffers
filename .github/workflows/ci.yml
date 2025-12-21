@@ -895,8 +895,12 @@ jobs:
           branch: ${{ (github.ref_name == 'master' && github.ref_name) || 'develop' }}
           boost-dir: boost-source
           modules-exclude-paths: ''
-          scan-modules-dir: buffers-root
-          scan-modules-ignore: buffers
+          scan-modules-dir: |
+            buffers-root
+            capy-root
+          scan-modules-ignore: |
+            buffers
+            capy
 
       - name: Patch Boost
         id: patch
@@ -929,6 +933,7 @@ jobs:
 
           # Patch boost-root with workspace module
           cp -r "$workspace_root"/buffers-root "libs/$module"
+          cp -r "$workspace_root"/capy-root libs/capy
 
       - name: Boost B2 Workflow
         uses: alandefreitas/cpp-actions/b2-workflow@v1.9.0
