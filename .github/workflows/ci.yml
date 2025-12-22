@@ -864,15 +864,8 @@ jobs:
         with:
           path: buffers-root
 
-      - name: Clone Boost.Capy
-        uses: actions/checkout@v3
-        with:
-          path: capy-root
-          repository: cppalliance/capy
-          ref: develop
-
       - name: Setup C++
-        uses: alandefreitas/cpp-actions/setup-cpp@v1.9.0
+        uses: alandefreitas/cpp-actions/setup-cpp@v1.9.2
         id: setup-cpp
         with:
           compiler: ${{ matrix.compiler }}
@@ -881,7 +874,7 @@ jobs:
           trace-commands: true
 
       - name: Install packages
-        uses: alandefreitas/cpp-actions/package-install@v1.9.0
+        uses: alandefreitas/cpp-actions/package-install@v1.9.2
         id: package-install
         with:
           apt-get: >-
@@ -889,18 +882,16 @@ jobs:
             build-essential
 
       - name: Clone Boost
-        uses: alandefreitas/cpp-actions/boost-clone@v1.9.0
+        uses: alandefreitas/cpp-actions/boost-clone@v1.9.2
         id: boost-clone
         with:
           branch: ${{ (github.ref_name == 'master' && github.ref_name) || 'develop' }}
           boost-dir: boost-source
           modules-exclude-paths: ''
-          scan-modules-dir: |
-            buffers-root
-            capy-root
-          scan-modules-ignore: |
-            buffers
-            capy
+          scan-modules-dir: buffers-root
+          scan-modules-ignore: buffers
+          patches: |
+            https://github.com/cppalliance/capy
 
       - name: Patch Boost
         id: patch
@@ -933,10 +924,9 @@ jobs:
 
           # Patch boost-root with workspace module
           cp -r "$workspace_root"/buffers-root "libs/$module"
-          cp -r "$workspace_root"/capy-root libs/capy
 
       - name: Boost B2 Workflow
-        uses: alandefreitas/cpp-actions/b2-workflow@v1.9.0
+        uses: alandefreitas/cpp-actions/b2-workflow@v1.9.2
         if: ${{ !matrix.coverage && !matrix.time-trace }}
         with:
           source-dir: boost-root
@@ -954,7 +944,7 @@ jobs:
           stop-on-error: true
 
       - name: Boost CMake Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.2
         if: ${{ matrix.coverage || matrix.time-trace || matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root
@@ -991,7 +981,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/.local/lib:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
 
 #      - name: Find Package Integration Workflow
-#        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.0
+#        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.2
 #        if: ${{ matrix.build-cmake || matrix.is-earliest }}
 #        with:
 #          source-dir: boost-root/libs/${{ steps.patch.outputs.module }}/test/cmake_test
@@ -1014,7 +1004,7 @@ jobs:
 #          trace-commands: true
 
 #      - name: Subdirectory Integration Workflow
-#        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.0
+#        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.2
 #        if: ${{ matrix.build-cmake || matrix.is-earliest }}
 #        with:
 #          source-dir: boost-root/libs/${{ steps.patch.outputs.module }}/test/cmake_test
@@ -1034,7 +1024,7 @@ jobs:
 #          ref-source-dir: boost-root/libs/buffers/test/cmake_test
 
       - name: Root Project CMake Workflow
-        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.0
+        uses: alandefreitas/cpp-actions/cmake-workflow@v1.9.2
         if: ${{ matrix.build-cmake || matrix.is-earliest }}
         with:
           source-dir: boost-root/libs/${{ steps.patch.outputs.module }}
@@ -1058,7 +1048,7 @@ jobs:
           toolchain: ${{ (startsWith(matrix.runs-on, 'windows') && steps.patch-user-config.outputs.toolchain) || '' }}
 
       - name: FlameGraph
-        uses: alandefreitas/cpp-actions/flamegraph@v1.9.0
+        uses: alandefreitas/cpp-actions/flamegraph@v1.9.2
         if: matrix.time-trace
         with:
           source-dir: boost-root/libs/buffers
@@ -1111,7 +1101,7 @@ jobs:
           fetch-depth: 100
 
       - name: Changelog
-        uses: alandefreitas/cpp-actions/create-changelog@v1.9.0
+        uses: alandefreitas/cpp-actions/create-changelog@v1.9.2
         with:
           thank-non-regular: ${{ startsWith(github.ref, 'refs/tags/') }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -1134,7 +1124,7 @@ jobs:
         shell: bash
     steps:
       - name: Install packages
-        uses: alandefreitas/cpp-actions/package-install@v1.9.0
+        uses: alandefreitas/cpp-actions/package-install@v1.9.2
         with:
           apt-get: git cmake
 
@@ -1143,15 +1133,8 @@ jobs:
         with:
           path: buffers-root
 
-      - name: Clone Boost.Capy
-        uses: actions/checkout@v3
-        with:
-          path: capy-root
-          repository: cppalliance/capy
-          ref: develop
-
       - name: Clone Boost
-        uses: alandefreitas/cpp-actions/boost-clone@v1.9.0
+        uses: alandefreitas/cpp-actions/boost-clone@v1.9.2
         id: boost-clone
         with:
           branch: ${{ (github.ref_name == 'master' && github.ref_name) || 'develop' }}
@@ -1159,6 +1142,8 @@ jobs:
           modules-exclude-paths: ''
           scan-modules-dir: buffers-root
           scan-modules-ignore: buffers
+          patches: |
+            https://github.com/cppalliance/capy
 
       - name: Patch Boost
         id: patch
@@ -1191,7 +1176,6 @@ jobs:
 
           # Patch boost-root with workspace module
           cp -r "$workspace_root"/buffers-root "libs/$module"
-          cp -r "$workspace_root"/capy-root libs/capy
 
       - uses: actions/setup-node@v4
         with:
