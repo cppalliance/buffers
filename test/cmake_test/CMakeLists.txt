@@ -16,26 +16,8 @@ if(BOOST_CI_INSTALL_TEST)
   find_package(Boost CONFIG REQUIRED COMPONENTS buffers)
 else()
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-  add_subdirectory(../.. boostorg/buffers)
-
-  set(deps
-    # Primary dependencies
-
-    assert
-    capy
-    config
-    core
-    system
-    throw_exception
-
-    # Secondary dependencies
-
-    compat
-  )
-
-  foreach(dep IN LISTS deps)
-    add_subdirectory(../../../${dep} boostorg/${dep} EXCLUDE_FROM_ALL)
-  endforeach()
+  set(BOOST_INCLUDE_LIBRARIES buffers)
+  add_subdirectory(../../../.. boostorg/boost)
 endif()
 
 add_executable(main main.cpp)
