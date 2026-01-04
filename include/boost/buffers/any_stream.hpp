@@ -15,7 +15,7 @@
 #ifdef BOOST_BUFFERS_HAS_CORO
 
 #include <boost/buffers/buffer.hpp>
-#include <boost/capy/async_result.hpp>
+#include <boost/capy/async_op.hpp>
 #include <boost/system/error_code.hpp>
 #include <cstdint>
 #include <memory>
@@ -38,7 +38,7 @@ struct io_result
 
 /** Asynchronous result type for I/O operations.
 */
-using async_io_result = capy::async_result<io_result>;
+using async_io_result = capy::async_op<io_result>;
 
 class any_stream
 {
