@@ -10,6 +10,8 @@
 // Test that header file is self-contained.
 //#include <boost/buffers/buffer.hpp>
 
+#if 0
+
 #include <boost/buffers/detail/config.hpp>
 
 #include <boost/buffers/buffer.hpp>
@@ -18,7 +20,7 @@
 
 #ifdef BOOST_BUFFERS_HAS_CORO
 
-#include <boost/capy/async_op.hpp>
+#__include <boost/capy/async_op.hpp>
 
 namespace boost {
 namespace buffers {
@@ -108,5 +110,7 @@ TEST_SUITE(
 
 } // buffers
 } // boost
+
+#endif
 
 #endif

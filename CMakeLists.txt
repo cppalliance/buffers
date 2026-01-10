@@ -55,7 +55,6 @@ set(BOOST_SRC_DIR ${DEFAULT_BOOST_SRC_DIR} CACHE STRING "Boost source dir to use
 # The boost super-project requires one explicit dependency per-line.
 set(BOOST_BUFFERS_DEPENDENCIES
     Boost::assert
-    Boost::capy
     Boost::config
     Boost::core
     Boost::system
