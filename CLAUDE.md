@@ -2,7 +2,7 @@
 
 ## Code Style
 
-- C++11 unless otherwise specified
+- C++20
 - Boost C++ Libraries naming conventions (snake_case)
 - 4-space indentation, no tabs
 - Braces on their own line for classes/functions

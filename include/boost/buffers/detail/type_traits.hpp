@@ -30,8 +30,6 @@ using derived_from = std::integral_constant<bool,
 //using is_bidirectional_iterator = std::is_bidirectional_iterator<T>;
 //#else
 
-// C++11 version of is_bidirectional_iterator
-
 // Alias for true_type if T is a BidirectionalIterator
 template<class T, class = void>
 struct is_bidirectional_iterator : std::false_type

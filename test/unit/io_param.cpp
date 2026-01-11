@@ -18,8 +18,6 @@
 
 #include "test_buffers.hpp"
 
-#ifdef BOOST_BUFFERS_HAS_CORO
-
 #__include <boost/capy/async_op.hpp>
 
 namespace boost {
@@ -110,7 +108,5 @@ TEST_SUITE(
 
 } // buffers
 } // boost
-
-#endif
 
 #endif

@@ -10,7 +10,7 @@
 
 = Boost.Buffers
 
-Boost.Buffers is a portable C++11 library providing containers and algorithms
+Boost.Buffers is a portable C++20 library providing containers and algorithms
 for describing contiguous buffers of arbitrary bytes.
 
 == What This Library Does
@@ -50,12 +50,12 @@ external memory. Copying a buffer sequence does not copy the underlying data.
 **Scatter/gather I/O.** Buffer sequences can represent multiple non-contiguous
 memory regions, supporting efficient vectored I/O operations.
 
-**Minimal dependencies.** The library requires only C++11 and works without
+**Minimal dependencies.** The library requires C++20 and works without
 exceptions. It does not depend on Asio or Boost.Asio.
 
 == Requirements
 
-* C++11 compiler (see tested compilers below)
+* C++20 compiler (see tested compilers below)
 * Boost headers
 * Link to `boost_buffers` (static or shared library)
 
@@ -63,9 +63,9 @@ The library supports `-fno-exceptions`, detected automatically.
 
 === Tested Compilers
 
-* clang: 3.8, 4, 5, 6, 7, 8, 9, 10, 11, 12
-* gcc: 5, 6, 7, 8, 9, 10, 11
-* msvc: 14.1, 14.2, 14.3
+* clang: 12, 13, 14, 15, 16, 17, 18, 19, 20
+* gcc: 11, 12, 13, 14, 15
+* msvc: 14.3, 14.4
 
 == Quick Example
 

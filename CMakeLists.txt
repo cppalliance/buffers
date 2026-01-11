@@ -137,7 +137,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/boost/buffers PREFIX "incl
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${BOOST_BUFFERS_SOURCES})
 
 function(boost_buffers_setup_properties target)
-    target_compile_features(${target} PUBLIC cxx_constexpr)
+    target_compile_features(${target} PUBLIC cxx_std_20)
     target_include_directories(${target} PUBLIC "${PROJECT_SOURCE_DIR}/include")
     target_link_libraries(${target} PUBLIC ${BOOST_BUFFERS_DEPENDENCIES})
     target_compile_definitions(${target} PUBLIC BOOST_BUFFERS_NO_LIB)

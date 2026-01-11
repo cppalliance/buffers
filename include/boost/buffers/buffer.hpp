@@ -19,12 +19,6 @@
 
 // https://www.boost.org/doc/libs/1_65_0/doc/html/boost_asio/reference/ConstBufferSequence.html
 
-// GCC 6 and earlier bug fixed after PR 42329
-// ("deduction of template template argument via base class fails")
-#if defined(__GNUC__) && ! defined(__clang__) && (__GNUC__ < 7)
-#define BOOST_BUFFERS_GCC6_WORKAROUND
-#endif
-
 namespace boost {
 
 namespace asio {
@@ -33,8 +27,6 @@ class mutable_buffer;
 } // asio
 
 namespace buffers {
-
-#ifndef BOOST_BUFFERS_GCC6_WORKAROUND
 
 class const_buffer;
 class mutable_buffer;
@@ -79,8 +71,6 @@ private:
 };
 
 } // detail
-
-#endif
 
 //-----------------------------------------------
 
@@ -153,8 +143,6 @@ enum class slice_how
 };
 
 //------------------------------------------------
-
-#ifndef BOOST_BUFFERS_GCC6_WORKAROUND
 
 /** Holds a contiguous range of modifiable bytes
 */
@@ -349,70 +337,6 @@ private:
         }
     }
 };
-
-#else
-
-template<class T, std::size_t Extent = (std::size_t)(-1)>
-class basic_buffer
-{
-    using pointer = typename std::conditional<
-        std::is_const<T>::value, void const*, void*>::type;
-public:
-    basic_buffer() = default;
-    basic_buffer(basic_buffer const&) = default;
-    basic_buffer& operator=(basic_buffer const& other) = default;
-    constexpr auto data() const noexcept -> pointer { return p_; }
-    constexpr std::size_t size() const noexcept { return n_; }
-    constexpr basic_buffer(pointer p, std::size_t n) noexcept
-        : p_(p) , n_(n) {}
-    template<class U, std::size_t E, class = typename std::enable_if<
-        std::is_const<T>::value && ! std::is_const<U>::value>::type>
-    constexpr basic_buffer(basic_buffer<U,E> b) noexcept
-        : p_(b.data()), n_(b.size()) {}
-    template<class Buffer, class = typename std::enable_if<
-        std::is_same<Buffer, asio::mutable_buffer>::value ||
-        (std::is_same<Buffer, asio::const_buffer>::value &&
-            std::is_const<T>::value)>::type>
-    constexpr basic_buffer(Buffer b) noexcept
-        : p_(b.data()), n_(b.size()) {}
-    basic_buffer& operator+=(std::size_t n) noexcept
-    {
-        if( n > n_)
-            n = n_;
-        p_ = static_cast<T*>(p_) + n;
-        n_ -= n;
-        return *this;
-    }
-    friend void tag_invoke(slice_tag const&, basic_buffer& b,
-        slice_how how, std::size_t n) noexcept
-    {
-        switch(how)
-        {
-        case slice_how::remove_prefix:
-            b += n;
-            return;
-
-        case slice_how::keep_prefix:
-            if(n < b.n_)
-                b.n_ = n;
-            return;
-        }
-    }
-
-private:
-    friend class asio::const_buffer;
-    friend class asio::mutable_buffer;
-    constexpr basic_buffer<T, (std::size_t)(-1)>
-    subspan(std::size_t, std::size_t = (std::size_t)(-1)) const noexcept;
-
-    pointer p_ = nullptr;
-    std::size_t n_ = 0;
-};
-
-using mutable_buffer = basic_buffer<unsigned char>;
-using const_buffer = basic_buffer<unsigned char const>;
-
-#endif
 
 //------------------------------------------------------------------------------
 

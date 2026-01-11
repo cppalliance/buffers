@@ -14,8 +14,6 @@
 
 #if 0
 
-#ifdef BOOST_BUFFERS_HAS_CORO
-
 #include <boost/buffers/buffer.hpp>
 #__include <boost/capy/async_op.hpp>
 #include <boost/system/error_code.hpp>
@@ -101,8 +99,6 @@ private:
 
 } // buffers
 } // boost
-
-#endif
 
 #endif
 

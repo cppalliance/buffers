@@ -4,7 +4,7 @@
     "authors": [
         "Vinnie Falco"
     ],
-    "description": "Buffers for C++11 and greater",
+    "description": "Buffers for C++20 and later",
     "category": [
         "Containers",
         "Data",
@@ -13,5 +13,5 @@
     "maintainers": [
         "Vinnie Falco <vinnie.falco@gmail.com>"
     ],
-    "cxxstd": "11"
+    "cxxstd": "20"
 }
