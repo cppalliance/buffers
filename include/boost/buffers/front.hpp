@@ -13,7 +13,6 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
 #include <boost/buffers/range.hpp>
-#include <type_traits>
 
 namespace boost {
 namespace buffers {
@@ -22,12 +21,7 @@ namespace buffers {
 */
 constexpr struct front_mrdocs_workaround_t
 {
-    template<
-        class MutableBufferSequence
-        , class = typename std::enable_if<
-            is_mutable_buffer_sequence<
-                MutableBufferSequence>::value
-        >::type>
+    template<mutable_buffer_sequence MutableBufferSequence>
     mutable_buffer
     operator()(
         MutableBufferSequence const& bs) const noexcept
@@ -38,23 +32,14 @@ constexpr struct front_mrdocs_workaround_t
         return {};
     }
 
-    template<
-        class ConstBufferSequence
-        , class = typename std::enable_if<
-            ! is_mutable_buffer_sequence<
-                ConstBufferSequence>::value
-        >::type>
+    template<const_buffer_sequence ConstBufferSequence>
+        requires (!mutable_buffer_sequence<ConstBufferSequence>)
     const_buffer
     operator()(
         ConstBufferSequence const& bs) const noexcept
     {
-        static_assert(
-            is_const_buffer_sequence<
-                ConstBufferSequence>::value,
-            "Type requirements not met");
-
-        auto const it = bs.begin();
-        if(it != bs.end())
+        auto const it = begin(bs);
+        if(it != end(bs))
             return *it;
         return {};
     }

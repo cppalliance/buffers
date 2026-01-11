@@ -26,35 +26,35 @@
 namespace boost {
 namespace buffers {
 
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<const_buffer>::value);
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<mutable_buffer>::value);
-BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<const_buffer>::value);
-BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<mutable_buffer>::value);
+static_assert(  const_buffer_sequence<const_buffer>);
+static_assert(  const_buffer_sequence<mutable_buffer>);
+static_assert(! mutable_buffer_sequence<const_buffer>);
+static_assert(  mutable_buffer_sequence<mutable_buffer>);
 
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<const_buffer const>::value);
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<mutable_buffer const>::value);
-BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<const_buffer const>::value);
-BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<mutable_buffer const>::value);
+static_assert(  const_buffer_sequence<const_buffer const>);
+static_assert(  const_buffer_sequence<mutable_buffer const>);
+static_assert(! mutable_buffer_sequence<const_buffer const>);
+static_assert(  mutable_buffer_sequence<mutable_buffer const>);
 
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<const_buffer>>::value);
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<mutable_buffer>>::value);
-BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer>>::value);
-BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer>>::value);
+static_assert(  const_buffer_sequence<span<const_buffer>>);
+static_assert(  const_buffer_sequence<span<mutable_buffer>>);
+static_assert(! mutable_buffer_sequence<span<const_buffer>>);
+static_assert(  mutable_buffer_sequence<span<mutable_buffer>>);
 
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<const_buffer const>>::value);
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<span<mutable_buffer const>>::value);
-BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer const>>::value);
-BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer const>>::value);
+static_assert(  const_buffer_sequence<span<const_buffer const>>);
+static_assert(  const_buffer_sequence<span<mutable_buffer const>>);
+static_assert(! mutable_buffer_sequence<span<const_buffer const>>);
+static_assert(  mutable_buffer_sequence<span<mutable_buffer const>>);
 
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<std::array<const_buffer const, 3>>::value);
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<std::array<mutable_buffer const, 3>>::value);
-BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<std::array<const_buffer const, 3>>::value);
-BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<std::array<mutable_buffer const, 3>>::value);
+static_assert(  const_buffer_sequence<std::array<const_buffer const, 3>>);
+static_assert(  const_buffer_sequence<std::array<mutable_buffer const, 3>>);
+static_assert(! mutable_buffer_sequence<std::array<const_buffer const, 3>>);
+static_assert(  mutable_buffer_sequence<std::array<mutable_buffer const, 3>>);
 
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<const_buffer[3]>::value);
-BOOST_STATIC_ASSERT(  is_const_buffer_sequence<mutable_buffer[3]>::value);
-BOOST_STATIC_ASSERT(! is_mutable_buffer_sequence<const_buffer[3]>::value);
-BOOST_STATIC_ASSERT(  is_mutable_buffer_sequence<mutable_buffer[3]>::value);
+static_assert(  const_buffer_sequence<const_buffer[3]>);
+static_assert(  const_buffer_sequence<mutable_buffer[3]>);
+static_assert(! mutable_buffer_sequence<const_buffer[3]>);
+static_assert(  mutable_buffer_sequence<mutable_buffer[3]>);
 
 namespace {
 
@@ -306,7 +306,7 @@ struct buffer_test
         // std::span
         {
         #if HAVE_STD_SPAN
-            BOOST_STATIC_ASSERT(is_const_buffer_sequence_v<
+            static_assert(const_buffer_sequence<
                 std::span<const_buffer const>>);
             const_buffer b[3] = {
                 const_buffer("123", 3),
@@ -374,7 +374,7 @@ struct buffer_test
         // std::span
         {
         #if HAVE_STD_SPAN
-            BOOST_STATIC_ASSERT(is_const_buffer_sequence_v<
+            static_assert(const_buffer_sequence<
                 std::span<const_buffer const>>);
             const_buffer b[3] = {
                 const_buffer("123", 3),

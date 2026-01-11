@@ -16,7 +16,7 @@ or as an object which is convertible to cpp:const_buffer[].
 
 == Related Identifiers
 
-cpp:is_const_buffer_sequence[]
+cpp:const_buffer_sequence[]
 
 == Concept Definition
 
@@ -39,9 +39,9 @@ concept const_buffer_sequence =
 |===
 |Expression |Type |Semantics, Pre/Post-conditions
 
-|`is_const_buffer_sequence<T>::value`
+|`const_buffer_sequence<T>`
 |`bool`
-|Returns `true` if `T` models _ConstBufferSequence_.
+|`true` if `T` models _ConstBufferSequence_.
 
 |`buffers::begin(t)`
 |Iterator
@@ -95,7 +95,7 @@ Copies of a buffer sequence must reference the same underlying memory:
 [source,cpp]
 ----
 T t(u);
-static_assert(is_const_buffer_sequence<T>::value);
+static_assert(const_buffer_sequence<T>);
 assert(std::equal(
     buffers::begin(t), buffers::end(t),
     buffers::begin(u), buffers::end(u),

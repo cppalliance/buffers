@@ -11,10 +11,11 @@
 #define BOOST_BUFFERS_BUFFER_HPP
 
 #include <boost/buffers/detail/config.hpp>
-#include <boost/buffers/detail/type_traits.hpp>
+#include <concepts>
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <type_traits>
 
 // https://www.boost.org/doc/libs/1_65_0/doc/html/boost_asio/reference/ConstBufferSequence.html
@@ -42,9 +43,9 @@ public:
     */
     constexpr auto
     data() const noexcept ->
-        typename std::conditional<
-            std::is_const<T>::value,
-            void const*, void*>::type
+        std::conditional_t<
+            std::is_const_v<T>,
+            void const*, void*>
     {
         return p_;
     }
@@ -70,43 +71,6 @@ private:
     std::size_t n_ = 0;
 };
 
-} // detail
-
-//-----------------------------------------------
-
-namespace detail {
-namespace adl {
-
-using std::begin;
-template<class T>
-using begin_type = decltype(begin(std::declval<T&>()));
-
-using std::end;
-template<class T>
-using end_type = decltype(end(std::declval<T&>()));
-
-// determine if T is a bidirectional range
-// whose value type is convertible to B
-template<class T, class B, class = void>
-struct is_bidir_of : std::false_type
-{
-};
-
-template<class T, class B>
-struct is_bidir_of<T, B, detail::void_t<typename std::enable_if<
-    std::is_convertible<decltype(*std::declval<begin_type<T const>>()), B>::value &&
-    std::is_convertible<decltype(*std::declval<end_type<T const>>()), B>::value &&
-    detail::is_bidirectional_iterator<begin_type<T const>>::value &&
-    detail::is_bidirectional_iterator<end_type<T const>>::value &&
-    std::is_same<
-        decltype(begin(std::declval<T const>())),
-        decltype(end  (std::declval<T const>()))>::value
-    >::type > >
-    : std::true_type
-{
-};
-
-} // adl
 } // detail
 
 //------------------------------------------------
@@ -175,8 +139,8 @@ public:
 
     /** Constructor
     */
-    template<class MutableBuffer, class = typename std::enable_if<
-        std::is_same<MutableBuffer, asio::mutable_buffer>::value>::type>
+    template<class MutableBuffer>
+        requires std::same_as<MutableBuffer, asio::mutable_buffer>
     constexpr mutable_buffer(
         MutableBuffer const& b) noexcept
         : basic_buffer<unsigned char>(
@@ -279,9 +243,9 @@ public:
 
     /** Constructor
     */
-    template<class ConstBuffer, class = typename std::enable_if<
-        std::is_same<ConstBuffer, asio::const_buffer>::value ||
-        std::is_same<ConstBuffer, asio::mutable_buffer>::value>::type>
+    template<class ConstBuffer>
+        requires (std::same_as<ConstBuffer, asio::const_buffer> ||
+                  std::same_as<ConstBuffer, asio::mutable_buffer>)
     constexpr const_buffer(
         ConstBuffer const& b) noexcept
         : basic_buffer<unsigned char const>(
@@ -338,65 +302,66 @@ private:
     }
 };
 
+//------------------------------------------------
+
+/** Concept for types that model ConstBufferSequence.
+
+    A type satisfies `const_buffer_sequence` if it is convertible
+    to `const_buffer`, or if it is a bidirectional range whose
+    value type is convertible to `const_buffer`.
+*/
+template<typename T>
+concept const_buffer_sequence =
+    std::is_convertible_v<T, const_buffer> || (
+        std::ranges::bidirectional_range<T> &&
+        std::is_convertible_v<std::ranges::range_value_t<T>, const_buffer>);
+
+/** Concept for types that model MutableBufferSequence.
+
+    A type satisfies `mutable_buffer_sequence` if it is convertible
+    to `mutable_buffer`, or if it is a bidirectional range whose
+    value type is convertible to `mutable_buffer`.
+*/
+template<typename T>
+concept mutable_buffer_sequence =
+    std::is_convertible_v<T, mutable_buffer> || (
+        std::ranges::bidirectional_range<T> &&
+        std::is_convertible_v<std::ranges::range_value_t<T>, mutable_buffer>);
+
 //------------------------------------------------------------------------------
 
 /** Return an iterator pointing to the first element of a buffer sequence
 
     This function returns an iterator to the beginning of the range denoted by
-    `t`. While this works for any valid range, it is provided for convenience
-    when using C++17 and earlier, where `std::ranges::begin` is unavailable.
+    `t`. It handles both ranges and single buffers uniformly.
 
     @par Constraints
     @code
-    requires std::ranges::range<T>
+    const_buffer_sequence<T>
     @endcode
 
     @param t The buffer sequence
 */
 constexpr struct begin_mrdocs_workaround_t
 {
-    template<
-        class ConvertibleToBuffer
-        ,class = typename std::enable_if<
-            std::is_convertible<ConvertibleToBuffer, const_buffer>::value ||
-            std::is_convertible<ConvertibleToBuffer, mutable_buffer>::value
-        >::type
-    >
+    template<std::convertible_to<const_buffer> ConvertibleToBuffer>
     auto operator()(ConvertibleToBuffer const& b) const noexcept -> ConvertibleToBuffer const*
     {
         return std::addressof(b);
     }
 
-    template<
-        class BufferSequence
-        ,class = typename std::enable_if<
-            ! std::is_convertible<BufferSequence const*, const_buffer const*>::value &&
-            ! std::is_convertible<BufferSequence const*, mutable_buffer const*>::value,
-            detail::void_t< detail::adl::begin_type<BufferSequence const> > >::type
-    >
+    template<const_buffer_sequence BufferSequence>
+        requires (!std::convertible_to<BufferSequence, const_buffer>)
     auto operator()(BufferSequence const& bs) const noexcept
-#if ! (__cpp_decltype_auto >= 201304)
-        -> detail::adl::begin_type<BufferSequence const>
-#endif
     {
-        using std::begin;
-        return begin(bs);
+        return std::ranges::begin(bs);
     }
 
-    template<
-        class BufferSequence
-        ,class = typename std::enable_if<
-            ! std::is_convertible<BufferSequence const*, const_buffer const*>::value &&
-            ! std::is_convertible<BufferSequence const*, mutable_buffer const*>::value,
-            detail::void_t< detail::adl::begin_type<BufferSequence> > >::type
-    >
+    template<const_buffer_sequence BufferSequence>
+        requires (!std::convertible_to<BufferSequence, const_buffer>)
     auto operator()(BufferSequence& bs) const noexcept
-#if ! (__cpp_decltype_auto >= 201304)
-        -> detail::adl::begin_type<BufferSequence>
-#endif
     {
-        using std::begin;
-        return begin(bs);
+        return std::ranges::begin(bs);
     }
 } begin {};
 
@@ -405,119 +370,41 @@ constexpr struct begin_mrdocs_workaround_t
 /** Return an iterator to the end of the buffer sequence
 
     This function returns an iterator to the end of the range denoted by
-    `t`. While this works for any valid range, it is provided for convenience
-    when using C++17 and earlier, where `std::ranges::end` is unavailable.
+    `t`. It handles both ranges and single buffers uniformly.
 
     @par Constraints
     @code
-    requires std::ranges::range<T>
+    const_buffer_sequence<T>
     @endcode
 
     @param t The buffer sequence
 */
 constexpr struct end_mrdocs_workaround_t
 {
-    template<
-        class ConvertibleToBuffer
-        ,class = typename std::enable_if<
-            std::is_convertible<ConvertibleToBuffer, const_buffer>::value ||
-            std::is_convertible<ConvertibleToBuffer, mutable_buffer>::value
-        >::type
-    >
+    template<std::convertible_to<const_buffer> ConvertibleToBuffer>
     auto operator()(ConvertibleToBuffer const& b) const noexcept -> ConvertibleToBuffer const*
     {
         return std::addressof(b) + 1;
     }
 
-    template<
-        class BufferSequence
-        ,class = typename std::enable_if<
-            ! std::is_convertible<BufferSequence const*, const_buffer const*>::value &&
-            ! std::is_convertible<BufferSequence const*, mutable_buffer const*>::value,
-            detail::void_t< detail::adl::end_type<BufferSequence const> > >::type
-    >
+    template<const_buffer_sequence BufferSequence>
+        requires (!std::convertible_to<BufferSequence, const_buffer>)
     auto operator()(BufferSequence const& bs) const noexcept
-#if ! (__cpp_decltype_auto >= 201304)
-        -> detail::adl::end_type<BufferSequence const>
-#endif
     {
-        using std::end;
-        return end(bs);
+        return std::ranges::end(bs);
     }
 
-    template<
-        class BufferSequence
-        ,class = typename std::enable_if<
-            ! std::is_convertible<BufferSequence const*, const_buffer const*>::value &&
-            ! std::is_convertible<BufferSequence const*, mutable_buffer const*>::value,
-            detail::void_t< detail::adl::end_type<BufferSequence> > >::type
-    >
+    template<const_buffer_sequence BufferSequence>
+        requires (!std::convertible_to<BufferSequence, const_buffer>)
     auto operator()(BufferSequence& bs) const noexcept
-#if ! (__cpp_decltype_auto >= 201304)
-        -> detail::adl::end_type<BufferSequence>
-#endif
     {
-        using std::end;
-        return end(bs);
+        return std::ranges::end(bs);
     }
 } end {};
 
-//------------------------------------------------
-
-/** Determine if T is a ConstBufferSequence.
-*/
-/** @{ */
-template<class T, class = void>
-struct is_const_buffer_sequence
-    : std::false_type
-{
-};
-
-template<class T>
-struct is_const_buffer_sequence<T>
-    : std::integral_constant<bool,
-        detail::adl::is_bidir_of<typename std::remove_cv<typename
-            std::remove_reference<T>::type>::type, const_buffer>::value ||
-        std::is_convertible<T, const_buffer>::value>
-{
-};
-
-#if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
-template<class T>
-constexpr bool is_const_buffer_sequence_v =
-    is_const_buffer_sequence<T>::value;
-#endif
-/** @} */
-
-//------------------------------------------------
-
-/** Determine if T is a MutableBufferSequence.
-*/
-/** @{ */
-template<class T, class = void>
-struct is_mutable_buffer_sequence : std::false_type
-{
-};
-
-template<class T>
-struct is_mutable_buffer_sequence<T>
-    : std::integral_constant<bool,
-        detail::adl::is_bidir_of<typename std::remove_cv<typename
-            std::remove_reference<T>::type>::type, mutable_buffer>::value ||
-        std::is_convertible<T, mutable_buffer>::value>
-{
-};
-
-#if defined(__cpp_variable_templates) && __cpp_variable_templates >= 201304
-template<class T>
-constexpr bool is_mutable_buffer_sequence_v =
-    is_mutable_buffer_sequence<T>::value;
-#endif
-/** @} */
-
 //------------------------------------------------------------------------------
 
-template<class ConstBufferSequence>
+template<const_buffer_sequence ConstBufferSequence>
 std::size_t
 tag_invoke(
     size_tag const&,
@@ -538,12 +425,12 @@ tag_invoke(
 
     @par Constraints
     @code
-    is_const_buffer_sequence_v<T> || std::is_convertible<T,const_buffer>
+    const_buffer_sequence<T>
     @endcode
 
     @par Example
     @code
-    template<class ConstBufferSequence>
+    template<const_buffer_sequence ConstBufferSequence>
     bool is_small( ConstBufferSequence const& bs ) noexcept
     {
         return size(bs) < 100;
@@ -552,12 +439,9 @@ tag_invoke(
 */
 constexpr struct size_mrdocs_workaround_t
 {
-    template<class ConstBufferSequence>
-    constexpr auto operator()(
-        ConstBufferSequence const& bs) const noexcept ->
-            typename std::enable_if<
-                is_const_buffer_sequence<ConstBufferSequence>::value,
-                std::size_t>::type
+    template<const_buffer_sequence ConstBufferSequence>
+    constexpr std::size_t operator()(
+        ConstBufferSequence const& bs) const noexcept
     {
         return tag_invoke(size_tag{}, bs);
     }
@@ -592,7 +476,7 @@ length_impl(It first, It last, long)
 
 /** Return the number of elements in a buffer sequence.
 */
-template<class ConstBufferSequence>
+template<const_buffer_sequence ConstBufferSequence>
 std::size_t
 length(ConstBufferSequence const& bs)
 {
@@ -600,12 +484,12 @@ length(ConstBufferSequence const& bs)
         buffers::begin(bs), buffers::end(bs), 0);
 }
 
-/** Alias for const_buffer or mutable_buffer depending on constness.
+/** Alias for const_buffer or mutable_buffer depending on sequence type.
 */
-template<class BufferSequence>
-using buffer_type = typename std::conditional<
-    is_mutable_buffer_sequence<BufferSequence>::value,
-    mutable_buffer, const_buffer>::type;
+template<typename BufferSequence>
+using buffer_type = std::conditional_t<
+    mutable_buffer_sequence<BufferSequence>,
+    mutable_buffer, const_buffer>;
 
 } // buffers
 } // boost

@@ -18,36 +18,30 @@
 namespace boost {
 namespace buffers {
 
-/** Determine if T is a DynamicBuffer
+/** Concept for types that model DynamicBuffer.
 */
-template<
-    class T,
-    class = void>
-struct is_dynamic_buffer : std::false_type {};
-
 template<class T>
-struct is_dynamic_buffer<
-    T, detail::void_t<decltype(
-        std::declval<std::size_t&>() = std::declval<T const&>().size(),
-        std::declval<std::size_t&>() = std::declval<T const&>().max_size(),
-        std::declval<std::size_t&>() = std::declval<T const&>().capacity(),
-        std::declval<T&>().commit(std::declval<std::size_t>()),
-        std::declval<T&>().consume(std::declval<std::size_t>())
-    )
-    ,typename std::enable_if<
-        is_const_buffer_sequence<typename T::const_buffers_type>::value &&
-        is_mutable_buffer_sequence<typename T::mutable_buffers_type>::value
-        >::type
-    ,typename std::enable_if<
-        std::is_same<decltype(
-            std::declval<T const&>().data()),
-            typename T::const_buffers_type>::value
-        && std::is_same<decltype(
-            std::declval<T&>().prepare(
-                std::declval<std::size_t>())),
-            typename T::mutable_buffers_type>::value
-        >::type
-    > > : std::true_type
+concept dynamic_buffer =
+    requires(T& t, T const& ct, std::size_t n)
+    {
+        typename T::const_buffers_type;
+        typename T::mutable_buffers_type;
+        { ct.size() } -> std::convertible_to<std::size_t>;
+        { ct.max_size() } -> std::convertible_to<std::size_t>;
+        { ct.capacity() } -> std::convertible_to<std::size_t>;
+        { ct.data() } -> std::same_as<typename T::const_buffers_type>;
+        { t.prepare(n) } -> std::same_as<typename T::mutable_buffers_type>;
+        t.commit(n);
+        t.consume(n);
+    } &&
+    const_buffer_sequence<typename T::const_buffers_type> &&
+    mutable_buffer_sequence<typename T::mutable_buffers_type>;
+
+/** Metafunction to detect if a type is a dynamic buffer.
+*/
+template<class T>
+struct is_dynamic_buffer
+    : std::bool_constant<dynamic_buffer<T>>
 {
 };
 
@@ -74,7 +68,7 @@ struct BOOST_SYMBOL_VISIBLE
 /** A type-erased dynamic buffer.
 */
 template<
-    class DynamicBuffer,
+    dynamic_buffer DynamicBuffer,
     std::size_t N = 8>
 class any_dynamic_buffer_impl
     : public any_dynamic_buffer
@@ -85,7 +79,7 @@ class any_dynamic_buffer_impl
     std::size_t data_len_ = 0;
     std::size_t out_len_ = 0;
 
-    template<class ConstBufferSequence, class BufferType>
+    template<const_buffer_sequence ConstBufferSequence, class BufferType>
     static
     std::size_t
     unroll(
@@ -180,20 +174,12 @@ public:
     }
 };
 
-template<
-    class DynamicBuffer
-    , class = typename std::enable_if<
-        is_dynamic_buffer<
-        typename std::decay<DynamicBuffer>::type
-            >::value>::type
->
+template<dynamic_buffer DynamicBuffer>
 auto
 make_any(DynamicBuffer&& b) ->
-    any_dynamic_buffer_impl<typename
-        std::decay<DynamicBuffer>::type>
+    any_dynamic_buffer_impl<std::decay_t<DynamicBuffer>>
 {
-    return any_dynamic_buffer_impl<typename
-        std::decay<DynamicBuffer>::type>(
+    return any_dynamic_buffer_impl<std::decay_t<DynamicBuffer>>(
             std::forward<DynamicBuffer>(b));
 }
 

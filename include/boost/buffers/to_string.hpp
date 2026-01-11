@@ -12,28 +12,29 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
-#include <boost/core/detail/static_assert.hpp>
 #include <string>
 
 namespace boost {
 namespace buffers {
 
 /** Convert a buffer sequence to a string
+
     This function constructs a string from the bytes in the
     buffer sequence `bs`.
+
     @par Constraints
     @code
-    requires is_const_buffer_sequence<BufferSequence>::value
+    const_buffer_sequence<ConstBufferSequence>
     @endcode
+
     @param bs The buffer sequence
+
     @return A string holding the bytes from the buffer sequence
 */
-template< class ConstBufferSequence >
+template<const_buffer_sequence ConstBufferSequence>
 std::string
 to_string(ConstBufferSequence const& bs)
 {
-    BOOST_CORE_STATIC_ASSERT(
-        is_const_buffer_sequence<ConstBufferSequence>::value);
     std::string s;
     auto const e = end(bs);
     for(auto it = begin(bs); it != e; ++it)

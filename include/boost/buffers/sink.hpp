@@ -12,7 +12,6 @@
 
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/detail/except.hpp>
-#include <boost/buffers/detail/type_traits.hpp>
 #include <boost/buffers/buffer.hpp>
 #include <boost/system/error_code.hpp>
 

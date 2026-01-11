@@ -52,16 +52,16 @@ BOOST_CORE_STATIC_ASSERT(! asio::is_mutable_buffer_sequence<span<const_buffer>>:
 BOOST_CORE_STATIC_ASSERT(  asio::is_mutable_buffer_sequence<span<mutable_buffer>>::value);
 
 // span of asio buffer is our sequence
-BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<asio::const_buffer const>>::value);
-BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<asio::mutable_buffer const>>::value);
-BOOST_CORE_STATIC_ASSERT(! is_mutable_buffer_sequence<span<asio::const_buffer const>>::value);
-BOOST_CORE_STATIC_ASSERT(  is_mutable_buffer_sequence<span<asio::mutable_buffer const>>::value);
+static_assert(  const_buffer_sequence<  span<asio::const_buffer const>>);
+static_assert(  const_buffer_sequence<  span<asio::mutable_buffer const>>);
+static_assert(! mutable_buffer_sequence<span<asio::const_buffer const>>);
+static_assert(  mutable_buffer_sequence<span<asio::mutable_buffer const>>);
 
 // span of our buffer is our sequence
-BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<const_buffer const>>::value);
-BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<  span<mutable_buffer const>>::value);
-BOOST_CORE_STATIC_ASSERT(! is_mutable_buffer_sequence<span<const_buffer const>>::value);
-BOOST_CORE_STATIC_ASSERT(  is_mutable_buffer_sequence<span<mutable_buffer const>>::value);
+static_assert(  const_buffer_sequence<  span<const_buffer const>>);
+static_assert(  const_buffer_sequence<  span<mutable_buffer const>>);
+static_assert(! mutable_buffer_sequence<span<const_buffer const>>);
+static_assert(  mutable_buffer_sequence<span<mutable_buffer const>>);
 
 // satisfy asio metafunctions
 BOOST_CORE_STATIC_ASSERT(  asio::is_const_buffer_sequence<   const_buffer>::value);

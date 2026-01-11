@@ -19,7 +19,7 @@ memory can always be read.
 
 == Related Identifiers
 
-cpp:is_mutable_buffer_sequence[]
+cpp:mutable_buffer_sequence[]
 
 == Concept Definition
 
@@ -42,9 +42,9 @@ concept mutable_buffer_sequence =
 |===
 |Expression |Type |Semantics, Pre/Post-conditions
 
-|`is_mutable_buffer_sequence<T>::value`
+|`mutable_buffer_sequence<T>`
 |`bool`
-|Returns `true` if `T` models _MutableBufferSequence_.
+|`true` if `T` models _MutableBufferSequence_.
 
 |`buffers::begin(t)`
 |Iterator
@@ -102,7 +102,7 @@ Copies of a buffer sequence must reference the same underlying memory:
 [source,cpp]
 ----
 T t(u);
-static_assert(is_mutable_buffer_sequence<T>::value);
+static_assert(mutable_buffer_sequence<T>);
 assert(std::equal(
     buffers::begin(t), buffers::end(t),
     buffers::begin(u), buffers::end(u),

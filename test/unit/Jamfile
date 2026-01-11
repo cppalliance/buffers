@@ -11,7 +11,7 @@ import testing ;
 
 project
     : requirements
-      $(c11-requires)
+      <cxxstd>20
       <library>/boost/buffers//boost_buffers
       <library>/boost/asio//boost_asio/<warnings-as-errors>off
       <source>../../../url/extra/test_suite/test_main.cpp

@@ -41,25 +41,22 @@ struct has_tag_invoke<T, decltype(tag_invoke(
 /** Alias for the type representing a slice of T
 */
 template<class T>
-using slice_type = typename std::conditional<
+using slice_type = std::conditional_t<
     detail::has_tag_invoke<T>::value,
-    T, slice_of<T> >::type;
+    T, slice_of<T>>;
 
 //------------------------------------------------
 
 /** A wrapper enabling a buffer sequence to be consumed
 */
-template<class BufferSequence>
-class slice_of
+template<const_buffer_sequence BufferSequence>
+class slice_of<BufferSequence>
 {
-    static_assert(! std::is_const<BufferSequence>::value,
+    static_assert(!std::is_const_v<BufferSequence>,
         "BufferSequence can't be const");
 
-    static_assert(! std::is_reference<BufferSequence>::value,
+    static_assert(!std::is_reference_v<BufferSequence>,
         "BufferSequence can't be a reference");
-
-    static_assert(is_const_buffer_sequence<BufferSequence>::value,
-        "BufferSequence does not meet type requirements");
 
     using iter_type = decltype(
         std::declval<BufferSequence const&>().begin());
@@ -78,9 +75,9 @@ class slice_of
 public:
     /** The type of values returned by iterators
     */
-    using value_type = typename std::conditional<
-        is_mutable_buffer_sequence<BufferSequence>::value,
-        mutable_buffer, const_buffer>::type;
+    using value_type = std::conditional_t<
+        mutable_buffer_sequence<BufferSequence>,
+        mutable_buffer, const_buffer>;
 
     /** The type of returned iterators
     */
@@ -283,7 +280,7 @@ private:
 
 //------------------------------------------------
 
-template<class BufferSequence>
+template<const_buffer_sequence BufferSequence>
 class slice_of<BufferSequence>::
     const_iterator
 {
@@ -322,9 +319,7 @@ public:
     using difference_type = std::ptrdiff_t;
     using iterator_category =
         std::bidirectional_iterator_tag;
-#if defined(__cpp_concepts) || defined(__cpp_lib_concepts)
-    using iterator_concept = std::bidirectional_iterator_tag; // (since C++20)
-#endif
+    using iterator_concept = std::bidirectional_iterator_tag;
 
     const_iterator() = default;
 
@@ -351,9 +346,9 @@ public:
     operator*() const noexcept
     {
         value_type v = *it_;
-        using P = typename std::conditional<
-            is_mutable_buffer_sequence<BufferSequence>::value,
-            char*, char const*>::type;
+        using P = std::conditional_t<
+            mutable_buffer_sequence<BufferSequence>,
+            char*, char const*>;
         auto p = reinterpret_cast<P>(v.data());
         auto n = v.size();
         if(i_ == 0)
@@ -403,7 +398,7 @@ public:
 
 //------------------------------------------------
 
-template<class BufferSequence>
+template<const_buffer_sequence BufferSequence>
 auto
 slice_of<BufferSequence>::
 begin() const noexcept ->
@@ -413,7 +408,7 @@ begin() const noexcept ->
         begin_iter_impl(), prefix_, suffix_, 0, len_);
 }
 
-template<class BufferSequence>
+template<const_buffer_sequence BufferSequence>
 auto
 slice_of<BufferSequence>::
 end() const noexcept ->
@@ -436,13 +431,11 @@ end() const noexcept ->
 */
 constexpr struct keep_prefix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+        requires detail::has_tag_invoke<BufferSequence>::value
+    void operator()(
         BufferSequence& bs,
-        std::size_t n) const -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value &&
-            detail::has_tag_invoke<BufferSequence>::value>::type
-
+        std::size_t n) const
     {
         tag_invoke(slice_tag{}, bs, slice_how::keep_prefix, n);
     }
@@ -452,12 +445,11 @@ constexpr struct keep_prefix_mrdocs_workaround_t
 */
 constexpr struct keep_suffix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+        requires detail::has_tag_invoke<BufferSequence>::value
+    void operator()(
         BufferSequence& bs,
-        std::size_t n) const -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value &&
-            detail::has_tag_invoke<BufferSequence>::value>::type
+        std::size_t n) const
     {
         auto n0 = size(bs);
         if(n < n0)
@@ -469,12 +461,11 @@ constexpr struct keep_suffix_mrdocs_workaround_t
 */
 constexpr struct remove_prefix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+        requires detail::has_tag_invoke<BufferSequence>::value
+    void operator()(
         BufferSequence& bs,
-        std::size_t n) const -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value &&
-            detail::has_tag_invoke<BufferSequence>::value>::type
+        std::size_t n) const
     {
         tag_invoke(slice_tag{}, bs, slice_how::remove_prefix, n);
     }
@@ -484,12 +475,11 @@ constexpr struct remove_prefix_mrdocs_workaround_t
 */
 constexpr struct remove_suffix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+        requires detail::has_tag_invoke<BufferSequence>::value
+    void operator()(
         BufferSequence& bs,
-        std::size_t n) const -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value &&
-            detail::has_tag_invoke<BufferSequence>::value>::type
+        std::size_t n) const
     {
         auto n0 = size(bs);
         if(n > 0)
@@ -507,12 +497,10 @@ constexpr struct remove_suffix_mrdocs_workaround_t
 */
 constexpr struct prefix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+    slice_type<BufferSequence> operator()(
         BufferSequence const& bs,
-        std::size_t n) const noexcept -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value,
-            slice_type<BufferSequence>>::type
+        std::size_t n) const noexcept
     {
         slice_type<BufferSequence> result(bs);
         keep_prefix(result, n);
@@ -524,12 +512,10 @@ constexpr struct prefix_mrdocs_workaround_t
 */
 constexpr struct suffix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+    slice_type<BufferSequence> operator()(
         BufferSequence const& bs,
-        std::size_t n) const noexcept -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value,
-            slice_type<BufferSequence>>::type
+        std::size_t n) const noexcept
     {
         slice_type<BufferSequence> result(bs);
         keep_suffix(result, n);
@@ -541,12 +527,10 @@ constexpr struct suffix_mrdocs_workaround_t
 */
 constexpr struct sans_prefix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+    slice_type<BufferSequence> operator()(
         BufferSequence const& bs,
-        std::size_t n) const noexcept -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value,
-            slice_type<BufferSequence>>::type
+        std::size_t n) const noexcept
     {
         slice_type<BufferSequence> result(bs);
         remove_prefix(result, n);
@@ -558,12 +542,10 @@ constexpr struct sans_prefix_mrdocs_workaround_t
 */
 constexpr struct sans_suffix_mrdocs_workaround_t
 {
-    template<class BufferSequence>
-    auto operator()(
+    template<const_buffer_sequence BufferSequence>
+    slice_type<BufferSequence> operator()(
         BufferSequence const& bs,
-        std::size_t n) const noexcept -> typename std::enable_if<
-            is_const_buffer_sequence<BufferSequence>::value,
-            slice_type<BufferSequence>>::type
+        std::size_t n) const noexcept
     {
         slice_type<BufferSequence> result(bs);
         remove_suffix(result, n);

@@ -24,10 +24,10 @@
 namespace boost {
 namespace buffers {
 
-BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<any_buffers<true>>::value);
-BOOST_CORE_STATIC_ASSERT(  is_const_buffer_sequence<any_buffers<false>>::value);
-BOOST_CORE_STATIC_ASSERT(! is_mutable_buffer_sequence<any_buffers<true>>::value);
-BOOST_CORE_STATIC_ASSERT(  is_mutable_buffer_sequence<any_buffers<false>>::value);
+static_assert(  const_buffer_sequence<any_buffers<true>>);
+static_assert(  const_buffer_sequence<any_buffers<false>>);
+static_assert(! mutable_buffer_sequence<any_buffers<true>>);
+static_assert(  mutable_buffer_sequence<any_buffers<false>>);
 
 namespace {
 
