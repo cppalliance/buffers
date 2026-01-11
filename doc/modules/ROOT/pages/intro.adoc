@@ -9,106 +9,213 @@
 
 = Introduction
 
-The C++ language is strongly typed; programs express data structures and
-algorithms in terms of types. However many categories of algorithms operate
-instead on data represented as raw bytes, such as:
+This page explains the fundamental concepts behind buffer sequences and why they
+exist. After reading, you will understand when to use buffer sequences instead
+of raw pointers or standard containers.
+
+NOTE: Code snippets throughout the documentation are written as if the following
+declarations are in effect:
+
+[source,cpp]
+----
+#include <boost/buffers.hpp>
+using namespace boost::buffers;
+----
+
+== Why Buffer Sequences?
+
+Many algorithms operate on raw bytes rather than typed data structures:
 
 * Encryption and decryption
 * Compression and decompression
 * JSON parsing and serialization
-* Network protocols, such as HTTP and WebSocket
+* Network protocols such as HTTP and WebSocket
 
-Algorithms are often combined; a network application may need to remove the
-framing from a WebSocket stream, apply decompression to the unframed payloads,
-then parse the decompressed payloads as serialized JSON. We define common
-vocabulary types and concepts to facilitate interoperability between libraries,
-in order that such algorithms may be composed.
+These algorithms are often composed. A network application may need to remove
+framing from a WebSocket stream, decompress the payloads, and parse the result
+as JSON. Buffer sequences provide vocabulary types that enable such composition
+without unnecessary copying.
 
 == Contiguous Buffers
 
-The fundamental representation of unstructured bytes is the contiguous buffer,
-characterized by a possibly `const` pointer to region of memory with a defined
-number of valid bytes. These are represented as objects of type
-cpp:const_buffer[] and cpp:mutable_buffer[].
+The fundamental representation of unstructured bytes is a contiguous buffer: a
+pointer to memory plus a byte count. The library provides cpp:const_buffer[] for
+read-only data and cpp:mutable_buffer[] for writable data:
 
 [source,cpp]
 ----
-struct const_buffer
-{
-    void const*     data() const noexcept;
-    std::size_t     size() const noexcept;
-};
+// const_buffer: read-only view of bytes
+void const* data();
+std::size_t size();
 
-struct mutable_buffer
-{
-    void      *     data() const noexcept;
-    std::size_t     size() const noexcept;
-};
+// mutable_buffer: writable view of bytes
+void* data();
+std::size_t size();
 ----
 
-This representation is helpful yet insufficient for all use-cases. For example
-an algorithm which must add framing data to caller-provided contiguous buffers
-would need to perform costly reallocations and copies to represent it as a
-single buffer before passing it on to the next algorithm. Operating-system
-level facilities which transact raw bytes on file descriptors or sockets often
-provide a
-https://en.wikipedia.org/wiki/Vectored_I/O[_scatter/gather_]
-interface: an ordered list of zero or more contiguous buffers. Linux provides
-the type
-https://man7.org/linux/man-pages/man3/iovec.3type.html[`iovec`]
-this purpose. In C++ we may consider using a container to represent an
-sequence of buffers:
+These types are lightweight handles. They do not own the memory they reference.
+The caller must ensure the underlying storage outlives any buffer objects that
+reference it.
+
+=== Creating Buffers
+
+Buffers can be constructed from pointers and sizes:
 
 [source,cpp]
 ----
-std::list< const_buffer > bs1;
+char storage[100];
+mutable_buffer mb(storage, sizeof(storage));
 
-std::vector< mutable_buffer > bs2;
-
-std::array< const_buffer, 3 > bs3;
+char const* message = "hello";
+const_buffer cb(message, 5);
 ----
 
-There are some caveats with this approach:
+A cpp:mutable_buffer[] converts implicitly to cpp:const_buffer[], since writable
+memory can always be read:
 
-* `list` is expensive to copy.
-* `vector` can be resized at runtime yet allocates memory to do so.
-* `array` is fixed in size. Inserting additional buffers requires metaprogramming
-  and a redeclaration of the container type.
-* Choosing a single type as a vocabulary type precludes user-defined types.
+[source,cpp]
+----
+const_buffer cb = mb;  // OK: mutable converts to const
+----
 
-== Sequence Requirements
+== The Scatter/Gather Problem
 
-The approach taken by this library is the same as the approach used in the popular
-Boost.Asio network library. That is, to define the concepts
-xref:ConstBufferSequence.adoc[_ConstBufferSequence_] and
-xref:MutableBufferSequence.adoc[_MutableBufferSequence_] for
-representing buffer sequences with these semantics:
+A single contiguous buffer is insufficient for many use cases. Consider an
+algorithm that adds framing bytes around caller-provided data. Without
+scatter/gather support, it must allocate new memory and copy everything:
 
-* A buffer sequence is cheap to copy.
+[source,cpp]
+----
+// Without scatter/gather: expensive copy required
+std::vector<char> framed;
+framed.insert(framed.end(), header.begin(), header.end());
+framed.insert(framed.end(), payload.begin(), payload.end());
+framed.insert(framed.end(), trailer.begin(), trailer.end());
+send(socket, framed.data(), framed.size());
+----
 
-* A copy of a buffer sequence refers to the same underlying memory regions.
+Operating systems provide scatter/gather I/O (vectored I/O) to avoid this. Linux
+uses https://man7.org/linux/man-pages/man3/iovec.3type.html[`iovec`], and Windows
+uses `WSABUF`. These accept a list of buffer pointers, sending or receiving data
+across multiple memory regions in a single system call.
 
-* Buffer sequences model bidirectional ranges whose value type is convertible
-  to cpp:const_buffer[] or cpp:mutable_buffer[] for sequences whose contents.
-  are modifiable.
+== Buffer Sequences
 
-* The types cpp:const_buffer[] and cpp:mutable_buffer[] are also considered
-  to be buffer sequences.
+Rather than choosing a single container type like `std::vector<const_buffer>`,
+the library defines concepts that any suitable type can model:
 
-Algorithms which use buffer sequences have these additional requirements:
+* xref:ConstBufferSequence.adoc[_ConstBufferSequence_] - A range of read-only buffers
+* xref:MutableBufferSequence.adoc[_MutableBufferSequence_] - A range of writable buffers
 
-* The algorithm shall maintain a copy of every input buffer sequence for at
-  least as long as any of the underlying memory regions are accessed.
+A buffer sequence has these properties:
 
-* Iterators to elements of a buffer sequence are obtained using
-  cpp:begin[] and cpp:end[].
+* **Cheap to copy.** The sequence itself is a lightweight handle. Copying the
+  sequence does not copy the underlying bytes.
+
+* **Stable references.** A copy of a buffer sequence refers to the same memory
+  regions as the original.
+
+* **Bidirectional iteration.** Elements are accessed through iterators whose
+  value type converts to cpp:const_buffer[] or cpp:mutable_buffer[].
+
+* **Single buffers are sequences.** The types cpp:const_buffer[] and
+  cpp:mutable_buffer[] are themselves valid buffer sequences of length one.
+
+=== Standard Containers as Sequences
+
+Any bidirectional range of buffers models the buffer sequence concepts:
+
+[source,cpp]
+----
+std::vector<const_buffer> v;
+v.push_back(const_buffer(header, header_size));
+v.push_back(const_buffer(payload, payload_size));
+// v is a valid ConstBufferSequence
+
+std::array<mutable_buffer, 2> arr = {
+    mutable_buffer(buf1, len1),
+    mutable_buffer(buf2, len2)
+};
+// arr is a valid MutableBufferSequence
+----
+
+However, standard containers have limitations:
+
+* `std::list` is expensive to copy
+* `std::vector` may allocate when resized
+* `std::array` has fixed size determined at compile time
+
+The library provides specialized types that address these limitations.
 
 == Buffer Pairs
 
-Buffer sequences of length two; that is, buffer sequences consisting of up to
-two separate contiguous memory regions, occur in design patterns with sufficient
-frequency that the library provides a custom implementation for representing
-them. Objects of types cpp:const_buffer_pair[] and cpp:mutable_buffer_pair[] are
-buffer sequences of length two. These are the type of sequences returned by
-the cpp:circular_buffer[], discussed later.
+Buffer sequences of exactly two elements occur frequently. A circular buffer's
+readable region wraps around the end of its storage, appearing as two separate
+contiguous regions. The types cpp:const_buffer_pair[] and
+cpp:mutable_buffer_pair[] represent such two-element sequences efficiently:
 
+[source,cpp]
+----
+mutable_buffer_pair mbp;
+mbp[0] = mutable_buffer(region1, size1);
+mbp[1] = mutable_buffer(region2, size2);
+
+// Iterate like any buffer sequence
+for(auto it = begin(mbp); it != end(mbp); ++it)
+{
+    mutable_buffer b = *it;
+    std::cout << "Region: " << b.size() << " bytes\n";
+}
+----
+
+Buffer pairs are returned by cpp:circular_buffer[] methods, discussed in
+xref:dynamic-buffers.adoc[Dynamic Buffers].
+
+== Iterating Buffer Sequences
+
+To iterate a buffer sequence, use cpp:begin[] and cpp:end[] from this library.
+These handle both ranges and single-buffer types uniformly:
+
+[source,cpp]
+----
+template<class ConstBufferSequence>
+void print_sizes(ConstBufferSequence const& bs)
+{
+    auto const last = buffers::end(bs);
+    for(auto it = buffers::begin(bs); it != last; ++it)
+    {
+        const_buffer b(*it);
+        std::cout << b.size() << " bytes\n";
+    }
+}
+
+// Works with ranges
+std::vector<const_buffer> v = /* ... */;
+print_sizes(v);
+
+// Also works with single buffers
+const_buffer cb(data, len);
+print_sizes(cb);  // Prints one size
+----
+
+WARNING: Buffer data is untyped. Casting the `void*` pointer to other types such
+as `char*` is the caller's responsibility. Ensure such casts respect alignment
+requirements and do not violate type safety.
+
+== When to Use Buffer Sequences
+
+Use buffer sequences when:
+
+* **Composing I/O operations.** Pass data between protocol layers without copying.
+* **Interfacing with system calls.** Map directly to `iovec` or `WSABUF` structures.
+* **Writing generic algorithms.** Accept any buffer representation through templates.
+
+Use raw pointers or `std::span` when:
+
+* **The data is always contiguous.** No need for scatter/gather abstraction.
+* **Performance is critical.** Avoid iterator indirection in tight loops.
+
+Use owning containers like `std::vector<char>` when:
+
+* **The buffer must outlive the current scope.** Sequences only reference memory.
+* **Dynamic sizing with ownership.** Standard containers manage their own storage.

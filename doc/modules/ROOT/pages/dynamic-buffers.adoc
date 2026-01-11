@@ -9,23 +9,363 @@
 
 = Dynamic Buffers
 
-While buffer sequences are useful for transporting raw bytes across function
-boundaries, they can only represent sequences of fixed size. To allow the
-creation of sequences whose size can change, we adopt the "dynamic buffer"
-concept introduced in Boost.Asio. A dynamic buffer represents memory regions
-which may be automatically sized as required.
+This page explains dynamic buffers: containers that manage readable and writable
+byte regions with automatic sizing. After reading, you will understand the
+prepare/commit/consume workflow and know when to choose each buffer type.
 
-* A dynamic buffer has an input sequence defined as a _ConstBufferSequence_
+NOTE: Code snippets on this page assume the following declarations are in effect:
 
-* A dynamic buffer has an output sequence defined as a _MutableBufferSequence_
+[source,cpp]
+----
+#include <boost/buffers.hpp>
+using namespace boost::buffers;
+----
 
-* Callers acquire the output sequence by calling `prepare(n)` where `n` is the
-  desired size.
+== What Are Dynamic Buffers?
 
-* Callers invoke `commit(n)` to move written bytes from the output sequence
-  to the input sequence.
+Static buffer sequences represent fixed memory regions. Dynamic buffers add the
+ability to grow and shrink, making them suitable for streaming data where the
+final size is unknown.
 
-* The input sequence is returned by calling `data()`
+A dynamic buffer divides its storage into two logical regions:
 
-* The input sequence is released by calling `consume(n)`
+* **Input sequence** - Contains readable data (accessed via `data()`)
+* **Output sequence** - Contains writable space (accessed via `prepare()`)
 
+Data flows from output to input through explicit operations. The `commit(n)`
+operation moves bytes from the output sequence to the input sequence. The
+`consume(n)` operation removes bytes from the input sequence.
+
+== The Dynamic Buffer Workflow
+
+Working with dynamic buffers follows a consistent pattern:
+
+1. **Prepare** - Request writable space with `prepare(n)`
+2. **Write** - Fill the output sequence with data
+3. **Commit** - Move written bytes to the input sequence with `commit(n)`
+4. **Read** - Access the input sequence with `data()`
+5. **Consume** - Remove processed bytes with `consume(n)`
+
+=== Example: Accumulating Data
+
+[source,cpp]
+----
+char storage[1024];
+circular_buffer cb(storage, sizeof(storage));
+
+// Write "Hello"
+{
+    auto dest = cb.prepare(5);
+    copy(dest, const_buffer("Hello", 5));
+    cb.commit(5);
+}
+
+// Write ", World!"
+{
+    auto dest = cb.prepare(8);
+    copy(dest, const_buffer(", World!", 8));
+    cb.commit(8);
+}
+
+// Read accumulated data
+auto readable = cb.data();
+// size(readable) == 13
+// Contains "Hello, World!"
+
+// Consume the greeting
+cb.consume(7);  // Remove "Hello, "
+// size(cb.data()) == 6
+// Contains "World!"
+----
+
+== Buffer Types
+
+The library provides three dynamic buffer implementations, each with different
+trade-offs:
+
+[cols="1,2,2"]
+|===
+|Type |Storage |Best For
+
+|cpp:circular_buffer[]
+|Fixed external array
+|Network I/O with bounded memory
+
+|cpp:flat_buffer[]
+|Fixed external array
+|Protocols requiring contiguous input
+
+|cpp:string_buffer[]
+|Growing `std::string`
+|Building string output dynamically
+|===
+
+== circular_buffer
+
+A cpp:circular_buffer[] uses a fixed-size external array as a ring buffer. The
+readable and writable regions wrap around the array boundaries, enabling
+efficient use of bounded memory for streaming data.
+
+=== Construction
+
+[source,cpp]
+----
+char storage[4096];
+
+// Empty buffer with full capacity
+circular_buffer cb1(storage, sizeof(storage));
+
+// Buffer with initial readable content
+circular_buffer cb2(storage, sizeof(storage), 100);
+// cb2.size() == 100 (readable bytes)
+// cb2.capacity() == 3996 (writable bytes)
+----
+
+=== Key Properties
+
+* **Fixed capacity** - The buffer never allocates; `max_size()` equals the
+  array size
+* **Two-element sequences** - Both `data()` and `prepare()` return
+  cpp:const_buffer_pair[] or cpp:mutable_buffer_pair[], since the data may wrap
+  around the array boundary
+* **Efficient memory reuse** - Consumed space becomes available for writing
+  without copying
+
+=== Buffer Pairs and Wrapping
+
+When data wraps around the array boundary, both the input and output sequences
+consist of two separate memory regions:
+
+[source,cpp]
+----
+char storage[10];
+circular_buffer cb(storage, sizeof(storage));
+
+// Fill most of the buffer
+auto dest = cb.prepare(8);
+copy(dest, const_buffer("XXXXXXXX", 8));
+cb.commit(8);
+
+// Consume from the front
+cb.consume(6);
+
+// Now write more - this wraps around
+dest = cb.prepare(6);
+// dest[0] points to bytes 8-9 (end of array)
+// dest[1] points to bytes 0-3 (wrapped to start)
+----
+
+The cpp:copy[] function handles buffer pairs transparently, so wrapping is
+usually invisible to the caller.
+
+=== When to Use circular_buffer
+
+* Network protocol handling with bounded memory
+* Producer/consumer queues
+* Any streaming scenario where old data can be discarded
+
+== flat_buffer
+
+A cpp:flat_buffer[] uses a fixed-size external array but guarantees that the
+input sequence is always contiguous. This simplifies protocols that require
+parsing contiguous data.
+
+=== Construction
+
+[source,cpp]
+----
+char storage[4096];
+
+// Empty buffer
+flat_buffer fb1(storage, sizeof(storage));
+
+// With initial content
+flat_buffer fb2(storage, sizeof(storage), 100);
+----
+
+=== Key Properties
+
+* **Contiguous input** - The `data()` method returns a single cpp:const_buffer[],
+  never a pair
+* **Contiguous output** - The `prepare()` method returns a single
+  cpp:mutable_buffer[]
+* **Internal shifting** - When the buffer runs low on writable space, data may
+  be shifted to reclaim consumed space
+* **Single-buffer sequences** - Simpler to use with APIs expecting contiguous
+  data
+
+=== Example: Parsing Contiguous Data
+
+[source,cpp]
+----
+char storage[1024];
+flat_buffer fb(storage, sizeof(storage));
+
+// Accumulate incoming data
+auto dest = fb.prepare(100);
+std::size_t n = read_some(socket, dest);
+fb.commit(n);
+
+// Parse - input is guaranteed contiguous
+auto input = fb.data();
+char const* p = static_cast<char const*>(input.data());
+std::size_t len = input.size();
+
+// Process contiguous data directly
+auto result = parse_message(p, len);
+fb.consume(result.bytes_consumed);
+----
+
+=== When to Use flat_buffer
+
+* Protocols requiring contiguous input for parsing
+* Integration with C APIs expecting `char*` and length
+* Simpler code when wrapping is not acceptable
+
+== string_buffer
+
+A cpp:string_buffer[] wraps a `std::string`, allowing the buffer to grow
+dynamically. Unlike the fixed-capacity buffers, `string_buffer` can allocate
+memory as needed.
+
+=== Construction
+
+[source,cpp]
+----
+std::string storage;
+
+// Wrap an existing string
+string_buffer sb1(&storage);
+
+// With maximum size limit
+string_buffer sb2(&storage, 10000);
+----
+
+The buffer takes a pointer to the string, which must outlive the buffer object.
+On destruction, the buffer resizes the string to match the input sequence size.
+
+=== Key Properties
+
+* **Growing capacity** - The buffer allocates via the string's allocator
+* **Move-only** - Cannot be copied; can be moved
+* **Automatic finalization** - Destructor sets the string's size to the readable
+  byte count
+* **Single-buffer sequences** - Like `flat_buffer`, returns contiguous buffers
+
+=== Example: Building Output
+
+[source,cpp]
+----
+std::string result;
+{
+    string_buffer sb(&result);
+
+    // Write header
+    auto dest = sb.prepare(100);
+    std::size_t n = format_header(dest.data(), dest.size());
+    sb.commit(n);
+
+    // Write body
+    dest = sb.prepare(1000);
+    n = format_body(dest.data(), dest.size());
+    sb.commit(n);
+
+}   // Destructor finalizes result.size()
+
+// result now contains the formatted output
+send(socket, result.data(), result.size());
+----
+
+=== Maximum Size
+
+The optional `max_size` constructor parameter limits growth:
+
+[source,cpp]
+----
+std::string storage;
+string_buffer sb(&storage, 1024);
+
+// This throws if it would exceed 1024 bytes
+auto dest = sb.prepare(2000);  // throws std::length_error
+----
+
+=== When to Use string_buffer
+
+* Building serialized output incrementally
+* Cases where the final size is unpredictable
+* Integration with string-based APIs
+
+== Choosing a Buffer Type
+
+[cols="1,1,1,1"]
+|===
+|Requirement |circular_buffer |flat_buffer |string_buffer
+
+|Fixed memory
+|Yes
+|Yes
+|No
+
+|Contiguous input
+|No
+|Yes
+|Yes
+
+|Growing capacity
+|No
+|No
+|Yes
+
+|Memory efficiency
+|Excellent
+|Good
+|Varies
+
+|Parsing simplicity
+|Moderate
+|Simple
+|Simple
+|===
+
+**Use `circular_buffer`** when you have bounded memory and can handle
+non-contiguous data. This is the most memory-efficient choice for streaming.
+
+**Use `flat_buffer`** when you need contiguous data for parsing but have
+predictable memory requirements.
+
+**Use `string_buffer`** when building output strings or when the data size is
+truly unpredictable and allocation is acceptable.
+
+== Error Handling
+
+Dynamic buffers throw exceptions in these cases:
+
+* **`prepare(n)` exceeds capacity** - Throws `std::length_error` if
+  `size() + n > max_size()`
+* **Invalid construction** - Throws `std::invalid_argument` if initial size
+  exceeds capacity
+
+When using `-fno-exceptions`, these conditions call `std::abort()`.
+
+[source,cpp]
+----
+char storage[100];
+circular_buffer cb(storage, sizeof(storage));
+
+// Fill to capacity
+cb.prepare(100);
+cb.commit(100);
+
+// This throws - no space available
+try {
+    cb.prepare(1);  // throws std::length_error
+} catch(std::length_error const& e) {
+    // Handle overflow
+}
+----
+
+== Thread Safety
+
+Dynamic buffers provide no internal synchronization. If multiple threads access
+the same buffer, the caller must provide external synchronization. Typical usage
+patterns dedicate a buffer to a single thread or use a mutex for access control.

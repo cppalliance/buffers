@@ -1,6 +1,8 @@
+* xref:index.adoc[]
 * xref:intro.adoc[]
 * xref:algorithms.adoc[]
 * xref:dynamic-buffers.adoc[]
+* xref:type-erasure.adoc[]
 * xref:custom-sequences.adoc[]
 * Concepts
 ** xref:ConstBufferSequence.adoc[]
