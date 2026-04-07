@@ -10,34 +10,93 @@
 
 = ConstBufferSequence
 
-A constant buffer sequence represents zero or more contiguous memory regions
+A _ConstBufferSequence_ represents zero or more contiguous memory regions
 as a bidirectional range whose value type is convertible to cpp:const_buffer[],
 or as an object which is convertible to cpp:const_buffer[].
 
+== Related Identifiers
+
+cpp:const_buffer_sequence[]
+
+== Concept Definition
+
 [source,cpp]
 ----
-template< typename T >
+template<typename T>
 concept const_buffer_sequence =
     std::is_convertible_v<T, const_buffer> || (
         std::ranges::bidirectional_range<T> &&
         std::is_convertible_v<std::ranges::range_value_t<T>, const_buffer>);
 ----
 
-While the functions cpp:std::ranges::begin[] and cpp:std::ranges::end[] will
-work on bidirectional ranges, they do not handle objects which are merely
-convertible to cpp:const_buffer[]. To enable this use-case, the functions
-cpp:begin[`buffers::begin`] and cpp:end[`buffers::end`] must be used. These
-are always called with namespace qualification. Alternatively, the function
-cpp:single[`buffers::single`] or cpp:std::views::single[] may be used to adapt
-a cpp:const_buffer[] into a 1-element range.
+== Requirements
 
-Copies of a buffer sequence must point to the same memory regions:
+* `T` denotes a type meeting the _ConstBufferSequence_ requirements.
+* `t` denotes a value of type `T`.
+* `u` denotes a value of type `T`.
+
+[cols="1a,1a,4a"]
+|===
+|Expression |Type |Semantics, Pre/Post-conditions
+
+|`const_buffer_sequence<T>`
+|`bool`
+|`true` if `T` models _ConstBufferSequence_.
+
+|`buffers::begin(t)`
+|Iterator
+|Returns a bidirectional iterator to the first buffer, or `buffers::end(t)`
+if the sequence is empty.
+
+|`buffers::end(t)`
+|Iterator
+|Returns a bidirectional iterator one past the last buffer.
+
+|`*it`
+|Convertible to `const_buffer`
+|Where `it` is an iterator obtained from `buffers::begin(t)`.
+
+|`T u(t)`
+|
+|Copy construction. `u` must reference the same memory regions as `t`.
+|===
+
+== Iteration
+
+While `std::ranges::begin` and `std::ranges::end` work on bidirectional ranges,
+they do not handle objects merely convertible to cpp:const_buffer[]. Use
+cpp:begin[`buffers::begin`] and cpp:end[`buffers::end`] for uniform handling:
+
+[source,cpp]
+----
+template<class ConstBufferSequence>
+void print_buffers(ConstBufferSequence const& bs)
+{
+    for(auto it = buffers::begin(bs); it != buffers::end(bs); ++it)
+    {
+        const_buffer b = *it;
+        std::cout << "Buffer: " << b.size() << " bytes\n";
+    }
+}
+
+// Works with ranges
+std::vector<const_buffer> v = /* ... */;
+print_buffers(v);
+
+// Also works with single buffers
+const_buffer cb(data, len);
+print_buffers(cb);
+----
+
+== Copy Semantics
+
+Copies of a buffer sequence must reference the same underlying memory:
 
 [source,cpp]
 ----
 T t(u);
-static_assert( const_buffer_sequence<T> );
-assert( std::equal(
+static_assert(const_buffer_sequence<T>);
+assert(std::equal(
     buffers::begin(t), buffers::end(t),
     buffers::begin(u), buffers::end(u),
     [](const_buffer const& b1, const_buffer const& b2)
@@ -46,13 +105,23 @@ assert( std::equal(
     }));
 ----
 
+This property enables efficient pass-by-value semantics. Copying a buffer
+sequence is cheap because only the handle is copied, not the underlying data.
+
 == Models
 
+The following types model _ConstBufferSequence_:
+
 * cpp:const_buffer[]
-* cpp:const_buffer_1[]
 * cpp:const_buffer_pair[]
-* cpp:mutable_buffer[]
-* cpp:mutable_buffer_1[]
+* cpp:mutable_buffer[] (implicitly converts to `const_buffer`)
 * cpp:mutable_buffer_pair[]
 * cpp:slice_of[]
+* `std::array<const_buffer, N>`
+* `std::vector<const_buffer>`
 
+== See Also
+
+* xref:MutableBufferSequence.adoc[_MutableBufferSequence_] - Writable buffer sequences
+* xref:intro.adoc[Introduction] - Buffer sequence concepts explained
+* xref:algorithms.adoc[Algorithms] - Functions operating on buffer sequences

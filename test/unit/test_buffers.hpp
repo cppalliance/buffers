@@ -102,7 +102,7 @@ check_iterators(
     core::string_view pat,
     std::string& s)
 {
-    BOOST_ASSERT(is_const_buffer_sequence<ConstBufferSequence>::value);
+    static_assert(const_buffer_sequence<ConstBufferSequence>);
     BOOST_TEST_EQ(size(bs), pat.size());
 
     auto const& ct = bs;
@@ -371,7 +371,7 @@ void
 check_sequence(
     T const& t, core::string_view pat, bool deep = false)
 {
-    BOOST_STATIC_ASSERT(is_const_buffer_sequence<T>::value);
+    static_assert(const_buffer_sequence<T>);
 
     std::string tmp;
     check_iterators(t, pat, tmp);

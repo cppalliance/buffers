@@ -1,0 +1,306 @@
+//
+// Copyright (c) 2025 Vinnie Falco (vinnie.falco@gmail.com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Official repository: https://github.com/cppalliance/buffers
+//
+
+= Type Erasure
+
+This page describes the type-erased wrappers provided by the library. After
+reading, you will understand when to use type erasure and how it enables
+runtime polymorphism for buffer sequences and data sources.
+
+NOTE: Code snippets on this page assume the following declarations are in effect:
+
+[source,cpp]
+----
+#include <boost/buffers.hpp>
+using namespace boost::buffers;
+----
+
+== Why Type Erasure?
+
+Buffer sequences are typically implemented as class templates, where the concrete
+type depends on the underlying container or memory layout. This creates
+challenges when:
+
+* **Storing heterogeneous sequences** - A `std::vector<const_buffer>` cannot
+  store both `const_buffer_pair` and `std::array<const_buffer, 3>` objects
+* **Defining stable ABIs** - Template instantiations in headers prevent binary
+  compatibility across library versions
+* **Runtime polymorphism** - Virtual functions require a common base type
+
+Type-erased wrappers solve these problems by hiding the concrete type behind a
+uniform interface. The cost is a small runtime overhead from virtual dispatch
+and potential heap allocation.
+
+== any_const_buffers and any_mutable_buffers
+
+The class template cpp:any_buffers[] wraps any buffer sequence and exposes it
+through a type-erased interface. Two convenience aliases are provided:
+
+* cpp:any_const_buffers[] - Wraps any _ConstBufferSequence_
+* cpp:any_mutable_buffers[] - Wraps any _MutableBufferSequence_
+
+=== Basic Usage
+
+[source,cpp]
+----
+// Create buffer sequences of different types
+const_buffer single_buf("Hello", 5);
+
+std::array<const_buffer, 2> array_buf = {
+    const_buffer("Hello, ", 7),
+    const_buffer("World!", 6)
+};
+
+// Type-erase them into a common type
+any_const_buffers erased1 = single_buf;
+any_const_buffers erased2 = array_buf;
+
+// Both can be used uniformly
+std::cout << "erased1: " << size(erased1) << " bytes\n";
+std::cout << "erased2: " << size(erased2) << " bytes\n";
+----
+
+=== Heterogeneous Collections
+
+Type erasure enables storing different buffer sequence types in containers:
+
+[source,cpp]
+----
+std::vector<any_const_buffers> pending_writes;
+
+// Add buffers of different concrete types
+pending_writes.push_back(const_buffer(header, header_len));
+pending_writes.push_back(std::array<const_buffer, 2>{
+    const_buffer(chunk1, len1),
+    const_buffer(chunk2, len2)
+});
+pending_writes.push_back(const_buffer_pair{
+    const_buffer(trailer1, tlen1),
+    const_buffer(trailer2, tlen2)
+});
+
+// Process uniformly
+for(auto const& buf : pending_writes)
+{
+    send_to_socket(buf);
+}
+----
+
+=== Iteration
+
+Type-erased buffer sequences support bidirectional iteration:
+
+[source,cpp]
+----
+any_const_buffers erased = /* ... */;
+
+for(auto it = erased.begin(); it != erased.end(); ++it)
+{
+    const_buffer b = *it;
+    // Process each buffer
+}
+----
+
+=== Implementation Details
+
+The implementation uses small buffer optimization (SBO) to avoid heap allocation
+for small buffer sequences. When the wrapped sequence and its iterator fit
+within the inline storage (typically 6 and 4 pointer-sized slots respectively),
+no allocation occurs.
+
+Larger sequences fall back to shared pointer ownership with an index-based
+iteration strategy that avoids storing the underlying iterator type.
+
+== any_source
+
+The class cpp:any_source[] provides type-erased access to data sources. It can
+wrap either a xref:DataSource.adoc[_DataSource_] (in-memory data) or a
+xref:ReadSource.adoc[_ReadSource_] (streaming data).
+
+=== Constructing from a DataSource
+
+When constructed from a _DataSource_, the any_source provides direct buffer
+access through `data()`:
+
+[source,cpp]
+----
+struct my_data
+{
+    std::string content = "Hello, World!";
+
+    my_data(my_data&&) noexcept = default;
+
+    const_buffer data() const noexcept
+    {
+        return const_buffer(content.data(), content.size());
+    }
+};
+
+any_source src = my_data{};
+
+// DataSource properties are preserved
+assert(src.has_buffers());  // true
+assert(src.has_size());     // true
+
+auto buffers = src.data();  // Direct buffer access
+std::cout << "Size: " << src.size() << " bytes\n";
+----
+
+=== Constructing from a ReadSource
+
+When constructed from a _ReadSource_, data is accessed through the `read()`
+method:
+
+[source,cpp]
+----
+struct file_source
+{
+    std::ifstream file;
+
+    file_source(file_source&&) noexcept = default;
+
+    void rewind()
+    {
+        file.seekg(0);
+    }
+
+    template<class MutableBufferSequence>
+    std::size_t read(
+        MutableBufferSequence const& dest,
+        system::error_code& ec)
+    {
+        // Read into dest, set ec to error::eof when done
+        // ...
+    }
+};
+
+any_source src = file_source{/* open file */};
+
+// ReadSource does not provide direct buffer access
+assert(!src.has_buffers());  // false
+assert(!src.has_size());     // false (unless constructed with known size)
+
+// Read data through streaming interface
+char buffer[1024];
+system::error_code ec;
+std::size_t n = src.read(mutable_buffer(buffer, sizeof(buffer)), ec);
+----
+
+=== Providing Known Size
+
+When constructing from a _ReadSource_, you can optionally provide the total size
+if known:
+
+[source,cpp]
+----
+any_source src(file_size, file_source{/* open file */});
+
+assert(!src.has_buffers());  // Still false - data is streamed
+assert(src.has_size());      // Now true
+std::cout << "Size: " << src.size() << " bytes\n";
+----
+
+=== Rewinding
+
+All type-erased sources support rewinding to read the data again:
+
+[source,cpp]
+----
+any_source src = /* ... */;
+
+// First read
+system::error_code ec;
+while(!ec)
+{
+    char buf[1024];
+    src.read(mutable_buffer(buf, sizeof(buf)), ec);
+}
+
+// Rewind and read again
+src.rewind();
+ec = {};
+while(!ec)
+{
+    char buf[1024];
+    src.read(mutable_buffer(buf, sizeof(buf)), ec);
+}
+----
+
+=== Shared Ownership
+
+Copies of `any_source` share ownership of the underlying source. Changes to
+one copy (such as reading or rewinding) affect all copies:
+
+[source,cpp]
+----
+any_source src1 = my_data{};
+any_source src2 = src1;  // Shared ownership
+
+// Reading through src1 advances the position for src2 as well
+char buf[10];
+system::error_code ec;
+src1.read(mutable_buffer(buf, sizeof(buf)), ec);
+
+// src2 now also reflects the advanced position
+----
+
+== Performance Considerations
+
+Type erasure introduces overhead compared to direct template instantiation:
+
+[cols="1,2,2"]
+|===
+|Operation |Direct Template |Type-Erased
+
+|Construction
+|Inline/stack
+|May allocate (SBO for small types)
+
+|Iteration
+|Direct increment
+|Virtual call per increment
+
+|Dereference
+|Direct access
+|Virtual call
+
+|Copy
+|Value copy
+|Reference counting + possible copy
+|===
+
+For I/O-bound code, this overhead is typically negligible compared to system
+call latency. Type erasure is most beneficial when:
+
+* Code paths vary at runtime
+* Binary size or compile time is a concern
+* ABI stability is required
+
+Avoid type erasure in tight loops where buffer sequence operations dominate
+the execution time.
+
+== Summary
+
+[cols="1,3"]
+|===
+|Type |Purpose
+
+|cpp:any_const_buffers[]
+|Type-erased wrapper for any _ConstBufferSequence_
+
+|cpp:any_mutable_buffers[]
+|Type-erased wrapper for any _MutableBufferSequence_
+
+|cpp:any_source[]
+|Type-erased wrapper for _DataSource_ or _ReadSource_
+|===
+
+Type-erased wrappers enable runtime polymorphism at the cost of virtual dispatch
+overhead. Use them when you need heterogeneous collections, stable ABIs, or
+runtime-determined buffer handling.

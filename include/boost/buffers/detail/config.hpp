@@ -64,14 +64,6 @@ namespace buffers {
 
 //-----------------------------------------------
 
-#if defined(__cpp_lib_coroutine) && __cpp_lib_coroutine >= 201902L
-# define BOOST_BUFFERS_HAS_CORO 1
-#elif defined(__cpp_impl_coroutine) && __cpp_impl_coroutines >= 201902L
-# define BOOST_BUFFERS_HAS_CORO 1
-#endif
-
-//-----------------------------------------------
-
 // avoid all of Boost.TypeTraits for just this
 namespace detail {
 template<class...> struct make_void { typedef void type; };

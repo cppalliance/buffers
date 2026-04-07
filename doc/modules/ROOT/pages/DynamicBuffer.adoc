@@ -7,10 +7,9 @@
 // Official repository: https://github.com/cppalliance/buffers
 //
 
-
 = DynamicBuffer
 
-A __DynamicBuffer__ represents a memory storage that may be automatically
+A _DynamicBuffer_ represents memory storage that may be automatically
 resized as required, where the memory is divided into an input sequence followed
 by an output sequence. These memory regions are internal to the dynamic buffer,
 but direct access to the elements is provided to permit them to be efficiently
@@ -33,7 +32,6 @@ cpp:is_dynamic_buffer[]
 
 [cols="1a,1a,5a"]
 |===
-// Headers
 |Expression|Type|Semantics, Pre/Post-conditions
 
 |`D::const_buffers_type`
@@ -89,10 +87,58 @@ constant or mutable buffer sequences previously obtained using `data()` or
 
 |===
 
+== Example
+
+[source,cpp]
+----
+#include <boost/buffers.hpp>
+
+using namespace boost::buffers;
+
+// Generic function that works with any DynamicBuffer
+template<class DynamicBuffer>
+void append_greeting(DynamicBuffer& db)
+{
+    char const* msg = "Hello!";
+    std::size_t len = 6;
+
+    // Prepare space in the output sequence
+    auto dest = db.prepare(len);
+
+    // Copy data into the prepared space
+    copy(dest, const_buffer(msg, len));
+
+    // Move data from output to input sequence
+    db.commit(len);
+}
+
+int main()
+{
+    // Works with circular_buffer
+    char storage1[64];
+    circular_buffer cb(storage1, sizeof(storage1));
+    append_greeting(cb);
+
+    // Works with flat_buffer
+    char storage2[64];
+    flat_buffer fb(storage2, sizeof(storage2));
+    append_greeting(fb);
+
+    // Works with string_buffer
+    std::string str;
+    string_buffer sb(&str);
+    append_greeting(sb);
+}
+----
+
 == Models
 
-* `any_dynamic_buffer`
-* `circular_buffer`
-* `flat_buffer`
-* `string_buffer`
+* cpp:circular_buffer[]
+* cpp:flat_buffer[]
+* cpp:string_buffer[]
 
+== See Also
+
+* xref:dynamic-buffers.adoc[Dynamic Buffers] - Detailed guide to dynamic buffer types
+* xref:ConstBufferSequence.adoc[_ConstBufferSequence_] - Input sequence requirements
+* xref:MutableBufferSequence.adoc[_MutableBufferSequence_] - Output sequence requirements

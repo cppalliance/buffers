@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/cppalliance/capy
+// Official repository: https://github.com/cppalliance/buffers
 //
 
 #ifndef BOOST_BUFFERS_ANY_STREAM_HPP
@@ -12,10 +12,10 @@
 
 #include <boost/buffers/detail/config.hpp>
 
-#ifdef BOOST_BUFFERS_HAS_CORO
+#if 0
 
 #include <boost/buffers/buffer.hpp>
-#include <boost/capy/async_op.hpp>
+#__include <boost/capy/async_op.hpp>
 #include <boost/system/error_code.hpp>
 #include <cstdint>
 #include <memory>

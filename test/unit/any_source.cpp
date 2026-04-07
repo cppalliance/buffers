@@ -10,6 +10,7 @@
 // Test that header file is self-contained.
 #include <boost/buffers/any_source.hpp>
 
+#include <boost/core/detail/static_assert.hpp>
 #include <boost/core/detail/string_view.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -20,11 +21,11 @@ namespace buffers {
 
 namespace {
 
-struct data_source
+struct test_data_source
 {
     core::string_view s_;
 
-    data_source(
+    test_data_source(
         core::string_view s)
         : s_(s)
     {
@@ -37,13 +38,13 @@ struct data_source
     }
 };
 
-struct read_source
+struct test_read_source
 {
     core::string_view s_;
     std::size_t nread_ = 0;
     system::error_code ec_;
 
-    explicit read_source(
+    explicit test_read_source(
         core::string_view s,
         system::error_code ec = {})
         : s_(s)
@@ -89,24 +90,24 @@ struct read_source
     }
 };
 
-BOOST_CORE_STATIC_ASSERT(  is_data_source<data_source>::value);
-BOOST_CORE_STATIC_ASSERT(! is_data_source<read_source>::value);
-BOOST_CORE_STATIC_ASSERT(  is_read_source<read_source>::value);
-BOOST_CORE_STATIC_ASSERT(! is_read_source<data_source>::value);
+BOOST_CORE_STATIC_ASSERT(  is_data_source<test_data_source>::value);
+BOOST_CORE_STATIC_ASSERT(! is_data_source<test_read_source>::value);
+BOOST_CORE_STATIC_ASSERT(  is_read_source<test_read_source>::value);
+BOOST_CORE_STATIC_ASSERT(! is_read_source<test_data_source>::value);
 
 } // (anon)
 
 BOOST_CORE_STATIC_ASSERT(std::is_move_constructible<any_source>::value);
 BOOST_CORE_STATIC_ASSERT(std::is_copy_constructible<any_source>::value);
 BOOST_CORE_STATIC_ASSERT(std::is_constructible<any_source, any_source const&>::value);
-BOOST_CORE_STATIC_ASSERT(std::is_constructible<any_source, data_source>::value);
-BOOST_CORE_STATIC_ASSERT(std::is_constructible<any_source, read_source>::value);
+BOOST_CORE_STATIC_ASSERT(std::is_constructible<any_source, test_data_source>::value);
+BOOST_CORE_STATIC_ASSERT(std::is_constructible<any_source, test_read_source>::value);
 BOOST_CORE_STATIC_ASSERT(std::is_move_assignable<any_source>::value);
 BOOST_CORE_STATIC_ASSERT(std::is_copy_assignable<any_source>::value);
 BOOST_CORE_STATIC_ASSERT(std::is_assignable<any_source, any_source>::value);
 BOOST_CORE_STATIC_ASSERT(std::is_assignable<any_source, any_source const&>::value);
-BOOST_CORE_STATIC_ASSERT(std::is_assignable<any_source, data_source>::value);
-BOOST_CORE_STATIC_ASSERT(std::is_assignable<any_source, read_source>::value);
+BOOST_CORE_STATIC_ASSERT(std::is_assignable<any_source, test_data_source>::value);
+BOOST_CORE_STATIC_ASSERT(std::is_assignable<any_source, test_read_source>::value);
 
 struct any_source_test
 {
@@ -169,7 +170,7 @@ struct any_source_test
         core::string_view s1("Hello, world!");
         core::string_view s2("Boost");
 
-        any_source b1((data_source(s1)));
+        any_source b1((test_data_source(s1)));
         BOOST_TEST_EQ(b1.has_size(), true);
         BOOST_TEST_EQ(b1.size(), s1.size());
         BOOST_TEST_EQ(b1.has_buffers(), true);
@@ -186,7 +187,7 @@ struct any_source_test
         BOOST_TEST_NO_THROW(b2.rewind());
         grind(b2, s1);
 
-        b1 = data_source(s2);
+        b1 = test_data_source(s2);
         BOOST_TEST_EQ(b1.has_size(), true);
         BOOST_TEST_EQ(b1.size(), s2.size());
         BOOST_TEST_EQ(b1.has_buffers(), true);
@@ -200,7 +201,7 @@ struct any_source_test
         core::string_view s1("Hello, world!");
         core::string_view s2("Boost");
 
-        any_source b1((read_source(s1)));
+        any_source b1((test_read_source(s1)));
         BOOST_TEST_EQ(b1.has_size(), false);
         BOOST_TEST_EQ(b1.has_buffers(), false);
         BOOST_TEST_THROWS(b1.size(), std::invalid_argument);
@@ -217,7 +218,7 @@ struct any_source_test
         checkEmpty(b1);
         grind(b2, s1);
 
-        b1 = read_source(s2);
+        b1 = test_read_source(s2);
         BOOST_TEST_EQ(b1.has_size(), false);
         BOOST_TEST_EQ(b1.has_buffers(), false);
         BOOST_TEST_THROWS(b1.size(), std::invalid_argument);
@@ -226,7 +227,7 @@ struct any_source_test
         grind(b1, s2);
 
         // sized source
-        b2 = any_source(s2.size(), read_source(s2));
+        b2 = any_source(s2.size(), test_read_source(s2));
         BOOST_TEST_EQ(b2.has_size(), true);
         BOOST_TEST_EQ(b2.has_buffers(), false);
         BOOST_TEST_EQ(b2.size(), s2.size());
@@ -240,7 +241,7 @@ struct any_source_test
         core::string_view s1("Hello, world!");
         auto fec = make_error_code(
             boost::system::errc::address_in_use );
-        any_source b1((read_source(s1, fec)));
+        any_source b1((test_read_source(s1, fec)));
         BOOST_TEST_EQ(b1.has_size(), false);
         BOOST_TEST_EQ(b1.has_buffers(), false);
         BOOST_TEST_THROWS(b1.size(), std::invalid_argument);

@@ -7,14 +7,38 @@
             <toolset name="*gnu98"/>
             <toolset name="*c++0x"/>
             <toolset name="*gnu0x"/>
-            <toolset name="gcc-4.7*"/>
+            <toolset name="*c++11"/>
+            <toolset name="*gnu11"/>
+            <toolset name="*c++14"/>
+            <toolset name="*gnu14"/>
+            <toolset name="*c++17"/>
+            <toolset name="*gnu17"/>
+            <toolset name="gcc-4.*"/>
+            <toolset name="gcc-5*"/>
+            <toolset name="gcc-6*"/>
+            <toolset name="gcc-7*"/>
+            <toolset name="gcc-8*"/>
+            <toolset name="gcc-9*"/>
+            <toolset name="gcc-10*"/>
+            <toolset name="clang-3.*"/>
+            <toolset name="clang-4*"/>
+            <toolset name="clang-5*"/>
+            <toolset name="clang-6*"/>
+            <toolset name="clang-7*"/>
+            <toolset name="clang-8*"/>
+            <toolset name="clang-9*"/>
+            <toolset name="clang-10*"/>
+            <toolset name="clang-11*"/>
             <toolset name="msvc-7.1"/>
             <toolset name="msvc-8.*"/>
             <toolset name="msvc-9.*"/>
             <toolset name="msvc-10.*"/>
             <toolset name="msvc-11.*"/>
             <toolset name="msvc-12.*"/>
-            <note author="Vinnie Falco">C++11 is the minimum requirement.</note>
+            <toolset name="msvc-14.0*"/>
+            <toolset name="msvc-14.1*"/>
+            <toolset name="msvc-14.2*"/>
+            <note author="Vinnie Falco">C++20 is the minimum requirement.</note>
         </mark-unusable>
     </library>
 </explicit-failures-markup>

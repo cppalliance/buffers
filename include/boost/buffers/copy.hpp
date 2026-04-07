@@ -25,8 +25,8 @@ namespace buffers {
 
     @par Constraints
     @code
-    requires is_mutable_buffer_sequence_v<decltype(dest)> &&
-             is_const_buffer_sequence_v<decltype(src)>;
+    mutable_buffer_sequence<decltype(dest)> &&
+    const_buffer_sequence<decltype(src)>
     @endcode
 
     @return The number of bytes actually copied, which will be exactly equal to
@@ -39,15 +39,13 @@ namespace buffers {
 constexpr struct copy_mrdocs_workaround_t
 {
     template<
-        class MutableBufferSequence,
-        class ConstBufferSequence>
-    auto
+        mutable_buffer_sequence MutableBufferSequence,
+        const_buffer_sequence ConstBufferSequence>
+    std::size_t
     operator()(
         MutableBufferSequence const& dest,
         ConstBufferSequence const& src,
-        std::size_t at_most = std::size_t(-1)) const noexcept -> typename std::enable_if<
-            is_mutable_buffer_sequence<MutableBufferSequence>::value &&
-            is_const_buffer_sequence<ConstBufferSequence>::value, std::size_t>::type
+        std::size_t at_most = std::size_t(-1)) const noexcept
     {
         std::size_t total = 0;
         std::size_t pos0 = 0;

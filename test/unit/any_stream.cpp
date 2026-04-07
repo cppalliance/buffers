@@ -10,8 +10,6 @@
 // Test that header file is self-contained.
 #include <boost/buffers/any_stream.hpp>
 
-#ifdef BOOST_BUFFERS_HAS_CORO
-
 #include "test_suite.hpp"
 
 namespace boost {
@@ -30,5 +28,3 @@ TEST_SUITE(
 
 } // buffers
 } // boost
-
-#endif

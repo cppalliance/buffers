@@ -18,7 +18,7 @@
 namespace boost {
 namespace buffers {
 
-/** Metafunction to detect if a type is a data source.
+/** Concept for types that model DataSource.
 
     A data source presents a binary object as a constant buffer sequence.
 
@@ -31,21 +31,21 @@ namespace buffers {
     };
     @endcode
 
-    Where `buffers::is_const_buffer_sequence<ConstBufferSequence>::value` is `true`.
+    Where `const_buffer_sequence<ConstBufferSequence>` is satisfied.
 */
-template<class T, class = void>
-struct is_data_source
-    : std::false_type
-{
-};
-
 template<class T>
-struct is_data_source<T, detail::void_t<
-    decltype(std::declval<T const&>().data())>>
-    : std::integral_constant<bool,
-        std::is_nothrow_move_constructible<T>::value &&
-        buffers::is_const_buffer_sequence<
-            decltype(std::declval<T const&>().data())>::value>
+concept data_source =
+    std::is_nothrow_move_constructible_v<T> &&
+    requires(T const& t)
+    {
+        { t.data() } -> const_buffer_sequence;
+    };
+
+/** Metafunction to detect if a type is a data source.
+*/
+template<class T>
+struct is_data_source
+    : std::bool_constant<data_source<T>>
 {
 };
 

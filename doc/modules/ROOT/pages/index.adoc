@@ -10,36 +10,96 @@
 
 = Boost.Buffers
 
-This is a portable C++ library providing containers and algorithms for
-describing contiguous buffers of arbitrary bytes, with these notable features:
+Boost.Buffers is a portable C++20 library providing containers and algorithms
+for describing contiguous buffers of arbitrary bytes.
 
-* Requires only C++11
-* Works without exceptions
-* Fast compilation, few templates
-* Does not require Asio or Boost.Asio
+== What This Library Does
+
+Buffers provides vocabulary types and algorithms for working with raw byte
+sequences, enabling interoperability between libraries that process unstructured
+data:
+
+* **Buffer sequences** - Zero-copy representations of scattered memory regions,
+  compatible with Asio's buffer concepts
+* **Dynamic buffers** - Resizable containers for streaming data with
+  prepare/commit/consume semantics
+* **Type-erased wrappers** - Runtime polymorphism for buffer sequences and data
+  sources without templates
+* **Algorithms** - Functions for copying, slicing, and measuring buffer sequences
+
+== What This Library Does Not Do
+
+Buffers is not an I/O library. It does not include:
+
+* Networking or socket operations (use Asio or Boost.Asio)
+* File I/O (use standard streams or platform APIs)
+* Allocating containers that own memory (buffers reference external storage)
+* Serialization or parsing (buffers are untyped byte sequences)
+
+The library provides the vocabulary types that I/O and parsing libraries use to
+exchange data efficiently.
+
+== Design Philosophy
+
+**Asio-compatible concepts.** Buffer sequences follow the same requirements as
+Boost.Asio, enabling direct interoperability with networking code.
+
+**Cheap copies.** Buffer sequences are lightweight handles that reference
+external memory. Copying a buffer sequence does not copy the underlying data.
+
+**Scatter/gather I/O.** Buffer sequences can represent multiple non-contiguous
+memory regions, supporting efficient vectored I/O operations.
+
+**Minimal dependencies.** The library requires C++20 and works without
+exceptions. It does not depend on Asio or Boost.Asio.
 
 == Requirements
 
-* Requires Boost and a compiler supporting at least C++11
-* Link to a static or dynamically linked version of this library
-* Supports `-fno-exceptions`, detected automatically
+* C++20 compiler (see tested compilers below)
+* Boost headers
+* Link to `boost_buffers` (static or shared library)
 
-== Tested Compilers
+The library supports `-fno-exceptions`, detected automatically.
 
-Boost.Buffers has been tested with the following compilers:
+=== Tested Compilers
 
-* clang: 3.8, 4, 5, 6, 7, 8, 9, 10, 11, 12
-* gcc: 5, 6, 7, 8, 9, 10, 11
-* msvc: 14.1, 14.2, 14.3
+* clang: 12, 13, 14, 15, 16, 17, 18, 19, 20
+* gcc: 11, 12, 13, 14, 15
+* msvc: 14.3, 14.4
 
-== Quality Assurance
+== Quick Example
 
-The development infrastructure for the library includes these per-commit analyses:
+[source,cpp]
+----
+#include <boost/buffers.hpp>
+#include <iostream>
 
-* Coverage reports
-* Compilation and tests on Drone.io and GitHub Actions
+using namespace boost::buffers;
 
-== Credits
+int main()
+{
+    // Create a buffer from a string literal
+    char data[] = "Hello, Buffers!";
+    mutable_buffer buf(data, sizeof(data) - 1);
 
-This library is based on concepts and code developed
-by Christopher Kohlhoff and published in Boost.Asio.
+    // Measure and iterate
+    std::cout << "Size: " << size(buf) << " bytes\n";
+
+    // Use with a dynamic buffer
+    char storage[64];
+    circular_buffer cb(storage, sizeof(storage));
+
+    auto dest = cb.prepare(buf.size());
+    copy(dest, buf);
+    cb.commit(buf.size());
+
+    std::cout << "Buffered: " << cb.size() << " bytes\n";
+}
+----
+
+== Next Steps
+
+* xref:intro.adoc[Introduction] - Understand buffer concepts and terminology
+* xref:algorithms.adoc[Algorithms] - Learn to copy, slice, and measure buffers
+* xref:dynamic-buffers.adoc[Dynamic Buffers] - Work with resizable buffer containers
+* xref:reference:boost/buffers.adoc[API Reference] - Complete function and class documentation

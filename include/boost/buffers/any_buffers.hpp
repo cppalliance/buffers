@@ -13,7 +13,6 @@
 #include <boost/buffers/detail/config.hpp>
 #include <boost/buffers/buffer.hpp>
 #include <boost/core/null_deleter.hpp>
-#include <boost/core/detail/static_assert.hpp>
 #include <boost/assert.hpp>
 #include <cstddef>
 #include <memory>
@@ -50,8 +49,8 @@ public:
         This is @ref const_buffer when `IsConst` is `true`,
         otherwise @ref mutable_buffer.
     */
-    using value_type = typename std::conditional<
-        IsConst, const_buffer, mutable_buffer>::type;
+    using value_type = std::conditional_t<
+        IsConst, const_buffer, mutable_buffer>;
 
     /** A bidirectional iterator over the buffer sequence.
 
@@ -93,25 +92,21 @@ public:
 
         The type-erased buffer sequence is constructed
         from the specified buffer sequence, which must satisfy
-        `ConstBufferSequence`. If `IsConst` is `false`, must
-        also satisfy `MutableBufferSequence`.
+        `const_buffer_sequence`. If `IsConst` is `false`, must
+        also satisfy `mutable_buffer_sequence`.
 
         @param buffers The buffer sequence to type-erase.
     */
-    template<class BufferSequence
-        , class = typename std::enable_if<! std::is_same<
-            any_buffers, typename std::decay<BufferSequence
-                >::type>::value>::type>
+    template<class BufferSequence>
+        requires (!std::same_as<any_buffers, std::decay_t<BufferSequence>> &&
+                  const_buffer_sequence<std::decay_t<BufferSequence>> &&
+                  (IsConst || mutable_buffer_sequence<std::decay_t<BufferSequence>>))
     any_buffers(
         BufferSequence&& buffers)
     {
-        BOOST_CORE_STATIC_ASSERT(
-            is_const_buffer_sequence<BufferSequence>::value && (IsConst ||
-            is_mutable_buffer_sequence<BufferSequence>::value));
-        using T = typename std::decay<BufferSequence>::type;
+        using T = std::decay_t<BufferSequence>;
         construct(std::forward<BufferSequence>(buffers),
-            std::integral_constant<bool, (
-                sizeof(impl<T>) <= sbo_size)>{});
+            std::bool_constant<(sizeof(impl<T>) <= sbo_size)>{});
     }
 
     /** Return an iterator to the beginning.
@@ -160,7 +155,7 @@ private:
     template<class T>
     void construct(T&& t, std::true_type)
     {
-        using U = typename std::decay<T>::type;
+        using U = std::decay_t<T>;
         sp_ = {
             ::new(&storage_) impl<U>(std::forward<T>(t)),
             null_deleter{} };
@@ -169,7 +164,7 @@ private:
     template<class T>
     void construct(T&& t, std::false_type)
     {
-        using U = typename std::decay<T>::type;
+        using U = std::decay_t<T>;
         sp_ = std::make_shared<impl<U>>(std::forward<T>(t));
     }
 
@@ -236,7 +231,7 @@ struct any_buffers<IsConst>::
     void copy(any_buffers& dest, std::shared_ptr<
         any_buffers<IsConst>::any_impl const> const& sp) const override
     {
-        copy(dest, sp, std::integral_constant<bool,
+        copy(dest, sp, std::bool_constant<
             sizeof(*this) <= sbo_size>{});
     }
 
@@ -334,7 +329,7 @@ struct any_buffers<IsConst>::
         any_buffers<IsConst>& dest, std::shared_ptr<
             any_buffers<IsConst>::any_impl const> const& sp) const override
     {
-        copy(dest, sp, std::integral_constant<bool,
+        copy(dest, sp, std::bool_constant<
             sizeof(*this) <= any_buffers<IsConst>::sbo_size>{});
     }
 
@@ -445,11 +440,9 @@ public:
     using iterator_category =
         std::bidirectional_iterator_tag;
 
-#if defined(__cpp_concepts) || defined(__cpp_lib_concepts)
     /** Iterator concept tag (C++20).
     */
     using iterator_concept = std::bidirectional_iterator_tag;
-#endif
 
     /** Destructor.
 

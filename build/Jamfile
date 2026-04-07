@@ -8,23 +8,12 @@
 #
 
 import path ;
-import ../../config/checks/config : requires ;
-
-constant c11-requires :
-    [ requires
-    cxx11_constexpr
-    cxx11_decltype
-    cxx11_hdr_tuple
-    cxx11_template_aliases
-    cxx11_variadic_templates
-    ]
-    ;
 
 path-constant BUFFERS_ROOT : .. ;
 
 project boost/buffers
     : requirements
-      $(c11-requires)
+      <cxxstd>20
       <link>shared:<define>BOOST_BUFFERS_DYN_LINK=1
       <link>static:<define>BOOST_BUFFERS_STATIC_LINK=1
       <define>BOOST_BUFFERS_SOURCE
@@ -42,11 +31,9 @@ lib boost_buffers
    : buffers_sources
    : requirements
      <library>/boost//system
-     <library>/boost//capy
      <include>../
    : usage-requirements
      <library>/boost//system
-     <library>/boost//capy
    ;
 
 boost-install boost_buffers ;

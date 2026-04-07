@@ -10,35 +10,100 @@
 
 = MutableBufferSequence
 
-A mutable buffer sequence represents zero or more contiguous memory regions
-as a bidirectional range whose value type is convertible to cpp:mutable_buffer[],
-or as an object which is convertible to cpp:mutable_buffer[]. All mutable buffer
-sequences are also constant buffer sequences.
+A _MutableBufferSequence_ represents zero or more contiguous writable memory
+regions as a bidirectional range whose value type is convertible to
+cpp:mutable_buffer[], or as an object which is convertible to cpp:mutable_buffer[].
+
+All mutable buffer sequences are also constant buffer sequences, since writable
+memory can always be read.
+
+== Related Identifiers
+
+cpp:mutable_buffer_sequence[]
+
+== Concept Definition
 
 [source,cpp]
 ----
-template< typename T >
+template<typename T>
 concept mutable_buffer_sequence =
     std::is_convertible_v<T, mutable_buffer> || (
         std::ranges::bidirectional_range<T> &&
         std::is_convertible_v<std::ranges::range_value_t<T>, mutable_buffer>);
 ----
 
-While the functions cpp:std::ranges::begin[] and cpp:std::ranges::end[] will
-work on bidirectional ranges, they do not handle objects which are merely
-convertible to cpp:mutable_buffer[]. To enable this use-case, the functions
-cpp:begin[`buffers::begin`] and cpp:end[`buffers::end`] must be used. These
-are always called with namespace qualification. Alternatively, the function
-cpp:single[`buffers::single`] or cpp:std::views::single[] may be used to adapt
-a cpp:mutable_buffer[] into a 1-element range.
+== Requirements
 
-Copies of a buffer sequence must point to the same memory regions:
+* `T` denotes a type meeting the _MutableBufferSequence_ requirements.
+* `t` denotes a value of type `T`.
+* `u` denotes a value of type `T`.
+
+[cols="1a,1a,4a"]
+|===
+|Expression |Type |Semantics, Pre/Post-conditions
+
+|`mutable_buffer_sequence<T>`
+|`bool`
+|`true` if `T` models _MutableBufferSequence_.
+
+|`buffers::begin(t)`
+|Iterator
+|Returns a bidirectional iterator to the first buffer, or `buffers::end(t)`
+if the sequence is empty.
+
+|`buffers::end(t)`
+|Iterator
+|Returns a bidirectional iterator one past the last buffer.
+
+|`*it`
+|Convertible to `mutable_buffer`
+|Where `it` is an iterator obtained from `buffers::begin(t)`.
+
+|`T u(t)`
+|
+|Copy construction. `u` must reference the same memory regions as `t`.
+|===
+
+== Iteration
+
+While `std::ranges::begin` and `std::ranges::end` work on bidirectional ranges,
+they do not handle objects merely convertible to cpp:mutable_buffer[]. Use
+cpp:begin[`buffers::begin`] and cpp:end[`buffers::end`] for uniform handling:
+
+[source,cpp]
+----
+template<class MutableBufferSequence>
+std::size_t fill_with_zeros(MutableBufferSequence const& bs)
+{
+    std::size_t total = 0;
+    for(auto it = buffers::begin(bs); it != buffers::end(bs); ++it)
+    {
+        mutable_buffer b = *it;
+        std::memset(b.data(), 0, b.size());
+        total += b.size();
+    }
+    return total;
+}
+
+// Works with ranges
+std::vector<mutable_buffer> v = /* ... */;
+fill_with_zeros(v);
+
+// Also works with single buffers
+char data[100];
+mutable_buffer mb(data, sizeof(data));
+fill_with_zeros(mb);
+----
+
+== Copy Semantics
+
+Copies of a buffer sequence must reference the same underlying memory:
 
 [source,cpp]
 ----
 T t(u);
-static_assert( mutable_buffer_sequence<T> );
-assert( std::equal(
+static_assert(mutable_buffer_sequence<T>);
+assert(std::equal(
     buffers::begin(t), buffers::end(t),
     buffers::begin(u), buffers::end(u),
     [](mutable_buffer const& b1, mutable_buffer const& b2)
@@ -47,10 +112,39 @@ assert( std::equal(
     }));
 ----
 
+This property enables efficient pass-by-value semantics. Copying a buffer
+sequence is cheap because only the handle is copied, not the underlying data.
+
+== Relationship to ConstBufferSequence
+
+Every _MutableBufferSequence_ is also a _ConstBufferSequence_. This allows
+mutable buffer sequences to be used wherever constant buffer sequences are
+expected:
+
+[source,cpp]
+----
+template<class ConstBufferSequence>
+std::size_t count_bytes(ConstBufferSequence const& bs);
+
+char data[100];
+mutable_buffer mb(data, sizeof(data));
+
+// mutable_buffer works with ConstBufferSequence algorithms
+std::size_t n = count_bytes(mb);
+----
+
 == Models
 
-* cpp:mutable_buffer[]
-* cpp:mutable_buffer_1[]
-* cpp:mutable_buffer_pair[]
-* cpp:slice_of[]
+The following types model _MutableBufferSequence_:
 
+* cpp:mutable_buffer[]
+* cpp:mutable_buffer_pair[]
+* cpp:slice_of[] (when wrapping a mutable sequence)
+* `std::array<mutable_buffer, N>`
+* `std::vector<mutable_buffer>`
+
+== See Also
+
+* xref:ConstBufferSequence.adoc[_ConstBufferSequence_] - Read-only buffer sequences
+* xref:intro.adoc[Introduction] - Buffer sequence concepts explained
+* xref:algorithms.adoc[Algorithms] - Functions operating on buffer sequences
